@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+          <HBox>
+              <children>
+              <ToggleButton fx:id="restrictionsButton" mnemonicParsing="false" prefHeight="30.0" text="Restrictions">
+                  <toggleGroup>
+                      <ToggleGroup fx:id="menuButtons" />
+                  </toggleGroup>
+              </ToggleButton>
+              <ToggleButton fx:id="statisticsButton" mnemonicParsing="false" prefHeight="30.0" text="Statistics" toggleGroup="$menuButtons" />
+              <ToggleButton fx:id="prefButton" mnemonicParsing="false" prefHeight="30.0" text="Preferences" toggleGroup="$menuButtons" />
+              <ToggleButton fx:id="helpButton" mnemonicParsing="false" prefHeight="30.0" text="Help" toggleGroup="$menuButtons" />
+              <ToggleButton visible="false" />
+              </children>
+          </HBox>
+    </children>
+</VBox>
