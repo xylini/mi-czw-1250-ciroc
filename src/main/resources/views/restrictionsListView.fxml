@@ -6,21 +6,20 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-
-<HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<HBox prefHeight="570.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <VBox prefHeight="400.0" prefWidth="159.0">
+      <VBox prefHeight="450.0" prefWidth="300.0">
          <children>
-            <HBox prefHeight="25.0" prefWidth="100.0">
+            <HBox prefHeight="30.0" prefWidth="300.0">
                <children>
-                  <Button fx:id="addButton" mnemonicParsing="false" prefHeight="26.0" text="Add" />
-                  <Button fx:id="editButton" mnemonicParsing="false" prefHeight="26.0" text="Edit" />
-                  <Button fx:id="removeButton" mnemonicParsing="false" prefHeight="26.0" text="Rm" />
+                  <Button fx:id="addButton" mnemonicParsing="false" prefHeight="30.0" prefWidth="100.0" text="Add" />
+                  <Button fx:id="editButton" mnemonicParsing="false" prefHeight="30.0" prefWidth="100.0" text="Edit" />
+                  <Button fx:id="removeButton" mnemonicParsing="false" prefHeight="30.0" prefWidth="100.0" text="Remove" />
                </children>
             </HBox>
-            <ListView fx:id="restrictionListView" prefHeight="374.0" prefWidth="184.0" />
+            <ListView fx:id="restrictionListView" prefHeight="540.0" prefWidth="300.0" />
          </children>
       </VBox>
-      <TabPane fx:id="restrictionTabPane" prefHeight="400.0" prefWidth="466.0" tabClosingPolicy="UNAVAILABLE" />
+      <TabPane fx:id="restrictionTabPane" prefHeight="570.0" prefWidth="500.0" tabClosingPolicy="UNAVAILABLE" />
    </children>
 </HBox>
