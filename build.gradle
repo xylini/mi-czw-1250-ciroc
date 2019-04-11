@@ -15,6 +15,9 @@ repositories {
 
 
 dependencies {
+    compile 'org.hibernate:hibernate-core:5.4.2.Final'
+    compile group: 'org.xerial', name: 'sqlite-jdbc', version: '3.27.2.1'
+    compile group: 'com.zsoltfabok', name: 'sqlite-dialect', version: '1.0'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
 }
