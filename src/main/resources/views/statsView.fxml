@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.Pane?>
 
 
-<Pane fx:id="statsPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1">
-   <children>
-      <ListView fx:id="applicationsListView" layoutY="26.0" prefHeight="374.0" prefWidth="150.0" />
-      <Pane fx:id="tableOrDetailsPane" layoutX="150.0" prefHeight="400.0" prefWidth="450.0" />
-   </children>
-</Pane>
+<BorderPane fx:id="statsPane" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.agh.edu.timekeeper.controller.StatsController">
+   <center>
+      <Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" />
+   </center>
+   <left>
+      <ListView fx:id="applicationsListView" prefHeight="370.0" prefWidth="150.0" BorderPane.alignment="CENTER" />
+   </left>
+</BorderPane>
