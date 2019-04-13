@@ -5,13 +5,14 @@ import org.hibernate.annotations.UpdateTimestamp;
 import pl.agh.edu.applications.Group;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
 
 @Table(name = "LOG_GROUP")
 public class Log_Group implements Serializable {
-    @Id @GeneratedValue
-    @Column(name = "ID", updatable = false, nullable = false)
+    @Id @GeneratedValue @NotNull
+    @Column(name = "ID", updatable = false)
     private int id;
 
     @CreationTimestamp
@@ -24,8 +25,8 @@ public class Log_Group implements Serializable {
     @Column(name = "T_END")
     private Date tEnd;
 
-    @ManyToOne
-    @JoinColumn(name="GROUP_ID", nullable=false)
+    @ManyToOne @NotNull
+    @JoinColumn(name="GROUP_ID")
     private Group group;
 
     Log_Group(Group group){

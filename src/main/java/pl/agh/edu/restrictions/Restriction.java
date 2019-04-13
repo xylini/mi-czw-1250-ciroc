@@ -4,22 +4,30 @@ import pl.agh.edu.applications.Application;
 import pl.agh.edu.applications.Group;
 
 import javax.persistence.*;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
 @Table(name = "RESTRICTION")
 public class Restriction implements Serializable {
-    @Id @GeneratedValue
-    @Column(name = "ID", updatable = false, nullable = false)
+    @Id @GeneratedValue @NotNull
+    @Column(name = "ID", updatable = false)
     private int id;
 
+    @Min(0)
     @Column(name = "MIN_LIMIT")
     private int minLimit;
 
+    @Min(0)
+    @Max(24)
     @Column(name = "HOUR_START")
     private int hourStart;
 
+    @Min(0)
+    @Max(24)
     @Column(name = "HOUR_END")
     private int hourEnd;
 

@@ -4,24 +4,26 @@ import pl.agh.edu.logs.Log_Group;
 import pl.agh.edu.restrictions.Restriction;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
 @Table(name = "GROUP")
 public class Group implements Serializable {
-    @Id @GeneratedValue
-    @Column(name = "ID", updatable = false, nullable = false)
+    @Id @GeneratedValue @NotNull
+    @Column(name = "ID", updatable = false)
     private int id;
 
-    @Column(name = "REGEX")
+    @NotNull
+    @Column(name = "REGEX", unique = true)
     private String regex;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy="Log_Group", orphanRemoval = true)
     private Set<Log_Group> log_groups;
 
-    @ManyToOne
-    @JoinColumn(name="RESTRICTION_ID", nullable=false)
+    @ManyToOne @NotNull
+    @JoinColumn(name="RESTRICTION_ID")
     private Restriction restriction;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy="Application", orphanRemoval = true)

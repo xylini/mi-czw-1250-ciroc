@@ -4,28 +4,30 @@ import pl.agh.edu.logs.Log_App;
 import pl.agh.edu.restrictions.Restriction;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
 @Table(name = "APPLICATION")
 public class Application implements Serializable {
-    @Id @GeneratedValue
-    @Column(name = "ID", updatable = false, nullable = false)
+    @Id @GeneratedValue @NotNull
+    @Column(name = "ID", updatable = false)
     private int id;
 
-    @Column(name = "NAME")
+    @NotNull
+    @Column(name = "NAME", unique = true)
     private String name;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy="Log_App", orphanRemoval = true)
     private Set<Log_App> log_apps;
 
-    @ManyToOne
-    @JoinColumn(name="RESTRICTION_ID", nullable=false)
+    @ManyToOne @NotNull
+    @JoinColumn(name="RESTRICTION_ID")
     private Restriction restriction;
 
-    @ManyToOne
-    @JoinColumn(name="GROUP_ID", nullable=false)
+    @ManyToOne @NotNull
+    @JoinColumn(name="GROUP_ID")
     private Group group;
 
     Application(String name, Restriction restriction, Group group){
