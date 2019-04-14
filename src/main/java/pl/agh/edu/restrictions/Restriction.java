@@ -32,18 +32,18 @@ public class Restriction implements Serializable {
     @Column(name = "HOUR_END")
     private int hourEnd;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy="Application", orphanRemoval = true)
-    private Set<Application> applications;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy="restriction", orphanRemoval = true)
+    private Set<Application> applications = new HashSet<>();
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy="Group", orphanRemoval = true)
-    private Set<Group> groups;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy="restriction", orphanRemoval = true)
+    private Set<Group> groups = new HashSet<>();
+
+    Restriction(){}
 
     Restriction(int minLimit, int hourStart, int hourEnd){
         this.minLimit = minLimit;
         this.hourStart = hourStart;
         this.hourEnd = hourEnd;
-        applications = new HashSet<>();
-        groups = new HashSet<>();
     }
 
     public int getId() { return id; }

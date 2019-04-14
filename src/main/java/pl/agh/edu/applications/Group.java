@@ -20,21 +20,25 @@ public class Group implements Serializable {
     @Column(name = "REGEX", unique = true)
     private String regex;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy="Log_Group", orphanRemoval = true)
-    private Set<Log_Group> log_groups;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy="group", orphanRemoval = true)
+    private Set<Log_Group> log_groups = new HashSet<>();
 
-    @ManyToOne @NotNull
+    @ManyToOne(cascade = CascadeType.ALL) @NotNull
     @JoinColumn(name="RESTRICTION_ID")
     private Restriction restriction;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy="Application", orphanRemoval = true)
-    private Set<Application> applications;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy="group", orphanRemoval = true)
+    private Set<Application> applications = new HashSet<>();
+
+    Group(){}
+
+    Group(String regex){
+        this.regex = regex;
+    }
 
     Group(String regex, Restriction restriction){
         this.regex = regex;
-        log_groups = new HashSet<>();
         this.restriction = restriction;
-        applications = new HashSet<>();
     }
 
     public int getId() { return id; }
@@ -66,11 +70,10 @@ public class Group implements Serializable {
             return true;
         else if(this.id != ((Group) obj).getId())
             return false;
-        else if(!this.regex.equals(((Group) obj).getRegex()))
-            return false;
+        else return this.regex.equals(((Group) obj).getRegex());
         /*else if(!this.log_groups.equals(((Group) obj).getLog_groups()))
             return false;*/
-        else return this.restriction.equals(((Group) obj).getRestriction());
+        //else return this.restriction.equals(((Group) obj).getRestriction());
         //else return this.applications.equals(((Group) obj).getApplications());
     }
 
@@ -82,7 +85,7 @@ public class Group implements Serializable {
         result = prime * result + id;
         result = prime * result + ((regex==null) ? 0 : regex.hashCode());
         //result = prime * result + ((log_groups==null) ? 0 : log_groups.hashCode());
-        result = prime * result + ((restriction==null) ? 0 : restriction.hashCode());
+        //result = prime * result + ((restriction==null) ? 0 : restriction.hashCode());
         //result = prime * result + ((applications==null) ? 0 : applications.hashCode());
 
         return result;

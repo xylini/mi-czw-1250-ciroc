@@ -26,9 +26,11 @@ public class Log_App implements Serializable {
     @Column(name = "T_END")
     private Date tEnd;
 
-    @ManyToOne @NotNull
+    @ManyToOne(cascade = CascadeType.ALL) @NotNull
     @JoinColumn(name="APPLICATION_ID")
     private Application application;
+
+    Log_App(){}
 
     Log_App(Application application){
         this.application = application;
@@ -65,9 +67,8 @@ public class Log_App implements Serializable {
             return false;
         else if(!this.tStart.equals(((Log_App) obj).gettStart()))
             return false;
-        else if(!this.tEnd.equals(((Log_App) obj).gettEnd()))
-            return false;
-        else return this.application.equals(((Log_App) obj).getApplication());
+        else return this.tEnd.equals(((Log_App) obj).gettEnd());
+        //else return this.application.equals(((Log_App) obj).getApplication());
     }
 
     @Override
@@ -78,7 +79,7 @@ public class Log_App implements Serializable {
         result = prime * result + id;
         result = prime * result + ((tStart==null) ? 0 : tStart.hashCode());
         result = prime * result + ((tEnd==null) ? 0 : tEnd.hashCode());
-        result = prime * result + ((application==null) ? 0 : application.hashCode());
+        //result = prime * result + ((application==null) ? 0 : application.hashCode());
 
         return result;
     }

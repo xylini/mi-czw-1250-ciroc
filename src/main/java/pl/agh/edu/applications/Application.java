@@ -20,20 +20,25 @@ public class Application implements Serializable {
     @Column(name = "NAME", unique = true)
     private String name;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy="Log_App", orphanRemoval = true)
-    private Set<Log_App> log_apps;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy="application", orphanRemoval = true)
+    private Set<Log_App> log_apps = new HashSet<>();
 
-    @ManyToOne @NotNull
+    @ManyToOne(cascade = CascadeType.ALL) @NotNull
     @JoinColumn(name="RESTRICTION_ID")
     private Restriction restriction;
 
-    @ManyToOne @NotNull
+    @ManyToOne(cascade = CascadeType.ALL) @NotNull
     @JoinColumn(name="GROUP_ID")
     private Group group;
 
+    Application(){}
+
+    Application(String name){
+        this.name = name;
+    }
+
     Application(String name, Restriction restriction, Group group){
         this.name = name;
-        log_apps = new HashSet<>();
         this.restriction = restriction;
         this.group = group;
     }
@@ -73,13 +78,12 @@ public class Application implements Serializable {
             return true;
         else if(this.id != ((Application) obj).getId())
             return false;
-        else if(!this.name.equals(((Application) obj).getName()))
-            return false;
+        else return this.name.equals(((Application) obj).getName());
         /*else if(!this.log_apps.equals(((Application) obj).getLog_apps()))
             return false;*/
-        else if(!this.restriction.equals(((Application) obj).getRestriction()))
-            return false;
-        else return this.group.equals(((Application) obj).getGroup());
+        /*else if(!this.restriction.equals(((Application) obj).getRestriction()))
+            return false;*/
+        //else return this.group.equals(((Application) obj).getGroup());
     }
 
     @Override
@@ -90,8 +94,8 @@ public class Application implements Serializable {
         result = prime * result + id;
         result = prime * result + ((name==null) ? 0 : name.hashCode());
         //result = prime * result + ((log_apps==null) ? 0 : log_apps.hashCode());
-        result = prime * result + ((restriction==null) ? 0 : restriction.hashCode());
-        result = prime * result + ((group==null) ? 0 : group.hashCode());
+        //result = prime * result + ((restriction==null) ? 0 : restriction.hashCode());
+        //result = prime * result + ((group==null) ? 0 : group.hashCode());
 
         return result;
     }

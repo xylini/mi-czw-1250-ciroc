@@ -26,9 +26,11 @@ public class Log_Group implements Serializable {
     @Column(name = "T_END")
     private Date tEnd;
 
-    @ManyToOne @NotNull
+    @ManyToOne(cascade = CascadeType.ALL) @NotNull
     @JoinColumn(name="GROUP_ID")
     private Group group;
+
+    Log_Group(){}
 
     Log_Group(Group group){
         this.group = group;
@@ -61,9 +63,8 @@ public class Log_Group implements Serializable {
             return false;
         else if(!this.tStart.equals(((Log_Group) obj).gettStart()))
             return false;
-        else if(!this.tEnd.equals(((Log_Group) obj).gettEnd()))
-            return false;
-        else return this.group.equals(((Log_Group) obj).getGroup());
+        else return this.tEnd.equals(((Log_Group) obj).gettEnd());
+        //else return this.group.equals(((Log_Group) obj).getGroup());
     }
 
     @Override
@@ -74,7 +75,7 @@ public class Log_Group implements Serializable {
         result = prime * result + id;
         result = prime * result + ((tStart==null) ? 0 : tStart.hashCode());
         result = prime * result + ((tEnd==null) ? 0 : tEnd.hashCode());
-        result = prime * result + ((group==null) ? 0 : group.hashCode());
+        //result = prime * result + ((group==null) ? 0 : group.hashCode());
 
         return result;
     }
