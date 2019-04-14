@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
+@Entity
 @Table(name = "APPLICATION")
 public class Application implements Serializable {
     @Id @GeneratedValue @NotNull

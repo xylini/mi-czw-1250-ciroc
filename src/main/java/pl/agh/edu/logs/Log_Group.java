@@ -9,6 +9,7 @@ import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
 
+@Entity
 @Table(name = "LOG_GROUP")
 public class Log_Group implements Serializable {
     @Id @GeneratedValue @NotNull
