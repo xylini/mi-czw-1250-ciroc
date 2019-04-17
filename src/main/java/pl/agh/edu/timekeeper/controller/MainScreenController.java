@@ -47,12 +47,20 @@ public class MainScreenController {
     }
 
     @FXML
-    public void restrictionButtonClicked() throws IOException {
+    public void restrictionButtonClicked(){
         setContentMainBorderPane(new FXMLLoader(this.getClass().getResource(RESTRICTIONS_LIST_VIEW_PATH)));
     }
     @FXML
-    public void statsButtonClicked() throws IOException {
+    public void statsButtonClicked(){
         setContentMainBorderPane(new FXMLLoader(this.getClass().getResource(STATS_VIEW_PATH)));
+    }
+    @FXML
+    public void prefButtonClicked(){
+        setContentMainBorderPane(new FXMLLoader(this.getClass().getResource(PREF_VIEW_PATH)));
+    }
+    @FXML
+    public void helpButtonClicked(){
+        setContentMainBorderPane(new FXMLLoader(this.getClass().getResource(HELP_VIEW_PATH)));
     }
 
     private void setContentMainBorderPane(FXMLLoader loader) {

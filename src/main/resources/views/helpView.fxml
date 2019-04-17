@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.HBox?>
+
+
+<HBox fx:id="helpHBox" prefHeight="570.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <TextArea fx:id="helpTextArea" prefHeight="570.0" prefWidth="800.0" editable="false" text="Hello, we can help you if you have any question just write it on slack :).&#10;" />
+   </children>
+</HBox>

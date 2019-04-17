@@ -16,8 +16,8 @@
                   </toggleGroup>
               </ToggleButton>
               <ToggleButton fx:id="statsButton" mnemonicParsing="false" prefHeight="30.0" prefWidth="200" text="Statistics" toggleGroup="$menuButtons" onAction="#statsButtonClicked" />
-              <ToggleButton fx:id="prefButton" mnemonicParsing="false" prefHeight="30.0" prefWidth="200" text="Preferences" toggleGroup="$menuButtons" />
-              <ToggleButton fx:id="helpButton" mnemonicParsing="false" prefHeight="30.0" prefWidth="200" text="Help" toggleGroup="$menuButtons" />
+              <ToggleButton fx:id="prefButton" mnemonicParsing="false" prefHeight="30.0" prefWidth="200" text="Preferences" toggleGroup="$menuButtons" onAction="#prefButtonClicked" />
+              <ToggleButton fx:id="helpButton" mnemonicParsing="false" prefHeight="30.0" prefWidth="200" text="Help" toggleGroup="$menuButtons" onAction="#helpButtonClicked" />
               </children>
           </HBox>
         <BorderPane fx:id="mainBorderPane" prefHeight="570.0" prefWidth="800.0">
