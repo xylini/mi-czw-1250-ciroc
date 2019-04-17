@@ -10,7 +10,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 @Entity
-@Table(name = "LOG_GROUP")
+@Table(name = "LOG_GROUPS")
 public class Log_Group implements Serializable {
     @Id @GeneratedValue @NotNull
     @Column(name = "ID", updatable = false)
@@ -26,7 +26,7 @@ public class Log_Group implements Serializable {
     @Column(name = "T_END")
     private Date tEnd;
 
-    @ManyToOne(cascade = CascadeType.ALL) @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL) @NotNull
     @JoinColumn(name="GROUP_ID")
     private Group group;
 

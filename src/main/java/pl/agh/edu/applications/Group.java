@@ -10,7 +10,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "GROUP")
+@Table(name = "GROUPS")
 public class Group implements Serializable {
     @Id @GeneratedValue @NotNull
     @Column(name = "ID", updatable = false)
@@ -20,14 +20,14 @@ public class Group implements Serializable {
     @Column(name = "REGEX", unique = true)
     private String regex;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy="group", orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy="group", orphanRemoval = true)
     private Set<Log_Group> log_groups = new HashSet<>();
 
-    @ManyToOne(cascade = CascadeType.ALL) @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL) @NotNull
     @JoinColumn(name="RESTRICTION_ID")
     private Restriction restriction;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy="group", orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy="group", orphanRemoval = true)
     private Set<Application> applications = new HashSet<>();
 
     Group(){}

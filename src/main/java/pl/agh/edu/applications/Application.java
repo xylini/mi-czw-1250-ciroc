@@ -10,7 +10,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "APPLICATION")
+@Table(name = "APPLICATIONS")
 public class Application implements Serializable {
     @Id @GeneratedValue @NotNull
     @Column(name = "ID", updatable = false)
@@ -20,14 +20,14 @@ public class Application implements Serializable {
     @Column(name = "NAME", unique = true)
     private String name;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy="application", orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy="application", orphanRemoval = true)
     private Set<Log_App> log_apps = new HashSet<>();
 
-    @ManyToOne(cascade = CascadeType.ALL) @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL) @NotNull
     @JoinColumn(name="RESTRICTION_ID")
     private Restriction restriction;
 
-    @ManyToOne(cascade = CascadeType.ALL) @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL) @NotNull
     @JoinColumn(name="GROUP_ID")
     private Group group;
 

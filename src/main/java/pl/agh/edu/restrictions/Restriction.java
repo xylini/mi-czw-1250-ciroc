@@ -1,5 +1,7 @@
 package pl.agh.edu.restrictions;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import pl.agh.edu.applications.Application;
 import pl.agh.edu.applications.Group;
 
@@ -12,7 +14,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "RESTRICTION")
+@Table(name = "RESTRICTIONS")
 public class Restriction implements Serializable {
     @Id @GeneratedValue @NotNull
     @Column(name = "ID", updatable = false)
@@ -32,15 +34,15 @@ public class Restriction implements Serializable {
     @Column(name = "HOUR_END")
     private int hourEnd;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy="restriction", orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy="restriction", orphanRemoval = true)
     private Set<Application> applications = new HashSet<>();
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy="restriction", orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy="restriction", orphanRemoval = true)
     private Set<Group> groups = new HashSet<>();
 
     Restriction(){}
 
-    Restriction(int minLimit, int hourStart, int hourEnd){
+    public Restriction(int minLimit, int hourStart, int hourEnd){
         this.minLimit = minLimit;
         this.hourStart = hourStart;
         this.hourEnd = hourEnd;

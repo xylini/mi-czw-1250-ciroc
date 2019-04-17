@@ -13,7 +13,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class RestrictionTest {
-    private SessionFactory ourSessionFactory;
     private Session session;
     private static Configuration configuration;
 
@@ -30,7 +29,7 @@ class RestrictionTest {
 
     @BeforeEach
     void beforeEach(){
-        ourSessionFactory = configuration.buildSessionFactory();
+        SessionFactory ourSessionFactory = configuration.buildSessionFactory();
         session = ourSessionFactory.openSession();
     }
 
@@ -105,6 +104,6 @@ class RestrictionTest {
 
         assertEquals(my_restriction, my_restriction_2);
         assertEquals(my_restriction_2, my_restriction_3);
-        assertEquals(my_restriction_3.getMinLimit(), 10);
+        assertEquals(10, my_restriction_3.getMinLimit());
     }
 }
