@@ -9,11 +9,11 @@
 
         <property name="dialect">org.hibernate.dialect.SQLiteDialect</property>
         <property name="connection.driver_class">org.sqlite.JDBC</property>
-        <property name="connection.url">jdbc:sqlite:mydb.db</property>
+        <property name="connection.url">jdbc:sqlite:mytestdb.db</property>
         <property name="connection.username">root</property>
         <property name="connection.password">root</property>
 
         <property name="hibernate.connection.pool_size">10</property>
-        <property name="hibernate.hbm2ddl.auto">update</property>
+        <property name="hibernate.hbm2ddl.auto">create-drop</property>
     </session-factory>
 </hibernate-configuration>

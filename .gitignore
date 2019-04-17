@@ -5,3 +5,5 @@ out/
 /bin/
 *.iml
 /project/
+mytestdb.db
+mydb.db
