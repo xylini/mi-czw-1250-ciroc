@@ -4,12 +4,12 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.Pane?>
 
-
 <BorderPane fx:id="statsPane" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.agh.edu.timekeeper.controller.StatsController">
-   <center>
-      <Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" />
-   </center>
    <left>
-      <ListView fx:id="applicationsListView" prefHeight="370.0" prefWidth="150.0" BorderPane.alignment="CENTER" />
+      <Pane fx:id="listPane" onMouseClicked="#clearSelections" prefHeight="370.0" prefWidth="150.0" BorderPane.alignment="CENTER">
+         <children>
+            <ListView fx:id="applicationsListView" layoutY="27.0" prefHeight="343.0" prefWidth="150.0" />
+         </children>
+      </Pane>
    </left>
 </BorderPane>
