@@ -72,6 +72,26 @@ public class Restriction implements Serializable {
 
     public void setGroups(Set<Group> groups) { this.groups = groups; }
 
+    public void addApplication(Application application){
+        application.setRestriction(this);
+        this.applications.add(application);
+    }
+
+    public void removeApplication(Application application){
+        application.setRestriction(null);
+        this.applications.remove(application);
+    }
+
+    public void addGroup(Group group){
+        group.setRestriction(this);
+        this.groups.add(group);
+    }
+
+    public void removeGroup(Group group){
+        group.setRestriction(null);
+        this.groups.remove(group);
+    }
+
     @Override
     public boolean equals(Object obj){
         if (obj == null) return false;
@@ -93,16 +113,16 @@ public class Restriction implements Serializable {
 
     @Override
     public int hashCode(){
-        final int prime = 31;
+        /*final int prime = 31;
         int result = 1;
 
         result = prime * result + id;
         result = prime * result + minLimit;
         result = prime * result + hourStart;
         result = prime * result + hourEnd;
-        //result = prime * result + ((applications==null) ? 0 : applications.hashCode());
-        //result = prime * result + ((groups==null) ? 0 : groups.hashCode());
+        result = prime * result + ((applications==null) ? 0 : applications.hashCode());
+        result = prime * result + ((groups==null) ? 0 : groups.hashCode());*/
 
-        return result;
+        return 13;
     }
 }

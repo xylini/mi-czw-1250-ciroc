@@ -23,7 +23,7 @@ public class Group implements Serializable {
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy="group", orphanRemoval = true)
     private Set<Log_Group> log_groups = new HashSet<>();
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL) @NotNull
+    @ManyToOne(fetch = FetchType.LAZY) @NotNull
     @JoinColumn(name="RESTRICTION_ID")
     private Restriction restriction;
 
@@ -38,7 +38,9 @@ public class Group implements Serializable {
 
     Group(String regex, Restriction restriction){
         this.regex = regex;
+
         this.restriction = restriction;
+        this.restriction.getGroups().add(this);
     }
 
     public int getId() { return id; }
@@ -61,6 +63,26 @@ public class Group implements Serializable {
 
     public void setApplications(Set<Application> applications) { this.applications = applications; }
 
+    public void addApplication(Application application){
+        application.setGroup(this);
+        this.applications.add(application);
+    }
+
+    public void removeApplication(Application application){
+        application.setGroup(null);
+        this.applications.remove(application);
+    }
+
+    public void addLog_Group(Log_Group log_group){
+        log_group.setGroup(this);
+        this.log_groups.add(log_group);
+    }
+
+    public void removeLog_Group(Log_Group log_group){
+        log_group.setGroup(null);
+        this.log_groups.remove(log_group);
+    }
+
     @Override
     public boolean equals(Object obj){
         if (obj == null) return false;
@@ -79,15 +101,15 @@ public class Group implements Serializable {
 
     @Override
     public int hashCode(){
-        final int prime = 31;
+        /*final int prime = 31;
         int result = 1;
 
         result = prime * result + id;
         result = prime * result + ((regex==null) ? 0 : regex.hashCode());
-        //result = prime * result + ((log_groups==null) ? 0 : log_groups.hashCode());
-        //result = prime * result + ((restriction==null) ? 0 : restriction.hashCode());
-        //result = prime * result + ((applications==null) ? 0 : applications.hashCode());
+        result = prime * result + ((log_groups==null) ? 0 : log_groups.hashCode());
+        result = prime * result + ((restriction==null) ? 0 : restriction.hashCode());
+        result = prime * result + ((applications==null) ? 0 : applications.hashCode());*/
 
-        return result;
+        return 13;
     }
 }
