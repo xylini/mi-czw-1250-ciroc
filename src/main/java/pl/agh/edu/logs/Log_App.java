@@ -19,21 +19,22 @@ public class Log_App implements Serializable {
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "T_START")
-    private Date tStart;
+    private Date tStart = new Date();
 
     @UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "T_END")
-    private Date tEnd;
+    private Date tEnd = new Date();
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL) @NotNull
+    @ManyToOne(fetch = FetchType.LAZY) @NotNull
     @JoinColumn(name="APPLICATION_ID")
     private Application application;
 
-    Log_App(){}
+    public Log_App(){}
 
-    Log_App(Application application){
+    public Log_App(Application application){
         this.application = application;
+        this.application.getLog_apps().add(this);
     }
 
     public int getId() { return id; }
@@ -73,14 +74,14 @@ public class Log_App implements Serializable {
 
     @Override
     public int hashCode(){
-        final int prime = 31;
+        /*final int prime = 31;
         int result = 1;
 
         result = prime * result + id;
         result = prime * result + ((tStart==null) ? 0 : tStart.hashCode());
         result = prime * result + ((tEnd==null) ? 0 : tEnd.hashCode());
-        //result = prime * result + ((application==null) ? 0 : application.hashCode());
+        result = prime * result + ((application==null) ? 0 : application.hashCode());*/
 
-        return result;
+        return 13;
     }
 }

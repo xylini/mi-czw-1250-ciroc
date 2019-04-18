@@ -19,21 +19,22 @@ public class Log_Group implements Serializable {
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "T_START")
-    private Date tStart;
+    private Date tStart = new Date();
 
     @UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "T_END")
-    private Date tEnd;
+    private Date tEnd = new Date();
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL) @NotNull
+    @ManyToOne(fetch = FetchType.LAZY) @NotNull
     @JoinColumn(name="GROUP_ID")
     private Group group;
 
-    Log_Group(){}
+    public Log_Group(){}
 
-    Log_Group(Group group){
+    public Log_Group(Group group){
         this.group = group;
+        this.group.getLog_groups().add(this);
     }
 
     public int getId() { return id; }
@@ -69,14 +70,14 @@ public class Log_Group implements Serializable {
 
     @Override
     public int hashCode(){
-        final int prime = 31;
+        /*final int prime = 31;
         int result = 1;
 
         result = prime * result + id;
         result = prime * result + ((tStart==null) ? 0 : tStart.hashCode());
         result = prime * result + ((tEnd==null) ? 0 : tEnd.hashCode());
-        //result = prime * result + ((group==null) ? 0 : group.hashCode());
+        result = prime * result + ((group==null) ? 0 : group.hashCode());*/
 
-        return result;
+        return 13;
     }
 }
