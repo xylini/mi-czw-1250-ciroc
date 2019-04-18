@@ -7,161 +7,150 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import pl.agh.edu.logs.LogApplication;
+import pl.agh.edu.logs.LogGroup;
 import pl.agh.edu.restrictions.Restriction;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class GroupTest {
     private Session session;
     private static Configuration configuration;
 
     @BeforeAll
-    static void beforeAll(){
+    static void beforeAll() {
         configuration = new Configuration();
         configuration.configure("hibernate_test.cfg.xml");
         configuration.addAnnotatedClass(pl.agh.edu.applications.Application.class);
         configuration.addAnnotatedClass(pl.agh.edu.applications.Group.class);
-        configuration.addAnnotatedClass(pl.agh.edu.logs.Log_App.class);
-        configuration.addAnnotatedClass(pl.agh.edu.logs.Log_Group.class);
+        configuration.addAnnotatedClass(LogApplication.class);
+        configuration.addAnnotatedClass(LogGroup.class);
         configuration.addAnnotatedClass(pl.agh.edu.restrictions.Restriction.class);
     }
 
     @BeforeEach
-    void beforeEach(){
+    void beforeEach() {
         SessionFactory ourSessionFactory = configuration.buildSessionFactory();
         session = ourSessionFactory.openSession();
     }
 
     @AfterEach
-    void afterEach(){
+    void afterEach() {
         session.close();
     }
 
     @Test
-    void addTest(){
+    void addTest() {
         session.beginTransaction();
 
-        Restriction my_restriction = new Restriction(10,20,21);
-        Group my_group = new Group("*.mp3", my_restriction);
-        Group my_group_2 = new Group("*.jpg", my_restriction);
+        Restriction myRestriction = new Restriction(10, 20, 21);
+        Group myGroup = new Group("*.mp3", myRestriction);
 
-        session.save(my_restriction);
-        session.save(my_group);
-        session.save(my_group_2);
+        session.save(myRestriction);
+        session.save(myGroup);
 
         session.getTransaction().commit();
 
         session.beginTransaction();
 
-        Restriction my_new_restriction = session.createQuery(
+        Restriction myNewRestriction = session.createQuery(
                 "from pl.agh.edu.restrictions.Restriction", Restriction.class).getSingleResult();
 
-        assertEquals(my_new_restriction, my_restriction);
-        assertEquals(my_new_restriction.getMinLimit(), 10);
+        Group myNewGroup = session.createQuery(
+                "from pl.agh.edu.applications.Group", Group.class).getSingleResult();
 
-        Set<Group> my_groups = my_new_restriction.getGroups();
+        assertEquals(myNewRestriction, myRestriction);
+        assertEquals(myNewRestriction.getMinLimit(), 10);
+        assertEquals(myNewGroup, myGroup);
 
         session.getTransaction().commit();
-
-        assertEquals(2, my_groups.size());
-        assertTrue(my_groups.contains(my_group_2));
-        assertTrue(my_groups.contains(my_group));
     }
 
     @Test
-    void removeTest(){
+    void removeTest() {
         session.beginTransaction();
 
-        Restriction my_restriction = new Restriction(10,20,21);
-        Group my_group = new Group("*.mp3", my_restriction);
-        Group my_group_2 = new Group("*.jpg", my_restriction);
+        Restriction myRestriction = new Restriction(10, 20, 21);
+        Group myGroup = new Group("*.mp3", myRestriction);
 
-        Restriction my_restriction_2 = new Restriction(30, 10, 11);
-        Group my_group_3 = new Group("*.wav", my_restriction_2);
-        Group my_group_4 = new Group("*.java", my_restriction_2);
+        Restriction myRestriction_2 = new Restriction(30, 10, 11);
+        Group myGroup_2 = new Group("*.wav", myRestriction_2);
 
-        session.save(my_restriction);
-        session.save(my_group);
-        session.save(my_group_2);
+        session.save(myRestriction);
+        session.save(myGroup);
 
-        session.save(my_restriction_2);
-        session.save(my_group_3);
-        session.save(my_group_4);
+        session.save(myRestriction_2);
+        session.save(myGroup_2);
 
         session.getTransaction().commit();
 
         session.beginTransaction();
 
-        session.delete(my_restriction);
-        my_restriction_2.removeGroup(my_group_3);
+        session.delete(myGroup_2);
+
+        myGroup.setRestriction(null);
+        session.delete(myRestriction);
 
         session.getTransaction().commit();
 
         session.beginTransaction();
 
-        Restriction my_new_restriction = session.createQuery(
-                "from pl.agh.edu.restrictions.Restriction", Restriction.class).getSingleResult();
+        List<Group> myGroups = session.createQuery(
+                "from pl.agh.edu.applications.Group", Group.class)
+                .stream().collect(Collectors.toList());
 
-        assertEquals(my_new_restriction, my_restriction_2);
-        assertEquals(my_new_restriction.getMinLimit(), 30);
-
-        Set<Group> my_groups = my_new_restriction.getGroups();
+        List<Restriction> myRestrictions = session.createQuery(
+                "from pl.agh.edu.restrictions.Restriction", Restriction.class)
+                .stream().collect(Collectors.toList());
 
         session.getTransaction().commit();
 
-        assertEquals(1, my_groups.size());
-        assertTrue(my_groups.contains(my_group_4));
+        assertEquals(1, myGroups.size());
+        assertEquals(0, myRestrictions.size());
     }
 
     @Test
-    void updateTest(){
+    void updateTest() {
         session.beginTransaction();
 
-        Restriction my_restriction = new Restriction(10,20,21);
-        Group my_group = new Group("*.mp3", my_restriction);
-        Group my_group_2 = new Group("*.jpg", my_restriction);
+        Restriction myRestriction = new Restriction(10, 20, 21);
+        Group myGroup = new Group("*.mp3", myRestriction);
 
-        Restriction my_restriction_2 = new Restriction(30, 10, 11);
-        Group my_group_3 = new Group("*.wav", my_restriction_2);
-        Group my_group_4 = new Group("*.java", my_restriction_2);
+        Restriction myRestriction_2 = new Restriction(30, 10, 11);
+        Group myGroup_2 = new Group("*.wav", myRestriction_2);
 
-        session.save(my_restriction);
-        session.save(my_group);
-        session.save(my_group_2);
+        session.save(myRestriction);
+        session.save(myGroup);
 
-        session.save(my_restriction_2);
-        session.save(my_group_3);
-        session.save(my_group_4);
+        session.save(myRestriction_2);
+        session.save(myGroup_2);
 
         session.getTransaction().commit();
 
         session.beginTransaction();
 
-        my_restriction.setMinLimit(20);
-        my_group_3.setRegex("*.txt");
+        myRestriction.setMinLimit(20);
+        myGroup_2.setRegex("*.txt");
 
         session.getTransaction().commit();
 
         session.beginTransaction();
 
-        List<Restriction> my_restrictions = session.createQuery(
+        List<Restriction> myRestrictions = session.createQuery(
                 "from pl.agh.edu.restrictions.Restriction", Restriction.class)
                 .stream().filter(r -> r.getMinLimit() != 30).collect(Collectors.toList());
 
-        assertEquals(1, my_restrictions.size());
-        assertEquals(20, my_restrictions.get(0).getMinLimit());
+        assertEquals(1, myRestrictions.size());
+        assertEquals(20, myRestrictions.get(0).getMinLimit());
 
-        List<Group> my_groups = session.createQuery(
+        List<Group> myGroups = session.createQuery(
                 "from pl.agh.edu.applications.Group", Group.class)
                 .stream().filter(g -> g.getRegex().equals("*.txt")).collect(Collectors.toList());
 
-        assertEquals(1, my_groups.size());
+        assertEquals(1, myGroups.size());
 
         session.getTransaction();
     }

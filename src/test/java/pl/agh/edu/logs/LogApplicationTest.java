@@ -1,4 +1,4 @@
-package pl.agh.edu.applications;
+package pl.agh.edu.logs;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -7,13 +7,17 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import pl.agh.edu.logs.LogApplication;
-import pl.agh.edu.logs.LogGroup;
+import pl.agh.edu.applications.Application;
+import pl.agh.edu.applications.Group;
 import pl.agh.edu.restrictions.Restriction;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.Date;
+import java.util.List;
 
-class ApplicationTest {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class LogApplicationTest {
     private Session session;
     private static Configuration configuration;
 
@@ -43,58 +47,63 @@ class ApplicationTest {
     void addTest() {
         session.beginTransaction();
 
-        Restriction myRestriction = new Restriction(10, 12, 14);
+        Restriction myRestriction = new Restriction(10, 12, 13);
         Group myGroup = new Group("*.mp3", myRestriction);
         Application myApplication = new Application("cos.mp3", myRestriction, myGroup);
+        LogApplication myLogApplication = new LogApplication(myApplication);
+        LogApplication myLogApplication_2 = new LogApplication(myApplication);
 
         session.save(myRestriction);
         session.save(myGroup);
         session.save(myApplication);
+        session.save(myLogApplication);
+        session.save(myLogApplication_2);
 
         session.getTransaction().commit();
 
         session.beginTransaction();
 
-        Restriction myNewRestriction = session.createQuery(
-                "from pl.agh.edu.restrictions.Restriction", Restriction.class).getSingleResult();
+        List<LogApplication> myLogApplications = session.createQuery(
+                "from pl.agh.edu.logs.LogApplication", LogApplication.class).getResultList();
 
-        Application myNewApplication = session.createQuery(
-                "from pl.agh.edu.applications.Application", Application.class).getSingleResult();
+        assertEquals(2, myLogApplications.size());
+        assertTrue(myLogApplications.contains(myLogApplication));
+        assertTrue(myLogApplications.contains(myLogApplication_2));
 
-        assertEquals(myNewRestriction, myRestriction);
-        assertEquals(myNewRestriction.getMinLimit(), 10);
-        assertEquals(myNewApplication, myApplication);
-
-        session.getTransaction();
+        session.getTransaction().commit();
     }
 
     @Test
     void removeTest() {
         session.beginTransaction();
 
-        Restriction myRestriction = new Restriction(10, 12, 14);
+        Restriction myRestriction = new Restriction(10, 12, 13);
         Group myGroup = new Group("*.mp3", myRestriction);
         Application myApplication = new Application("cos.mp3", myRestriction, myGroup);
+        LogApplication myLogApplication = new LogApplication(myApplication);
+        LogApplication myLogApplication_2 = new LogApplication(myApplication);
 
         session.save(myRestriction);
         session.save(myGroup);
         session.save(myApplication);
+        session.save(myLogApplication);
+        session.save(myLogApplication_2);
 
         session.getTransaction().commit();
 
         session.beginTransaction();
 
-        myApplication.setRestriction(null);
+        myApplication.removeLogApplication(myLogApplication);
 
         session.getTransaction().commit();
 
         session.beginTransaction();
 
-        Application myNewApplication = session.createQuery(
-                "from pl.agh.edu.applications.Application", Application.class).getSingleResult();
+        List<LogApplication> myLogApplications = session.createQuery(
+                "from pl.agh.edu.logs.LogApplication", LogApplication.class).getResultList();
 
-        assertNull(myNewApplication.getRestriction());
-        assertEquals(myNewApplication.getGroup(), myGroup);
+        assertEquals(1, myLogApplications.size());
+        assertTrue(myLogApplications.contains(myLogApplication_2));
 
         session.getTransaction().commit();
     }
@@ -103,34 +112,38 @@ class ApplicationTest {
     void updateTest() {
         session.beginTransaction();
 
-        Restriction myRestriction = new Restriction(10, 12, 14);
-
+        Restriction myRestriction = new Restriction(10, 12, 13);
         Group myGroup = new Group("*.mp3", myRestriction);
         Application myApplication = new Application("cos.mp3", myRestriction, myGroup);
-
-        Group myGroup_2 = new Group("*.jpg", myRestriction);
-        Application myApplication_2 = new Application("to.jpg", myRestriction, myGroup_2);
+        LogApplication myLogApplication = new LogApplication(myApplication);
+        LogApplication myLogApplication_2 = new LogApplication(myApplication);
 
         session.save(myRestriction);
         session.save(myGroup);
         session.save(myApplication);
-        session.save(myGroup_2);
-        session.save(myApplication_2);
+        session.save(myLogApplication);
+        session.save(myLogApplication_2);
 
         session.getTransaction().commit();
 
         session.beginTransaction();
 
-        myApplication.setName("lel.mp3");
-        myApplication_2.setName("lel.jpg");
+        myLogApplication.setTimeEnd(new Date());
 
         session.getTransaction().commit();
 
         session.beginTransaction();
 
-        assertEquals(2, session.createQuery(
-                "from pl.agh.edu.applications.Application", Application.class)
-                .stream().filter(a -> a.getName().contains("lel")).count());
+        List<LogApplication> myLogApplications = session.createQuery(
+                "from pl.agh.edu.logs.LogApplication", LogApplication.class).getResultList();
+
+        int equalStartEnd = 0;
+        for (LogApplication logs : myLogApplications) {
+            if (logs.getTimeStart().equals(logs.getTimeEnd()))
+                ++equalStartEnd;
+        }
+
+        assertEquals(1, equalStartEnd);
 
         session.getTransaction().commit();
     }
