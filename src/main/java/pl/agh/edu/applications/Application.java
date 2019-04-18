@@ -31,13 +31,13 @@ public class Application implements Serializable {
     @JoinColumn(name="GROUP_ID")
     private Group group;
 
-    Application(){}
+    public Application(){}
 
-    Application(String name){
+    public Application(String name){
         this.name = name;
     }
 
-    Application(String name, Restriction restriction, Group group){
+    public Application(String name, Restriction restriction, Group group){
         this.name = name;
 
         this.restriction = restriction;

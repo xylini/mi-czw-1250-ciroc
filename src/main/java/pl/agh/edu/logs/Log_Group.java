@@ -19,20 +19,20 @@ public class Log_Group implements Serializable {
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "T_START")
-    private Date tStart;
+    private Date tStart = new Date();
 
     @UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "T_END")
-    private Date tEnd;
+    private Date tEnd = new Date();
 
     @ManyToOne(fetch = FetchType.LAZY) @NotNull
     @JoinColumn(name="GROUP_ID")
     private Group group;
 
-    Log_Group(){}
+    public Log_Group(){}
 
-    Log_Group(Group group){
+    public Log_Group(Group group){
         this.group = group;
         this.group.getLog_groups().add(this);
     }

@@ -19,20 +19,20 @@ public class Log_App implements Serializable {
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "T_START")
-    private Date tStart;
+    private Date tStart = new Date();
 
     @UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "T_END")
-    private Date tEnd;
+    private Date tEnd = new Date();
 
     @ManyToOne(fetch = FetchType.LAZY) @NotNull
     @JoinColumn(name="APPLICATION_ID")
     private Application application;
 
-    Log_App(){}
+    public Log_App(){}
 
-    Log_App(Application application){
+    public Log_App(Application application){
         this.application = application;
         this.application.getLog_apps().add(this);
     }

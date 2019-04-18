@@ -30,13 +30,13 @@ public class Group implements Serializable {
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy="group", orphanRemoval = true)
     private Set<Application> applications = new HashSet<>();
 
-    Group(){}
+    public Group(){}
 
-    Group(String regex){
+    public Group(String regex){
         this.regex = regex;
     }
 
-    Group(String regex, Restriction restriction){
+    public Group(String regex, Restriction restriction){
         this.regex = regex;
 
         this.restriction = restriction;

@@ -40,7 +40,7 @@ public class Restriction implements Serializable {
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy="restriction", orphanRemoval = true)
     private Set<Group> groups = new HashSet<>();
 
-    Restriction(){}
+    public Restriction(){}
 
     public Restriction(int minLimit, int hourStart, int hourEnd){
         this.minLimit = minLimit;
