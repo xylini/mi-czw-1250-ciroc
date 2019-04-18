@@ -15,7 +15,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ApplicationTest {
-    private SessionFactory ourSessionFactory;
     private Session session;
     private static Configuration configuration;
 
@@ -32,7 +31,7 @@ class ApplicationTest {
 
     @BeforeEach
     void beforeEach(){
-        ourSessionFactory = configuration.buildSessionFactory();
+        SessionFactory ourSessionFactory = configuration.buildSessionFactory();
         session = ourSessionFactory.openSession();
     }
 
