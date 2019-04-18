@@ -8,23 +8,22 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 
-
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="350.0" prefWidth="450.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="350.0" prefWidth="450.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.agh.edu.timekeeper.controller.StatsChartsController">
    <children>
-      <BarChart prefHeight="300.0" prefWidth="450.0">
+      <BarChart fx:id="chart" prefHeight="300.0" prefWidth="450.0">
         <xAxis>
-          <CategoryAxis side="BOTTOM" />
+          <CategoryAxis side="BOTTOM" fx:id="xAxis" />
         </xAxis>
         <yAxis>
-          <NumberAxis side="LEFT" />
+          <NumberAxis fx:id="yAxis" side="LEFT" />
         </yAxis>
       </BarChart>
       <HBox layoutY="300.0" prefHeight="50.0" prefWidth="450.0" spacing="10.0">
          <children>
-            <Button fx:id="todayButton" mnemonicParsing="false" prefHeight="40.0" prefWidth="100.0" text="Today" />
-            <Button fx:id="lastWeekButton" mnemonicParsing="false" prefHeight="40.0" prefWidth="100.0" text="Last week" />
-            <Button fx:id="lastMonthButton" mnemonicParsing="false" prefHeight="40.0" prefWidth="100.0" text="Last month" />
-            <Button fx:id="allTimeButton" mnemonicParsing="false" prefHeight="40.0" prefWidth="100.0" text="All time" />
+            <Button fx:id="todayButton" mnemonicParsing="false" onAction="#showToday" prefHeight="40.0" prefWidth="100.0" text="Today" />
+            <Button fx:id="lastWeekButton" mnemonicParsing="false" onAction="#showLastWeek" prefHeight="40.0" prefWidth="100.0" text="Last week" />
+            <Button fx:id="lastMonthButton" mnemonicParsing="false" onAction="#showLastMonth" prefHeight="40.0" prefWidth="100.0" text="Last month" />
+            <Button fx:id="allTimeButton" mnemonicParsing="false" onAction="#showAllTime" prefHeight="40.0" prefWidth="100.0" text="All time" />
          </children>
          <opaqueInsets>
             <Insets />
