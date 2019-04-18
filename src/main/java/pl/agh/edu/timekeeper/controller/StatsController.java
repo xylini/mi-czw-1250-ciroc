@@ -1,14 +1,22 @@
 package pl.agh.edu.timekeeper.controller;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.control.ListView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 public class StatsController {
+
+    @FXML
+    private Pane listPane;
 
     @FXML
     private BorderPane statsPane;
@@ -27,8 +35,12 @@ public class StatsController {
     //TODO private something that has observable list with applications names and time usage data
 
     @FXML
-    public void initialize() {
-        // TODO applicationsListView.setItems();
+    private void initialize() {
+        //test
+        ObservableList<String> list = FXCollections.observableArrayList();
+        list.add("e");
+        applicationsListView.setItems(list);
+
         setCenterTable();
         setupListeners();
     }
@@ -58,12 +70,17 @@ public class StatsController {
     }
 
     private void setCenter(FXMLLoader loader) {
-        Pane pane;
+        Node node;
         try {
-            pane = new Pane(loader.load());
-            statsPane.setCenter(pane);
+            node = new Pane((Pane)loader.load());
+            statsPane.setCenter(node);
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @FXML
+    private void clearSelections(MouseEvent mouseEvent) {
+        applicationsListView.getSelectionModel().clearSelection();
     }
 }
