@@ -15,5 +15,13 @@
 
         <property name="hibernate.connection.pool_size">10</property>
         <property name="hibernate.hbm2ddl.auto">create-drop</property>
+
+        <mapping class="pl.edu.agh.timekeeper.model.Application"/>
+        <mapping class="pl.edu.agh.timekeeper.model.Restriction"/>
+        <mapping class="pl.edu.agh.timekeeper.model.Group"/>
+        <mapping class="pl.edu.agh.timekeeper.model.MyTime"/>
+        <mapping class="pl.edu.agh.timekeeper.log.LogApplication"/>
+        <mapping class="pl.edu.agh.timekeeper.log.LogGroup"/>
+
     </session-factory>
 </hibernate-configuration>
