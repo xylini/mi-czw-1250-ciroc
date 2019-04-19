@@ -1,3 +1,5 @@
+package pl.edu.agh.timekeeper;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
