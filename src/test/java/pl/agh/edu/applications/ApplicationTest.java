@@ -7,139 +7,131 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import pl.agh.edu.logs.LogApplication;
+import pl.agh.edu.logs.LogGroup;
 import pl.agh.edu.restrictions.Restriction;
+import pl.agh.edu.restrictions.MyTime;
 
-import java.util.Set;
+import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ApplicationTest {
     private Session session;
     private static Configuration configuration;
 
     @BeforeAll
-    static void beforeAll(){
+    static void beforeAll() {
         configuration = new Configuration();
         configuration.configure("hibernate_test.cfg.xml");
         configuration.addAnnotatedClass(pl.agh.edu.applications.Application.class);
         configuration.addAnnotatedClass(pl.agh.edu.applications.Group.class);
-        configuration.addAnnotatedClass(pl.agh.edu.logs.Log_App.class);
-        configuration.addAnnotatedClass(pl.agh.edu.logs.Log_Group.class);
+        configuration.addAnnotatedClass(LogApplication.class);
+        configuration.addAnnotatedClass(LogGroup.class);
         configuration.addAnnotatedClass(pl.agh.edu.restrictions.Restriction.class);
     }
 
     @BeforeEach
-    void beforeEach(){
+    void beforeEach() {
         SessionFactory ourSessionFactory = configuration.buildSessionFactory();
         session = ourSessionFactory.openSession();
     }
 
     @AfterEach
-    void afterEach(){
+    void afterEach() {
         session.close();
     }
 
     @Test
-    void addTest(){
+    void addTest() {
         session.beginTransaction();
 
-        Restriction my_restriction = new Restriction(10,12,14);
-        Group my_group = new Group("*.mp3", my_restriction);
-        Application my_application = new Application("cos.mp3", my_restriction, my_group);
-        Application my_application_2 = new Application("cos2.mp3", my_restriction, my_group);
+        Restriction myRestriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
+        Group myGroup = new Group("*.mp3", myRestriction);
+        Application myApplication = new Application("cos.mp3", myRestriction, myGroup);
 
-        session.save(my_restriction);
-        session.save(my_group);
-        session.save(my_application);
-        session.save(my_application_2);
+        session.save(myRestriction);
+        session.save(myGroup);
+        session.save(myApplication);
 
         session.getTransaction().commit();
 
         session.beginTransaction();
 
-        Restriction my_new_restriction = session.createQuery(
+        Restriction myNewRestriction = session.createQuery(
                 "from pl.agh.edu.restrictions.Restriction", Restriction.class).getSingleResult();
 
-        assertEquals(my_new_restriction.getGroups().iterator().next().getApplications().size(),
-                my_new_restriction.getApplications().size());
-        assertTrue(my_new_restriction.getGroups().iterator().next().getApplications()
-                .containsAll(my_new_restriction.getApplications()));
+        Application myNewApplication = session.createQuery(
+                "from pl.agh.edu.applications.Application", Application.class).getSingleResult();
+
+        assertEquals(myNewRestriction, myRestriction);
+        assertEquals(myNewRestriction.getLimit(), new MyTime(2, 2));
+        assertEquals(myNewApplication, myApplication);
 
         session.getTransaction();
     }
 
     @Test
-    void removeTest(){
+    void removeTest() {
         session.beginTransaction();
 
-        Restriction my_restriction = new Restriction(10,12,14);
+        Restriction myRestriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
+        Restriction myRestriction_2 = new Restriction(new MyTime(2, 34), new MyTime(3, 3), new MyTime(4, 4));
+        Group myGroup = new Group("*.mp3", myRestriction_2);
+        Application myApplication = new Application("cos.mp3", myRestriction, myGroup);
+        Application myApplication_2 = new Application("nicos.mp3", myGroup);
 
-        Group my_group = new Group("*.mp3", my_restriction);
-        Application my_application = new Application("cos.mp3", my_restriction, my_group);
-        Application my_application_2 = new Application("cos2.mp3", my_restriction, my_group);
-
-        Group my_group_2 = new Group("*.jpg", my_restriction);
-        Application my_application_3 = new Application("to.jpg", my_restriction, my_group_2);
-        Application my_application_4 = new Application("to2.jpg", my_restriction, my_group_2);
-
-        session.save(my_restriction);
-        session.save(my_group);
-        session.save(my_application);
-        session.save(my_application_2);
-        session.save(my_group_2);
-        session.save(my_application_3);
-        session.save(my_application_4);
+        session.save(myRestriction);
+        session.save(myRestriction_2);
+        session.save(myGroup);
+        session.save(myApplication);
+        session.save(myApplication_2);
 
         session.getTransaction().commit();
 
         session.beginTransaction();
 
-        my_restriction.removeApplication(my_application);
-        my_group.removeApplication(my_application);
-        my_restriction.removeApplication(my_application_3);
-        my_group_2.removeApplication(my_application_3);
+        myApplication.setRestriction(null);
+        myGroup.removeApplication(myApplication_2);
 
         session.getTransaction().commit();
 
-        session.beginTransaction();
+        Application myNewApplication = session.createQuery(
+                "from pl.agh.edu.applications.Application", Application.class)
+                .stream().filter(a -> a.getName().equals("cos.mp3")).collect(Collectors.toList()).get(0);
 
-        Restriction my_new_restriction = session.createQuery(
-                "from pl.agh.edu.restrictions.Restriction", Restriction.class).getSingleResult();
-
-        assertEquals(2, my_new_restriction.getApplications().size());
-
-        session.getTransaction().commit();
+        assertNull(myNewApplication.getRestriction());
+        assertEquals(myNewApplication.getGroup(), myGroup);
+        assertEquals(1, myGroup.getApplications().size());
+        assertNull(myApplication_2.getGroup());
+        assertEquals(2, session.createQuery(
+                "from pl.agh.edu.applications.Application", Application.class).getResultList().size());
     }
 
     @Test
-    void updateTest(){
+    void updateTest() {
         session.beginTransaction();
 
-        Restriction my_restriction = new Restriction(10,12,14);
+        Restriction myRestriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
 
-        Group my_group = new Group("*.mp3", my_restriction);
-        Application my_application = new Application("cos.mp3", my_restriction, my_group);
-        Application my_application_2 = new Application("cos2.mp3", my_restriction, my_group);
+        Group myGroup = new Group("*.mp3", myRestriction);
+        Application myApplication = new Application("cos.mp3", myRestriction, myGroup);
 
-        Group my_group_2 = new Group("*.jpg", my_restriction);
-        Application my_application_3 = new Application("to.jpg", my_restriction, my_group_2);
-        Application my_application_4 = new Application("to2.jpg", my_restriction, my_group_2);
+        Group myGroup_2 = new Group("*.jpg", myRestriction);
+        Application myApplication_2 = new Application("to.jpg", myRestriction, myGroup_2);
 
-        session.save(my_restriction);
-        session.save(my_group);
-        session.save(my_application);
-        session.save(my_application_2);
-        session.save(my_group_2);
-        session.save(my_application_3);
-        session.save(my_application_4);
+        session.save(myRestriction);
+        session.save(myGroup);
+        session.save(myApplication);
+        session.save(myGroup_2);
+        session.save(myApplication_2);
 
         session.getTransaction().commit();
 
         session.beginTransaction();
 
-        my_application_2.setName("lel.mp3");
-        my_application_3.setName("lel.jpg");
+        myApplication.setName("lel.mp3");
+        myApplication_2.setName("lel.jpg");
 
         session.getTransaction().commit();
 

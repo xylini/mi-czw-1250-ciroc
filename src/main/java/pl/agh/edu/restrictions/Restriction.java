@@ -1,128 +1,135 @@
 package pl.agh.edu.restrictions;
 
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 import pl.agh.edu.applications.Application;
 import pl.agh.edu.applications.Group;
 
 import javax.persistence.*;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Table(name = "RESTRICTIONS")
 public class Restriction implements Serializable {
-    @Id @GeneratedValue @NotNull
+    @Id
+    @GeneratedValue
+    @NotNull
     @Column(name = "ID", updatable = false)
     private int id;
 
-    @Min(0)
-    @Column(name = "MIN_LIMIT")
-    private int minLimit;
+    @Embedded
+    @AttributeOverride(name = "hour", column = @Column(name = "LIMIT_HOUR"))
+    @AttributeOverride(name = "minute", column = @Column(name = "LIMIT_MINUTE"))
+    private MyTime limit;
 
-    @Min(0)
-    @Max(24)
-    @Column(name = "HOUR_START")
-    private int hourStart;
+    @Embedded
+    @AttributeOverride(name = "hour", column = @Column(name = "START_HOUR"))
+    @AttributeOverride(name = "minute", column = @Column(name = "START_MINUTE"))
+    private MyTime start;
 
-    @Min(0)
-    @Max(24)
-    @Column(name = "HOUR_END")
-    private int hourEnd;
+    @Embedded
+    @AttributeOverride(name = "hour", column = @Column(name = "END_HOUR"))
+    @AttributeOverride(name = "minute", column = @Column(name = "END_MINUTE"))
+    private MyTime end;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy="restriction", orphanRemoval = true)
-    private Set<Application> applications = new HashSet<>();
+    @OneToOne(mappedBy = "restriction")
+    private Application application;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy="restriction", orphanRemoval = true)
-    private Set<Group> groups = new HashSet<>();
+    @OneToOne(mappedBy = "restriction")
+    private Group group;
 
-    public Restriction(){}
-
-    public Restriction(int minLimit, int hourStart, int hourEnd){
-        this.minLimit = minLimit;
-        this.hourStart = hourStart;
-        this.hourEnd = hourEnd;
+    public Restriction() {
     }
 
-    public int getId() { return id; }
+    public Restriction(MyTime limit, MyTime start, MyTime end) {
+        this.limit = limit;
+        this.start = start;
+        this.end = end;
+    }
 
-    public void setId(int id) { this.id = id; }
+    public Restriction(MyTime limit, MyTime start, MyTime end, Application application) {
+        this.limit = limit;
+        this.start = start;
+        this.end = end;
 
-    public int getMinLimit() { return minLimit; }
-
-    public void setMinLimit(int minLimit) { this.minLimit = minLimit; }
-
-    public int getHourStart() { return hourStart; }
-
-    public void setHourStart(int hourStart) { this.hourStart = hourStart; }
-
-    public int getHourEnd() { return hourEnd; }
-
-    public void setHourEnd(int hourEnd) { this.hourEnd = hourEnd; }
-
-    public Set<Application> getApplications() { return applications; }
-
-    public void setApplications(Set<Application> applications) { this.applications = applications; }
-
-    public Set<Group> getGroups() { return groups; }
-
-    public void setGroups(Set<Group> groups) { this.groups = groups; }
-
-    public void addApplication(Application application){
+        this.application = application;
         application.setRestriction(this);
-        this.applications.add(application);
     }
 
-    public void removeApplication(Application application){
-        application.setRestriction(null);
-        this.applications.remove(application);
-    }
+    public Restriction(MyTime limit, MyTime start, MyTime end, Group group) {
+        this.limit = limit;
+        this.start = start;
+        this.end = end;
 
-    public void addGroup(Group group){
+        this.group = group;
         group.setRestriction(this);
-        this.groups.add(group);
     }
 
-    public void removeGroup(Group group){
-        group.setRestriction(null);
-        this.groups.remove(group);
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public MyTime getLimit() {
+        return limit;
+    }
+
+    public void setLimit(MyTime limit) {
+        this.limit = limit;
+    }
+
+    public MyTime getStart() {
+        return start;
+    }
+
+    public void setStart(MyTime start) {
+        this.start = start;
+    }
+
+    public MyTime getEnd() {
+        return end;
+    }
+
+    public void setEnd(MyTime end) {
+        this.end = end;
+    }
+
+    public Application getApplication() {
+        return application;
+    }
+
+    public void setApplication(Application application) {
+        this.application = application;
+    }
+
+    public Group getGroup() {
+        return group;
+    }
+
+    public void setGroup(Group group) {
+        this.group = group;
     }
 
     @Override
-    public boolean equals(Object obj){
+    public boolean equals(Object obj) {
         if (obj == null) return false;
         else if (!(obj instanceof Restriction))
             return false;
         else if (obj == this)
             return true;
-        else if(this.id != ((Restriction) obj).getId())
+        else if (this.id != ((Restriction) obj).getId())
             return false;
-        else if(this.minLimit != ((Restriction) obj).getMinLimit())
+        else if (!this.limit.equals(((Restriction) obj).getLimit()))
             return false;
-        else if(this.hourStart != ((Restriction) obj).getHourStart())
+        else if (!this.start.equals(((Restriction) obj).getStart()))
             return false;
-        else return this.hourEnd == ((Restriction) obj).getHourEnd();
-        /*else if(!this.applications.equals(((Restriction) obj).getApplications()))
-            return false;*/
-        //else return this.groups.equals(((Restriction) obj).getGroups());
+        else return this.end.equals(((Restriction) obj).getEnd());
     }
 
     @Override
-    public int hashCode(){
-        /*final int prime = 31;
-        int result = 1;
-
-        result = prime * result + id;
-        result = prime * result + minLimit;
-        result = prime * result + hourStart;
-        result = prime * result + hourEnd;
-        result = prime * result + ((applications==null) ? 0 : applications.hashCode());
-        result = prime * result + ((groups==null) ? 0 : groups.hashCode());*/
-
+    public int hashCode() {
         return 13;
     }
 }

@@ -1,4 +1,4 @@
-package pl.agh.edu.applications;
+package pl.agh.edu.logs;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -7,17 +7,18 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import pl.agh.edu.logs.LogApplication;
-import pl.agh.edu.logs.LogGroup;
+import pl.agh.edu.applications.Application;
+import pl.agh.edu.applications.Group;
 import pl.agh.edu.restrictions.Restriction;
 import pl.agh.edu.restrictions.MyTime;
 
+import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class GroupTest {
+class LogApplicationTest {
     private Session session;
     private static Configuration configuration;
 
@@ -49,23 +50,26 @@ class GroupTest {
 
         Restriction myRestriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
         Group myGroup = new Group("*.mp3", myRestriction);
+        Application myApplication = new Application("cos.mp3", myRestriction, myGroup);
+        LogApplication myLogApplication = new LogApplication(myApplication);
+        LogApplication myLogApplication_2 = new LogApplication(myApplication);
 
         session.save(myRestriction);
         session.save(myGroup);
+        session.save(myApplication);
+        session.save(myLogApplication);
+        session.save(myLogApplication_2);
 
         session.getTransaction().commit();
 
         session.beginTransaction();
 
-        Restriction myNewRestriction = session.createQuery(
-                "from pl.agh.edu.restrictions.Restriction", Restriction.class).getSingleResult();
+        List<LogApplication> myLogApplications = session.createQuery(
+                "from pl.agh.edu.logs.LogApplication", LogApplication.class).getResultList();
 
-        Group myNewGroup = session.createQuery(
-                "from pl.agh.edu.applications.Group", Group.class).getSingleResult();
-
-        assertEquals(myNewRestriction, myRestriction);
-        assertEquals(myNewRestriction.getLimit(), new MyTime(2, 2));
-        assertEquals(myNewGroup, myGroup);
+        assertEquals(2, myLogApplications.size());
+        assertTrue(myLogApplications.contains(myLogApplication));
+        assertTrue(myLogApplications.contains(myLogApplication_2));
 
         session.getTransaction().commit();
     }
@@ -76,40 +80,33 @@ class GroupTest {
 
         Restriction myRestriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
         Group myGroup = new Group("*.mp3", myRestriction);
-
-        Restriction myRestriction_2 = new Restriction(new MyTime(6, 40), new MyTime(3, 3), new MyTime(4, 4));
-        Group myGroup_2 = new Group("*.wav", myRestriction_2);
+        Application myApplication = new Application("cos.mp3", myRestriction, myGroup);
+        LogApplication myLogApplication = new LogApplication(myApplication);
+        LogApplication myLogApplication_2 = new LogApplication(myApplication);
 
         session.save(myRestriction);
         session.save(myGroup);
-
-        session.save(myRestriction_2);
-        session.save(myGroup_2);
-
-        session.getTransaction().commit();
-
-        session.beginTransaction();
-
-        session.delete(myGroup_2);
-
-        myGroup.setRestriction(null);
+        session.save(myApplication);
+        session.save(myLogApplication);
+        session.save(myLogApplication_2);
 
         session.getTransaction().commit();
 
         session.beginTransaction();
 
-        List<Group> myGroups = session.createQuery(
-                "from pl.agh.edu.applications.Group", Group.class)
-                .stream().collect(Collectors.toList());
-
-        List<Restriction> myRestrictions = session.createQuery(
-                "from pl.agh.edu.restrictions.Restriction", Restriction.class)
-                .stream().collect(Collectors.toList());
+        myApplication.removeLogApplication(myLogApplication);
 
         session.getTransaction().commit();
 
-        assertEquals(1, myGroups.size());
-        assertEquals(0, myRestrictions.size());
+        session.beginTransaction();
+
+        List<LogApplication> myLogApplications = session.createQuery(
+                "from pl.agh.edu.logs.LogApplication", LogApplication.class).getResultList();
+
+        assertEquals(1, myLogApplications.size());
+        assertTrue(myLogApplications.contains(myLogApplication_2));
+
+        session.getTransaction().commit();
     }
 
     @Test
@@ -118,40 +115,37 @@ class GroupTest {
 
         Restriction myRestriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
         Group myGroup = new Group("*.mp3", myRestriction);
-
-        Restriction myRestriction_2 = new Restriction(new MyTime(10, 2), new MyTime(3, 3), new MyTime(4, 4));
-        Group myGroup_2 = new Group("*.wav", myRestriction_2);
+        Application myApplication = new Application("cos.mp3", myRestriction, myGroup);
+        LogApplication myLogApplication = new LogApplication(myApplication);
+        LogApplication myLogApplication_2 = new LogApplication(myApplication);
 
         session.save(myRestriction);
         session.save(myGroup);
-
-        session.save(myRestriction_2);
-        session.save(myGroup_2);
-
-        session.getTransaction().commit();
-
-        session.beginTransaction();
-
-        myRestriction.setLimit(new MyTime(12, 2));
-        myGroup_2.setName("*.txt");
+        session.save(myApplication);
+        session.save(myLogApplication);
+        session.save(myLogApplication_2);
 
         session.getTransaction().commit();
 
         session.beginTransaction();
 
-        List<Restriction> myRestrictions = session.createQuery(
-                "from pl.agh.edu.restrictions.Restriction", Restriction.class)
-                .stream().filter(r -> !r.getLimit().equals(new MyTime(10, 2))).collect(Collectors.toList());
+        myLogApplication.setTimeEnd(new Date());
 
-        assertEquals(1, myRestrictions.size());
-        assertEquals(new MyTime(12, 2), myRestrictions.get(0).getLimit());
+        session.getTransaction().commit();
 
-        List<Group> myGroups = session.createQuery(
-                "from pl.agh.edu.applications.Group", Group.class)
-                .stream().filter(g -> g.getName().equals("*.txt")).collect(Collectors.toList());
+        session.beginTransaction();
 
-        assertEquals(1, myGroups.size());
+        List<LogApplication> myLogApplications = session.createQuery(
+                "from pl.agh.edu.logs.LogApplication", LogApplication.class).getResultList();
 
-        session.getTransaction();
+        int equalStartEnd = 0;
+        for (LogApplication logs : myLogApplications) {
+            if (logs.getTimeStart().equals(logs.getTimeEnd()))
+                ++equalStartEnd;
+        }
+
+        assertEquals(1, equalStartEnd);
+
+        session.getTransaction().commit();
     }
 }

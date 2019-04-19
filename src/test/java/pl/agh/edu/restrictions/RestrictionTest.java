@@ -7,6 +7,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import pl.agh.edu.logs.LogApplication;
+import pl.agh.edu.logs.LogGroup;
 
 import java.util.List;
 
@@ -17,33 +19,33 @@ class RestrictionTest {
     private static Configuration configuration;
 
     @BeforeAll
-    static void beforeAll(){
+    static void beforeAll() {
         configuration = new Configuration();
         configuration.configure("hibernate_test.cfg.xml");
         configuration.addAnnotatedClass(pl.agh.edu.applications.Application.class);
         configuration.addAnnotatedClass(pl.agh.edu.applications.Group.class);
-        configuration.addAnnotatedClass(pl.agh.edu.logs.Log_App.class);
-        configuration.addAnnotatedClass(pl.agh.edu.logs.Log_Group.class);
+        configuration.addAnnotatedClass(LogApplication.class);
+        configuration.addAnnotatedClass(LogGroup.class);
         configuration.addAnnotatedClass(pl.agh.edu.restrictions.Restriction.class);
     }
 
     @BeforeEach
-    void beforeEach(){
+    void beforeEach() {
         SessionFactory ourSessionFactory = configuration.buildSessionFactory();
         session = ourSessionFactory.openSession();
     }
 
     @AfterEach
-    void afterEach(){
+    void afterEach() {
         session.close();
     }
 
     @Test
-    void addTest(){
+    void addTest() {
         session.beginTransaction();
 
-        Restriction my_restriction = new Restriction(2,3,4);
-        Restriction my_restriction_2 = new Restriction(3,4,5);
+        Restriction my_restriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
+        Restriction my_restriction_2 = new Restriction(new MyTime(3, 3), new MyTime(4, 4), new MyTime(4, 4));
         session.save(my_restriction);
         session.save(my_restriction_2);
 
@@ -58,52 +60,52 @@ class RestrictionTest {
     }
 
     @Test
-    void removeTest(){
+    void removeTest() {
         session.beginTransaction();
 
-        Restriction my_restriction = new Restriction(2,3,4);
-        Restriction my_restriction_2 = new Restriction(3,4,5);
-        session.save(my_restriction);
-        session.save(my_restriction_2);
+        Restriction myRestriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
+        Restriction myRestriction_2 = new Restriction(new MyTime(3, 3), new MyTime(4, 4), new MyTime(4, 4));
+        session.save(myRestriction);
+        session.save(myRestriction_2);
 
         session.getTransaction().commit();
 
         session.beginTransaction();
 
-        session.delete(my_restriction);
+        session.delete(myRestriction);
 
         session.getTransaction().commit();
 
-        List<Restriction> all_restrictions = session.createQuery(
+        List<Restriction> allRestrictions = session.createQuery(
                 "from pl.agh.edu.restrictions.Restriction", Restriction.class).getResultList();
 
-        assertEquals(all_restrictions.size(), 1);
-        assertEquals(my_restriction_2, all_restrictions.get(0));
+        assertEquals(allRestrictions.size(), 1);
+        assertEquals(myRestriction_2, allRestrictions.get(0));
     }
 
     @Test
-    void updateTest(){
+    void updateTest() {
         session.beginTransaction();
 
-        Restriction my_restriction = new Restriction(2,3,4);
-        session.save(my_restriction);
+        Restriction myRestriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
+        session.save(myRestriction);
 
         session.getTransaction().commit();
 
-        Restriction my_restriction_2 = session.createQuery(
+        Restriction myRestriction_2 = session.createQuery(
                 "from pl.agh.edu.restrictions.Restriction", Restriction.class).getResultList().get(0);
 
         session.beginTransaction();
 
-        my_restriction_2.setMinLimit(10);
+        myRestriction_2.setLimit(new MyTime(10, 10));
 
         session.getTransaction().commit();
 
-        Restriction my_restriction_3 = session.createQuery(
+        Restriction myRestriction_3 = session.createQuery(
                 "from pl.agh.edu.restrictions.Restriction", Restriction.class).getResultList().get(0);
 
-        assertEquals(my_restriction, my_restriction_2);
-        assertEquals(my_restriction_2, my_restriction_3);
-        assertEquals(10, my_restriction_3.getMinLimit());
+        assertEquals(myRestriction, myRestriction_2);
+        assertEquals(myRestriction_2, myRestriction_3);
+        assertEquals(new MyTime(10, 10), myRestriction_3.getLimit());
     }
 }
