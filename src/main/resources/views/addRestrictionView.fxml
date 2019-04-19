@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 
-<Pane prefHeight="303.0" prefWidth="417.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.agh.edu.timekeeper.controller.AddRestrictionController">
+<Pane prefHeight="303.0" prefWidth="417.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.edu.agh.timekeeper.controller.AddRestrictionController">
    <children>
       <TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="100.0" prefWidth="417.0" tabClosingPolicy="UNAVAILABLE">
         <tabs>
