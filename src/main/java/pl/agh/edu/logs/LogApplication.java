@@ -18,12 +18,12 @@ public class LogApplication implements Serializable {
     @Column(name = "ID", updatable = false)
     private int id;
 
-    @CreationTimestamp
+    //@CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "TIME_START")
     private Date timeStart = new Date();
 
-    @UpdateTimestamp
+    //@UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "TIME_END")
     private Date timeEnd = new Date();
