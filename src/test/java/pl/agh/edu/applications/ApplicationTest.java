@@ -10,6 +10,9 @@ import org.junit.jupiter.api.Test;
 import pl.agh.edu.logs.LogApplication;
 import pl.agh.edu.logs.LogGroup;
 import pl.agh.edu.restrictions.Restriction;
+import pl.agh.edu.restrictions.MyTime;
+
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -43,7 +46,7 @@ class ApplicationTest {
     void addTest() {
         session.beginTransaction();
 
-        Restriction myRestriction = new Restriction(10, 12, 14);
+        Restriction myRestriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
         Group myGroup = new Group("*.mp3", myRestriction);
         Application myApplication = new Application("cos.mp3", myRestriction, myGroup);
 
@@ -62,7 +65,7 @@ class ApplicationTest {
                 "from pl.agh.edu.applications.Application", Application.class).getSingleResult();
 
         assertEquals(myNewRestriction, myRestriction);
-        assertEquals(myNewRestriction.getMinLimit(), 10);
+        assertEquals(myNewRestriction.getLimit(), new MyTime(2, 2));
         assertEquals(myNewApplication, myApplication);
 
         session.getTransaction();
@@ -72,7 +75,7 @@ class ApplicationTest {
     void removeTest() {
         session.beginTransaction();
 
-        Restriction myRestriction = new Restriction(10, 12, 14);
+        Restriction myRestriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
         Group myGroup = new Group("*.mp3", myRestriction);
         Application myApplication = new Application("cos.mp3", myRestriction, myGroup);
 
@@ -88,22 +91,19 @@ class ApplicationTest {
 
         session.getTransaction().commit();
 
-        session.beginTransaction();
-
         Application myNewApplication = session.createQuery(
-                "from pl.agh.edu.applications.Application", Application.class).getSingleResult();
+                "from pl.agh.edu.applications.Application", Application.class)
+                .stream().collect(Collectors.toList()).get(0);
 
         assertNull(myNewApplication.getRestriction());
         assertEquals(myNewApplication.getGroup(), myGroup);
-
-        session.getTransaction().commit();
     }
 
     @Test
     void updateTest() {
         session.beginTransaction();
 
-        Restriction myRestriction = new Restriction(10, 12, 14);
+        Restriction myRestriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
 
         Group myGroup = new Group("*.mp3", myRestriction);
         Application myApplication = new Application("cos.mp3", myRestriction, myGroup);

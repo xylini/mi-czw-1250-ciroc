@@ -1,17 +1,11 @@
 package pl.agh.edu.restrictions;
 
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 import pl.agh.edu.applications.Application;
 import pl.agh.edu.applications.Group;
 
 import javax.persistence.*;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Table(name = "RESTRICTIONS")
@@ -22,42 +16,51 @@ public class Restriction implements Serializable {
     @Column(name = "ID", updatable = false)
     private int id;
 
-    @Min(0)
-    @Column(name = "MIN_LIMIT")
-    private int minLimit;
+    @Embedded
+    @AttributeOverride(name = "hour", column = @Column(name = "LIMIT_HOUR"))
+    @AttributeOverride(name = "minute", column = @Column(name = "LIMIT_MINUTE"))
+    private MyTime limit;
 
-    @Min(0)
-    @Max(24)
-    @Column(name = "HOUR_START")
-    private int hourStart;
+    @Embedded
+    @AttributeOverride(name = "hour", column = @Column(name = "START_HOUR"))
+    @AttributeOverride(name = "minute", column = @Column(name = "START_MINUTE"))
+    private MyTime start;
 
-    @Min(0)
-    @Max(24)
-    @Column(name = "HOUR_END")
-    private int hourEnd;
+    @Embedded
+    @AttributeOverride(name = "hour", column = @Column(name = "END_HOUR"))
+    @AttributeOverride(name = "minute", column = @Column(name = "END_MINUTE"))
+    private MyTime end;
+
+    @OneToOne(mappedBy = "restriction")
+    private Application application;
+
+    @OneToOne(mappedBy = "restriction")
+    private Group group;
 
     public Restriction() {
     }
 
-    public Restriction(int minLimit, int hourStart, int hourEnd) {
-        this.minLimit = minLimit;
-        this.hourStart = hourStart;
-        this.hourEnd = hourEnd;
+    public Restriction(MyTime limit, MyTime start, MyTime end) {
+        this.limit = limit;
+        this.start = start;
+        this.end = end;
     }
 
-    public Restriction(int minLimit, int hourStart, int hourEnd, Application application) {
-        this.minLimit = minLimit;
-        this.hourStart = hourStart;
-        this.hourEnd = hourEnd;
+    public Restriction(MyTime limit, MyTime start, MyTime end, Application application) {
+        this.limit = limit;
+        this.start = start;
+        this.end = end;
 
+        this.application = application;
         application.setRestriction(this);
     }
 
-    public Restriction(int minLimit, int hourStart, int hourEnd, Group group) {
-        this.minLimit = minLimit;
-        this.hourStart = hourStart;
-        this.hourEnd = hourEnd;
+    public Restriction(MyTime limit, MyTime start, MyTime end, Group group) {
+        this.limit = limit;
+        this.start = start;
+        this.end = end;
 
+        this.group = group;
         group.setRestriction(this);
     }
 
@@ -69,28 +72,44 @@ public class Restriction implements Serializable {
         this.id = id;
     }
 
-    public int getMinLimit() {
-        return minLimit;
+    public MyTime getLimit() {
+        return limit;
     }
 
-    public void setMinLimit(int minLimit) {
-        this.minLimit = minLimit;
+    public void setLimit(MyTime limit) {
+        this.limit = limit;
     }
 
-    public int getHourStart() {
-        return hourStart;
+    public MyTime getStart() {
+        return start;
     }
 
-    public void setHourStart(int hourStart) {
-        this.hourStart = hourStart;
+    public void setStart(MyTime start) {
+        this.start = start;
     }
 
-    public int getHourEnd() {
-        return hourEnd;
+    public MyTime getEnd() {
+        return end;
     }
 
-    public void setHourEnd(int hourEnd) {
-        this.hourEnd = hourEnd;
+    public void setEnd(MyTime end) {
+        this.end = end;
+    }
+
+    public Application getApplication() {
+        return application;
+    }
+
+    public void setApplication(Application application) {
+        this.application = application;
+    }
+
+    public Group getGroup() {
+        return group;
+    }
+
+    public void setGroup(Group group) {
+        this.group = group;
     }
 
     @Override
@@ -102,11 +121,11 @@ public class Restriction implements Serializable {
             return true;
         else if (this.id != ((Restriction) obj).getId())
             return false;
-        else if (this.minLimit != ((Restriction) obj).getMinLimit())
+        else if (!this.limit.equals(((Restriction) obj).getLimit()))
             return false;
-        else if (this.hourStart != ((Restriction) obj).getHourStart())
+        else if (!this.start.equals(((Restriction) obj).getStart()))
             return false;
-        else return this.hourEnd == ((Restriction) obj).getHourEnd();
+        else return this.end.equals(((Restriction) obj).getEnd());
     }
 
     @Override

@@ -44,8 +44,8 @@ class RestrictionTest {
     void addTest() {
         session.beginTransaction();
 
-        Restriction my_restriction = new Restriction(2, 3, 4);
-        Restriction my_restriction_2 = new Restriction(3, 4, 5);
+        Restriction my_restriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
+        Restriction my_restriction_2 = new Restriction(new MyTime(3, 3), new MyTime(4, 4), new MyTime(4, 4));
         session.save(my_restriction);
         session.save(my_restriction_2);
 
@@ -63,8 +63,8 @@ class RestrictionTest {
     void removeTest() {
         session.beginTransaction();
 
-        Restriction myRestriction = new Restriction(2, 3, 4);
-        Restriction myRestriction_2 = new Restriction(3, 4, 5);
+        Restriction myRestriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
+        Restriction myRestriction_2 = new Restriction(new MyTime(3, 3), new MyTime(4, 4), new MyTime(4, 4));
         session.save(myRestriction);
         session.save(myRestriction_2);
 
@@ -87,7 +87,7 @@ class RestrictionTest {
     void updateTest() {
         session.beginTransaction();
 
-        Restriction myRestriction = new Restriction(2, 3, 4);
+        Restriction myRestriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
         session.save(myRestriction);
 
         session.getTransaction().commit();
@@ -97,7 +97,7 @@ class RestrictionTest {
 
         session.beginTransaction();
 
-        myRestriction_2.setMinLimit(10);
+        myRestriction_2.setLimit(new MyTime(10, 10));
 
         session.getTransaction().commit();
 
@@ -106,6 +106,6 @@ class RestrictionTest {
 
         assertEquals(myRestriction, myRestriction_2);
         assertEquals(myRestriction_2, myRestriction_3);
-        assertEquals(10, myRestriction_3.getMinLimit());
+        assertEquals(new MyTime(10, 10), myRestriction_3.getLimit());
     }
 }

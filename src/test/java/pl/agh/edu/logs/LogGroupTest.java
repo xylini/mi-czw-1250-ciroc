@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import pl.agh.edu.applications.Group;
 import pl.agh.edu.restrictions.Restriction;
+import pl.agh.edu.restrictions.MyTime;
 
 import java.util.Date;
 import java.util.List;
@@ -46,7 +47,7 @@ class LogGroupTest {
     void addTest() {
         session.beginTransaction();
 
-        Restriction myRestriction = new Restriction(10, 12, 13);
+        Restriction myRestriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
         Group myGroup = new Group("*.mp3", myRestriction);
         LogGroup myLogGroup = new LogGroup(myGroup);
         LogGroup myLogGroup_2 = new LogGroup(myGroup);
@@ -74,7 +75,7 @@ class LogGroupTest {
     void removeTest() {
         session.beginTransaction();
 
-        Restriction myRestriction = new Restriction(10, 12, 13);
+        Restriction myRestriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
         Group myGroup = new Group("*.mp3", myRestriction);
         LogGroup myLogGroup = new LogGroup(myGroup);
         LogGroup myLogGroup_2 = new LogGroup(myGroup);
@@ -107,7 +108,7 @@ class LogGroupTest {
     void updateTest() {
         session.beginTransaction();
 
-        Restriction myRestriction = new Restriction(10, 12, 13);
+        Restriction myRestriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
         Group myGroup = new Group("*.mp3", myRestriction);
         LogGroup myLogGroup = new LogGroup(myGroup);
         LogGroup myLogGroup_2 = new LogGroup(myGroup);

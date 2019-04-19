@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import pl.agh.edu.logs.LogApplication;
 import pl.agh.edu.logs.LogGroup;
 import pl.agh.edu.restrictions.Restriction;
+import pl.agh.edu.restrictions.MyTime;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -46,7 +47,7 @@ class GroupTest {
     void addTest() {
         session.beginTransaction();
 
-        Restriction myRestriction = new Restriction(10, 20, 21);
+        Restriction myRestriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
         Group myGroup = new Group("*.mp3", myRestriction);
 
         session.save(myRestriction);
@@ -63,7 +64,7 @@ class GroupTest {
                 "from pl.agh.edu.applications.Group", Group.class).getSingleResult();
 
         assertEquals(myNewRestriction, myRestriction);
-        assertEquals(myNewRestriction.getMinLimit(), 10);
+        assertEquals(myNewRestriction.getLimit(), new MyTime(2, 2));
         assertEquals(myNewGroup, myGroup);
 
         session.getTransaction().commit();
@@ -73,10 +74,10 @@ class GroupTest {
     void removeTest() {
         session.beginTransaction();
 
-        Restriction myRestriction = new Restriction(10, 20, 21);
+        Restriction myRestriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
         Group myGroup = new Group("*.mp3", myRestriction);
 
-        Restriction myRestriction_2 = new Restriction(30, 10, 11);
+        Restriction myRestriction_2 = new Restriction(new MyTime(6, 40), new MyTime(3, 3), new MyTime(4, 4));
         Group myGroup_2 = new Group("*.wav", myRestriction_2);
 
         session.save(myRestriction);
@@ -92,7 +93,6 @@ class GroupTest {
         session.delete(myGroup_2);
 
         myGroup.setRestriction(null);
-        session.delete(myRestriction);
 
         session.getTransaction().commit();
 
@@ -116,10 +116,10 @@ class GroupTest {
     void updateTest() {
         session.beginTransaction();
 
-        Restriction myRestriction = new Restriction(10, 20, 21);
+        Restriction myRestriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
         Group myGroup = new Group("*.mp3", myRestriction);
 
-        Restriction myRestriction_2 = new Restriction(30, 10, 11);
+        Restriction myRestriction_2 = new Restriction(new MyTime(10, 2), new MyTime(3, 3), new MyTime(4, 4));
         Group myGroup_2 = new Group("*.wav", myRestriction_2);
 
         session.save(myRestriction);
@@ -132,7 +132,7 @@ class GroupTest {
 
         session.beginTransaction();
 
-        myRestriction.setMinLimit(20);
+        myRestriction.setLimit(new MyTime(12, 2));
         myGroup_2.setRegex("*.txt");
 
         session.getTransaction().commit();
@@ -141,10 +141,10 @@ class GroupTest {
 
         List<Restriction> myRestrictions = session.createQuery(
                 "from pl.agh.edu.restrictions.Restriction", Restriction.class)
-                .stream().filter(r -> r.getMinLimit() != 30).collect(Collectors.toList());
+                .stream().filter(r -> !r.getLimit().equals(new MyTime(10, 2))).collect(Collectors.toList());
 
         assertEquals(1, myRestrictions.size());
-        assertEquals(20, myRestrictions.get(0).getMinLimit());
+        assertEquals(new MyTime(12, 2), myRestrictions.get(0).getLimit());
 
         List<Group> myGroups = session.createQuery(
                 "from pl.agh.edu.applications.Group", Group.class)

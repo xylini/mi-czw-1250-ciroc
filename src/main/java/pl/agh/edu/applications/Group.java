@@ -25,7 +25,7 @@ public class Group implements Serializable {
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "group", orphanRemoval = true)
     private Set<LogGroup> logGroups = new HashSet<>();
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "RESTRICTION_ID")
     private Restriction restriction;
 
@@ -41,7 +41,9 @@ public class Group implements Serializable {
 
     public Group(String regex, Restriction restriction) {
         this.regex = regex;
+
         this.restriction = restriction;
+        restriction.setGroup(this);
     }
 
     public int getId() {
@@ -73,7 +75,13 @@ public class Group implements Serializable {
     }
 
     public void setRestriction(Restriction restriction) {
+        if (this.restriction != null) {
+            this.restriction.setGroup(null);
+        }
         this.restriction = restriction;
+        if (restriction != null) {
+            restriction.setGroup(this);
+        }
     }
 
     public Set<Application> getApplications() {

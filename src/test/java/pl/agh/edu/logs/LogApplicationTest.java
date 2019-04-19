@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import pl.agh.edu.applications.Application;
 import pl.agh.edu.applications.Group;
 import pl.agh.edu.restrictions.Restriction;
+import pl.agh.edu.restrictions.MyTime;
 
 import java.util.Date;
 import java.util.List;
@@ -47,7 +48,7 @@ class LogApplicationTest {
     void addTest() {
         session.beginTransaction();
 
-        Restriction myRestriction = new Restriction(10, 12, 13);
+        Restriction myRestriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
         Group myGroup = new Group("*.mp3", myRestriction);
         Application myApplication = new Application("cos.mp3", myRestriction, myGroup);
         LogApplication myLogApplication = new LogApplication(myApplication);
@@ -77,7 +78,7 @@ class LogApplicationTest {
     void removeTest() {
         session.beginTransaction();
 
-        Restriction myRestriction = new Restriction(10, 12, 13);
+        Restriction myRestriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
         Group myGroup = new Group("*.mp3", myRestriction);
         Application myApplication = new Application("cos.mp3", myRestriction, myGroup);
         LogApplication myLogApplication = new LogApplication(myApplication);
@@ -112,7 +113,7 @@ class LogApplicationTest {
     void updateTest() {
         session.beginTransaction();
 
-        Restriction myRestriction = new Restriction(10, 12, 13);
+        Restriction myRestriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
         Group myGroup = new Group("*.mp3", myRestriction);
         Application myApplication = new Application("cos.mp3", myRestriction, myGroup);
         LogApplication myLogApplication = new LogApplication(myApplication);
