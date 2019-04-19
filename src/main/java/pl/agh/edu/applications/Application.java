@@ -30,7 +30,6 @@ public class Application implements Serializable {
     private Restriction restriction;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @NotNull
     @JoinColumn(name = "GROUP_ID")
     private Group group;
 
@@ -39,6 +38,20 @@ public class Application implements Serializable {
 
     public Application(String name) {
         this.name = name;
+    }
+
+    public Application(String name, Restriction restriction){
+        this.name = name;
+
+        this.restriction = restriction;
+        restriction.setApplication(this);
+    }
+
+    public Application(String name, Group group){
+        this.name = name;
+
+        this.group = group;
+        group.addApplication(this);
     }
 
     public Application(String name, Restriction restriction, Group group) {
@@ -94,7 +107,13 @@ public class Application implements Serializable {
     }
 
     public void setGroup(Group group) {
+        if (this.group != null) {
+            this.group.getApplications().remove(this);
+        }
         this.group = group;
+        if (group != null) {
+            group.getApplications().add(this);
+        }
     }
 
     public void addLogApplication(LogApplication logApplication) {

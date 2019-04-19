@@ -133,7 +133,7 @@ class GroupTest {
         session.beginTransaction();
 
         myRestriction.setLimit(new MyTime(12, 2));
-        myGroup_2.setRegex("*.txt");
+        myGroup_2.setName("*.txt");
 
         session.getTransaction().commit();
 
@@ -148,7 +148,7 @@ class GroupTest {
 
         List<Group> myGroups = session.createQuery(
                 "from pl.agh.edu.applications.Group", Group.class)
-                .stream().filter(g -> g.getRegex().equals("*.txt")).collect(Collectors.toList());
+                .stream().filter(g -> g.getName().equals("*.txt")).collect(Collectors.toList());
 
         assertEquals(1, myGroups.size());
 

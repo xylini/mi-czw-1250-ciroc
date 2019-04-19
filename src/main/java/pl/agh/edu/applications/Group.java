@@ -19,8 +19,8 @@ public class Group implements Serializable {
     private int id;
 
     @NotNull
-    @Column(name = "REGEX", unique = true)
-    private String regex;
+    @Column(name = "NAME", unique = true)
+    private String name;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "group", orphanRemoval = true)
     private Set<LogGroup> logGroups = new HashSet<>();
@@ -29,18 +29,18 @@ public class Group implements Serializable {
     @JoinColumn(name = "RESTRICTION_ID")
     private Restriction restriction;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "group", orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY)
     private Set<Application> applications = new HashSet<>();
 
     public Group() {
     }
 
-    public Group(String regex) {
-        this.regex = regex;
+    public Group(String name) {
+        this.name = name;
     }
 
-    public Group(String regex, Restriction restriction) {
-        this.regex = regex;
+    public Group(String name, Restriction restriction) {
+        this.name = name;
 
         this.restriction = restriction;
         restriction.setGroup(this);
@@ -54,12 +54,12 @@ public class Group implements Serializable {
         this.id = id;
     }
 
-    public String getRegex() {
-        return regex;
+    public String getName() {
+        return name;
     }
 
-    public void setRegex(String regex) {
-        this.regex = regex;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Set<LogGroup> getLogGroups() {
@@ -94,12 +94,12 @@ public class Group implements Serializable {
 
     public void addApplication(Application application) {
         application.setGroup(this);
-        this.applications.add(application);
+        //this.applications.add(application);
     }
 
     public void removeApplication(Application application) {
         application.setGroup(null);
-        this.applications.remove(application);
+        //this.applications.remove(application);
     }
 
     public void addLogGroup(LogGroup logGroup) {
@@ -121,7 +121,7 @@ public class Group implements Serializable {
             return true;
         else if (this.id != ((Group) obj).getId())
             return false;
-        else return this.regex.equals(((Group) obj).getRegex());
+        else return this.name.equals(((Group) obj).getName());
     }
 
     @Override

@@ -76,27 +76,36 @@ class ApplicationTest {
         session.beginTransaction();
 
         Restriction myRestriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
-        Group myGroup = new Group("*.mp3", myRestriction);
+        Restriction myRestriction_2 = new Restriction(new MyTime(2, 34), new MyTime(3, 3), new MyTime(4, 4));
+        Group myGroup = new Group("*.mp3", myRestriction_2);
         Application myApplication = new Application("cos.mp3", myRestriction, myGroup);
+        Application myApplication_2 = new Application("nicos.mp3", myGroup);
 
         session.save(myRestriction);
+        session.save(myRestriction_2);
         session.save(myGroup);
         session.save(myApplication);
+        session.save(myApplication_2);
 
         session.getTransaction().commit();
 
         session.beginTransaction();
 
         myApplication.setRestriction(null);
+        myGroup.removeApplication(myApplication_2);
 
         session.getTransaction().commit();
 
         Application myNewApplication = session.createQuery(
                 "from pl.agh.edu.applications.Application", Application.class)
-                .stream().collect(Collectors.toList()).get(0);
+                .stream().filter(a -> a.getName().equals("cos.mp3")).collect(Collectors.toList()).get(0);
 
         assertNull(myNewApplication.getRestriction());
         assertEquals(myNewApplication.getGroup(), myGroup);
+        assertEquals(1, myGroup.getApplications().size());
+        assertNull(myApplication_2.getGroup());
+        assertEquals(2, session.createQuery(
+                "from pl.agh.edu.applications.Application", Application.class).getResultList().size());
     }
 
     @Test

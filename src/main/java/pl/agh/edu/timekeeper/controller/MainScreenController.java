@@ -12,7 +12,6 @@ import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.hibernate.boot.jaxb.internal.stax.HbmEventReader;
-import pl.agh.edu.timekeeper.Main;
 
 import java.io.*;
 
