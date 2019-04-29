@@ -13,9 +13,6 @@ public class StatsChartsController {
     private Button todayButton;
 
     @FXML
-    private Button lastWeekButton;
-
-    @FXML
     private Button lastMonthButton;
 
     @FXML
@@ -45,9 +42,6 @@ public class StatsChartsController {
     private void showToday(ActionEvent actionEvent) {
     }
 
-    @FXML
-    private void showLastWeek(ActionEvent actionEvent) {
-    }
 
     @FXML
     private void showLastMonth(ActionEvent actionEvent) {

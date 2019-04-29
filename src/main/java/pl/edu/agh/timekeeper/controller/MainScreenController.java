@@ -15,6 +15,9 @@ public class MainScreenController {
     private static final String HELP_VIEW_PATH = "/views/helpView.fxml";
 
     @FXML
+    public HBox menuButtonHBox;
+
+    @FXML
     private VBox mainVBox;
 
     @FXML
@@ -36,32 +39,72 @@ public class MainScreenController {
     private ToggleGroup menuButtons;
 
     @FXML
-    public void initialize() {
+    private RestrictionsListController restrictionsListController;
+
+    @FXML
+    private FXMLLoader loader = new FXMLLoader();
+
+    @FXML
+    public void initialize() throws IOException {
+        prepareRestrictionView();
+        menuButtons.getToggles().get(0).setSelected(true);
+        menuButtons.selectedToggleProperty().addListener(((observable, oldValue, newValue) -> {
+            if (newValue == null)
+                oldValue.setSelected(true);
+        }));
+        mainVBox.prefHeightProperty().bind(mainBorderPane.prefHeightProperty());
+        mainVBox.prefWidthProperty().bind(mainBorderPane.prefWidthProperty());
+        restrictionsButton.prefWidthProperty().bind(mainVBox.prefWidthProperty());
+        statsButton.prefWidthProperty().bind(mainVBox.prefWidthProperty());
+        prefButton.prefWidthProperty().bind(mainVBox.prefWidthProperty());
+        helpButton.prefWidthProperty().bind(mainVBox.prefWidthProperty());
+    }
+
+    private void prepareRestrictionView() throws IOException {
+        setLoaderLocation(RESTRICTIONS_LIST_VIEW_PATH);
+        restrictionsListController = new RestrictionsListController();
+        restrictionsListController.setRestrictionsSplitPane(this.loader.load());
+        restrictionsListController.setMainScreenController(this);
+        restrictionsListController.setBindings();
+        mainBorderPane.setTop(restrictionsListController.getRestrictionsSplitPane());
+    }
+
+    private void setLoaderLocation(String path){
+        this.loader = new FXMLLoader();
+        this.loader.setLocation(this.getClass().getResource(path));
+    }
+
+    public VBox getMainVBox() {
+        return mainVBox;
     }
 
     @FXML
     private void restrictionButtonClicked() {
-        setContentMainBorderPane(new FXMLLoader(this.getClass().getResource(RESTRICTIONS_LIST_VIEW_PATH)));
+        mainBorderPane.setTop(restrictionsListController.getRestrictionsSplitPane());
+//        restrictionsListController = loader.getController();
     }
 
     @FXML
     private void statsButtonClicked() {
-        setContentMainBorderPane(new FXMLLoader(this.getClass().getResource(STATS_VIEW_PATH)));
+        setLoaderLocation(STATS_VIEW_PATH);
+        setContentMainBorderPane(this.loader);
     }
 
     @FXML
     private void prefButtonClicked() {
-        setContentMainBorderPane(new FXMLLoader(this.getClass().getResource(PREF_VIEW_PATH)));
+        setLoaderLocation(PREF_VIEW_PATH);
+        setContentMainBorderPane(this.loader);
     }
 
     @FXML
     private void helpButtonClicked() {
-        setContentMainBorderPane(new FXMLLoader(this.getClass().getResource(HELP_VIEW_PATH)));
+        setLoaderLocation(HELP_VIEW_PATH);
+        setContentMainBorderPane(this.loader);
     }
 
     private void setContentMainBorderPane(FXMLLoader loader) {
         try {
-            mainBorderPane.setLeft(loader.load());
+            mainBorderPane.setTop(loader.load());
         } catch (IOException e) {
             e.printStackTrace();
         }

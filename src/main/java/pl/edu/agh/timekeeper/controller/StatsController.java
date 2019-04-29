@@ -5,6 +5,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
@@ -17,6 +18,9 @@ public class StatsController {
     private static final String TABLE_VIEW_PATH = "/views/statsTableView.fxml";
 
     private static final String CHART_VIEW_PATH = "/views/statsChartsView.fxml";
+
+    @FXML
+    public Button overallButton;
 
     @FXML
     private Pane listPane;
@@ -38,6 +42,7 @@ public class StatsController {
         //test
         ObservableList<String> list = FXCollections.observableArrayList();
         list.add("e");
+
         applicationsListView.setItems(list);
 
         setCenterTable();
@@ -46,8 +51,9 @@ public class StatsController {
 
     private void setupListeners() {
         applicationsListView.getSelectionModel().selectedItemProperty().addListener((list, oldValue, newValue) -> {
-            if (newValue == null)
+            if (newValue == null) {
                 setCenterTable();
+            }
             else {
                 if (oldValue == null)
                     setCenterChart();
@@ -79,7 +85,7 @@ public class StatsController {
     }
 
     @FXML
-    private void clearSelections(MouseEvent mouseEvent) {
+    private void overallButton(MouseEvent mouseEvent) {
         applicationsListView.getSelectionModel().clearSelection();
     }
 }

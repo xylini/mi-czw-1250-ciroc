@@ -3,13 +3,19 @@
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.Pane?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.VBox?>
 
-<BorderPane fx:id="statsPane" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.edu.agh.timekeeper.controller.StatsController">
-   <left>
-      <Pane fx:id="listPane" onMouseClicked="#clearSelections" prefHeight="370.0" prefWidth="150.0" BorderPane.alignment="CENTER">
-         <children>
-            <ListView fx:id="applicationsListView" layoutY="27.0" prefHeight="343.0" prefWidth="150.0" />
-         </children>
-      </Pane>
-   </left>
+<BorderPane fx:id="statsPane" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="pl.edu.agh.timekeeper.controller.StatsController">
+    <left>
+        <Pane fx:id="listPane" prefHeight="370.0" prefWidth="150.0" BorderPane.alignment="CENTER">
+            <VBox>
+                <Button fx:id="overallButton" text="Overall Stats" textAlignment="CENTER"
+                        onMouseClicked="#overallButton" prefHeight="25" prefWidth="150">
+                </Button>
+                <ListView fx:id="applicationsListView" layoutY="27.0" prefHeight="343.0" prefWidth="150.0"/>
+            </VBox>
+        </Pane>
+    </left>
 </BorderPane>

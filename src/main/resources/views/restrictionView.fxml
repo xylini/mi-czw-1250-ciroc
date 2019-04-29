@@ -15,7 +15,7 @@
             <HBox alignment="CENTER_LEFT" prefHeight="47.0" prefWidth="296.0">
                <children>
                   <Label text="Daily limit:" />
-                  <TextField text="How many hours" />
+                  <Label fx:id="dailyLimit" text=" How many hours" />
                </children>
             </HBox>
             <VBox prefHeight="219.0" prefWidth="296.0">
@@ -28,9 +28,9 @@
                   <HBox alignment="CENTER_LEFT" prefHeight="47.0" prefWidth="296.0">
                      <children>
                         <Label text="From:" />
-                        <TextField prefHeight="26.0" prefWidth="65.0" text="XX:XX" />
+                        <TextField fx:id="fromHour" prefHeight="26.0" prefWidth="65.0" text="XX:XX" />
                         <Label text="To:" />
-                        <TextField prefHeight="26.0" prefWidth="58.0" text="XX:XX" />
+                        <TextField fx:id="toHour" prefHeight="26.0" prefWidth="58.0" text="XX:XX" />
                      </children>
                   </HBox>
                </children>

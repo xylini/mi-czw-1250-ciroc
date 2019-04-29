@@ -1,13 +1,20 @@
 package pl.edu.agh.timekeeper.controller;
 
+import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,22 +23,22 @@ import java.util.List;
 public class AddRestrictionController {
 
     @FXML
-    private Tab groupTab;
+    public TextField nameRestrictionField;
 
     @FXML
-    private Tab applicationTab;
+    public HBox restrictionHBox;
 
     @FXML
-    private Tab hoursBlockedTab;
+    private RadioButton appRadioButton;
 
     @FXML
-    private Tab dailyLimitTab;
+    private RadioButton groupRadioButton;
 
     @FXML
-    private ComboBox applicationsListBox;
+    private RadioButton filePathRadioButton;
 
     @FXML
-    private ComboBox groupsListBox;
+    private Button addRangeButton;
 
     @FXML
     private VBox scrollBox;
@@ -45,22 +52,50 @@ public class AddRestrictionController {
     @FXML
     private Button okButton;
 
-    private Button addNextHourRangeButton;
+    @FXML
+    private RestrictionsListController restrictionsListController;
+
+    private ComboBox applicationsComboBox = new ComboBox();
+
+    private ComboBox groupComboBox = new ComboBox();
+
+    private TextField filePath = new TextField();
+
+    private final ToggleGroup groupRadioButtons = new ToggleGroup();
 
 
     @FXML
     private void initialize() {
-        addNextHourRangeButton = new Button();
-        addNextHourRangeButton.setPrefWidth(40);
-        addNextHourRangeButton.setOnAction(this::addNextHourRange);
-        addNextHourRange();
+        appRadioButton.setToggleGroup(groupRadioButtons);
+        groupRadioButton.setToggleGroup(groupRadioButtons);
+        filePathRadioButton.setToggleGroup(groupRadioButtons);
+        restrictionHBox.getChildren().add(applicationsComboBox);
+
+        groupRadioButtons.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
+            restrictionHBox.getChildren().clear();
+            if (appRadioButton.equals(newValue)) {
+                restrictionHBox.getChildren().add(applicationsComboBox);
+            } else if (groupRadioButton.equals(newValue)) {
+                restrictionHBox.getChildren().add(groupComboBox);
+            } else if (filePathRadioButton.equals(newValue)) {
+                restrictionHBox.getChildren().add(filePath);
+            }
+        });
+
     }
 
-    private void addNextHourRange(ActionEvent actionEvent) {
-        addNextHourRange();
+    @FXML
+    private void okClicked(ActionEvent actionEvent) {
+        restrictionsListController.restrictionListView.getItems().add(nameRestrictionField.getText());
+        ((Stage) okButton.getScene().getWindow()).close();
     }
 
-    private void addNextHourRange() {
+    public void setRestrictionsListController(RestrictionsListController restrictionsListController){
+        this.restrictionsListController = restrictionsListController;
+    }
+
+    public void addButtonClicked(ActionEvent actionEvent) {
+        int indexHBox = scrollBox.getChildren().size() - 1;
         HBox box = new HBox();
         box.setSpacing(5);
         box.setPadding(new Insets(5));
@@ -69,31 +104,26 @@ public class AddRestrictionController {
         for (TextField field : textFields)
             field.setPrefSize(36, 26);
         Label toLabel = new Label("To");
+        //Delete button
+        Button deleteButton = new Button();
+        ImageView deleteImg = new ImageView("images/delete.png");
+        deleteImg.setFitWidth(25);
+        deleteImg.setFitHeight(25);
+        deleteButton.setGraphic(deleteImg);
+        deleteButton.setOnMouseClicked(deleteEvent);
+        //
         toLabel.setPadding(new Insets(0, 0, 0, 20));
-        HBox spaceBox = new HBox();
-        spaceBox.setPrefWidth(20);
-        ImageView plusImage = new ImageView("/images/plus.png");
-        plusImage.setFitHeight(15);
-        plusImage.setFitWidth(15);
-        addNextHourRangeButton.setGraphic(plusImage);
-        box.getChildren().addAll(new Label("From"), textFields.get(0), new Label(":"), textFields.get(1), toLabel, textFields.get(2), new Label(":"), textFields.get(3), spaceBox, addNextHourRangeButton);
-        scrollBox.getChildren().add(box);
+        box.getChildren().addAll(new Label("From"), textFields.get(0), new Label(":"), textFields.get(1), toLabel, textFields.get(2), new Label(":"), textFields.get(3), deleteButton);
+        scrollBox.getChildren().add(indexHBox, box);
     }
 
-    @FXML
-    private void okClicked(ActionEvent actionEvent) {
-        // TODO Restriction restriction = new Restriction();
-        if (!applicationsListBox.getSelectionModel().isEmpty() || !groupsListBox.getSelectionModel().isEmpty()) {
-            if (applicationTab.isSelected()) {
-                //restriction.setApplication(applicationsListBox.getValue());
-            } else if (groupTab.isSelected()) {
-                //restriction.setGroup(groupsListBox.getValue());
-            }
-            if (dailyLimitTab.isSelected()) {
-                //restriction.setDailyLimit(new DailyLimit(hoursDailyField, minutesDailyField));
-            } else if (hoursBlockedTab.isSelected()) {
-                //restriction.setHoursLimits - create List of limits containing data from textFields
+    private EventHandler<MouseEvent> deleteEvent = new EventHandler<>() {
+        @Override
+        public void handle(final MouseEvent ME) {
+            Object button = ME.getSource();
+            if (button instanceof Button) {
+                scrollBox.getChildren().remove(((Button) button).getParent());
             }
         }
-    }
+    };
 }
