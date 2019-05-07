@@ -9,8 +9,18 @@ import javafx.scene.control.ListView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
+import org.hibernate.cfg.Configuration;
+import pl.edu.agh.timekeeper.db.SessionService;
+import pl.edu.agh.timekeeper.db.dao.ApplicationDao;
+import pl.edu.agh.timekeeper.db.dao.LogApplicationDao;
+import pl.edu.agh.timekeeper.log.LogApplication;
+import pl.edu.agh.timekeeper.model.Application;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 
 public class StatsController {
 
@@ -49,23 +59,36 @@ public class StatsController {
             if (newValue == null)
                 setCenterTable();
             else {
-                if (oldValue == null)
-                    setCenterChart();
-                //TODO statsChartsController.setApplication(newValue)
+                if (oldValue == null) setCenterChart();
+                // TODO: Application app = new ApplicationDao().getByName((String) newValue).get()
+
+                // TODO: remove this (test) block ---------------
+                Application app = new ApplicationDao().create(new Application()).get();
+                LogApplication log1 = new LogApplication(app);
+                log1.setTimeStart(Date.from(LocalDateTime.of(2019, 5, 7, 18, 30).atZone(ZoneId.systemDefault()).toInstant()));
+                log1.setTimeEnd(Date.from(LocalDateTime.of(2019, 5, 7, 19, 45).atZone(ZoneId.systemDefault()).toInstant()));
+                LogApplication log2 = new LogApplication(app);
+                log2.setTimeStart(Date.from(LocalDateTime.of(2019, 5, 1, 18, 30).atZone(ZoneId.systemDefault()).toInstant()));
+                log2.setTimeEnd(Date.from((LocalDateTime.of(2019, 5, 1, 19, 45).atZone(ZoneId.systemDefault()).toInstant())));
+                new LogApplicationDao().create(log1);
+                new LogApplicationDao().create(log2);
+                // TODO: ---------------------------------
+                statsChartsController.setApplication(app);
+                statsChartsController.showToday();
             }
         });
     }
 
     private void setCenterTable() {
         FXMLLoader loader = new FXMLLoader(this.getClass().getResource(TABLE_VIEW_PATH));
-        statsTableController = loader.getController();
         setCenter(loader);
+        statsTableController = loader.getController();
     }
 
     private void setCenterChart() {
         FXMLLoader loader = new FXMLLoader(this.getClass().getResource(CHART_VIEW_PATH));
-        statsChartsController = loader.getController();
         setCenter(loader);
+        statsChartsController = loader.getController();
     }
 
     private void setCenter(FXMLLoader loader) {

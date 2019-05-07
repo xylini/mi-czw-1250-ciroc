@@ -9,7 +9,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class LogApplicationDao extends DaoBase<LogApplication> {
+public class LogApplicationDao extends LogDaoBase<LogApplication, Application> {
 
     private static final String TABLE_NAME = LogApplication.class.getName();
 
@@ -24,26 +24,28 @@ public class LogApplicationDao extends DaoBase<LogApplication> {
                             "SELECT l " +
                                     "FROM " + TABLE_NAME + " l " +
                                     "WHERE l.application = :app", LogApplication.class)
-                    .setParameter("app", a).getResultList());
+                    .setParameter("app", a)
+                    .getResultList());
         } catch (PersistenceException e) {
             e.printStackTrace();
         }
         return Optional.empty();
     }
 
-    public Optional<LinkedHashMap<Date, Long>> getHourlyUsageInSecs(Application a) {
-        return getUsageInSecs(a, this::getHourDateFrom);
+    @Override
+    public Optional<LinkedHashMap<Date, Long>> getHourlyUsageInSecs(Application a, Date dayDate) {
+        return getUsageInSecs(a, this::getHourDateFrom, d -> sameDayPredicate(d, dayDate));
     }
 
-    public Optional<LinkedHashMap<Date, Long>> getDailyUsageInSecs(Application a) {
-        return getUsageInSecs(a, this::getDayDateFrom);
+    public Optional<LinkedHashMap<Date, Long>> getDailyUsageInSecs(Application a, Date monthDate) {
+        return getUsageInSecs(a, this::getDayDateFrom, d -> sameMonthPredicate(d, monthDate));
     }
 
     public Optional<LinkedHashMap<Date, Long>> getMonthlyUsageInSecs(Application a) {
-        return getUsageInSecs(a, this::getMonthDateFrom);
+        return getUsageInSecs(a, this::getMonthDateFrom, d -> true);
     }
 
-    public Optional<LinkedHashMap<Application, Long>> getTotalUsageForAllApps() {
+    public Optional<LinkedHashMap<Application, Long>> getTotalUsageForAllEntities() {
         Optional<List<LogApplication>> l = getAll();
         if (l.isEmpty()) return Optional.empty();
         LinkedHashMap<Application, Long> stats = new LinkedHashMap<>();
@@ -64,21 +66,37 @@ public class LogApplicationDao extends DaoBase<LogApplication> {
         return Optional.of(stats);
     }
 
-    private Optional<LinkedHashMap<Date, Long>> getUsageInSecs(Application a, Function<Date, Date> converter) {
-        Optional<List<LogApplication>> l = getAll(a);
-        if (l.isEmpty()) return Optional.empty();
+    private Optional<LinkedHashMap<Date, Long>> getUsageInSecs(
+            Application a,
+            Function<Date, Date> converter,
+            Function<Date, Boolean> filter) {
+        Optional<List<LogApplication>> logs = getAll(a);
+        if (logs.isEmpty()) return Optional.empty();
+        List<LogApplication> l = logs.get().stream().filter(log -> filter.apply(log.getTimeStart())).collect(Collectors.toList());
         LinkedHashMap<Date, Long> stats = new LinkedHashMap<>();
 
-        for (LogApplication log : l.get()) {
-            Date dayDate = converter.apply(log.getTimeStart());
-            Long usage = (log.getTimeEnd().getTime() - log.getTimeStart().getTime()) / 1000;
-            if (!stats.keySet().contains(dayDate)) {
-                stats.put(dayDate, usage);
+        for (LogApplication log : l) {
+            Date startDate = converter.apply(log.getTimeStart());
+            Date endDate = converter.apply(log.getTimeEnd());
+            if(startDate.equals(endDate)) {
+                Long usage = (log.getTimeEnd().getTime() - log.getTimeStart().getTime()) / 1000;
+                insertStat(stats, startDate, usage);
             } else {
-                stats.replace(dayDate, stats.get(dayDate) + usage);
+                Long usage1 = (endDate.getTime() - log.getTimeStart().getTime()) / 1000;
+                Long usage2 = (log.getTimeEnd().getTime() - endDate.getTime()) / 1000;
+                insertStat(stats, startDate, usage1);
+                insertStat(stats, endDate, usage2);
             }
         }
         return Optional.of(stats);
+    }
+
+    private void insertStat(LinkedHashMap<Date, Long> stats, Date d, Long val){
+        if (!stats.keySet().contains(d)) {
+            stats.put(d, val);
+        } else {
+            stats.replace(d, stats.get(d) + val);
+        }
     }
 
     private Date getHourDateFrom(Date date) {
@@ -104,4 +122,11 @@ public class LogApplicationDao extends DaoBase<LogApplication> {
         return calendar.getTime();
     }
 
+    private Boolean sameDayPredicate(Date d, Date dayDate){
+        return dayDate.equals(getDayDateFrom(d));
+    }
+
+    private Boolean sameMonthPredicate(Date d, Date monthDate){
+        return monthDate.equals(getMonthDateFrom(d));
+    }
 }

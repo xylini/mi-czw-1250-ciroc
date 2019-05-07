@@ -71,9 +71,11 @@ public class LogApplicationDaoTest extends DaoTestBase<LogApplicationDao, LogApp
         Date keyDate1 = Date.from(keyZDT.toInstant());
         Date keyDate2 = Date.from(keyZDT.plusDays(1).toInstant());
 
+        Date monthDate = Date.from(keyZDT.withDayOfMonth(1).toInstant());
+
         // when
-        Optional<LinkedHashMap<Date, Long>> stats1 = logAppDao.getDailyUsageInSecs(a1);
-        Optional<LinkedHashMap<Date, Long>> stats2 = logAppDao.getDailyUsageInSecs(a2);
+        Optional<LinkedHashMap<Date, Long>> stats1 = logAppDao.getDailyUsageInSecs(a1, monthDate);
+        Optional<LinkedHashMap<Date, Long>> stats2 = logAppDao.getDailyUsageInSecs(a2, monthDate);
         // then
         // a1
         Assertions.assertTrue(stats1.isPresent());

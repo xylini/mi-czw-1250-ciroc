@@ -21,7 +21,6 @@
       <HBox layoutY="300.0" prefHeight="50.0" prefWidth="450.0" spacing="10.0">
          <children>
             <Button fx:id="todayButton" mnemonicParsing="false" onAction="#showToday" prefHeight="40.0" prefWidth="100.0" text="Today" />
-            <Button fx:id="lastWeekButton" mnemonicParsing="false" onAction="#showLastWeek" prefHeight="40.0" prefWidth="100.0" text="Last week" />
             <Button fx:id="lastMonthButton" mnemonicParsing="false" onAction="#showLastMonth" prefHeight="40.0" prefWidth="100.0" text="Last month" />
             <Button fx:id="allTimeButton" mnemonicParsing="false" onAction="#showAllTime" prefHeight="40.0" prefWidth="100.0" text="All time" />
          </children>
