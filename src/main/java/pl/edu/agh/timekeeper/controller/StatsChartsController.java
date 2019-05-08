@@ -54,7 +54,7 @@ public class StatsChartsController {
     @FXML
     private void initialize() {
         logDao = new LogApplicationDao();
-        xAxis.setTickLabelRotation(90);
+        xAxis.setTickLabelRotation(-45);
         chart.setAnimated(false);
     }
 
@@ -90,7 +90,7 @@ public class StatsChartsController {
     private void showLastMonth(ActionEvent actionEvent) {
         //TODO replace next line (test) with this: ZonedDateTime firstDayOfMonth = LocalDate.now().withDayOfMonth(1).atStartOfDay().atZone(ZoneOffset.systemDefault());
         ZonedDateTime firstDayOfMonth = LocalDate.of(2019, 5, 11).withDayOfMonth(1).atStartOfDay().atZone(ZoneOffset.systemDefault());
-        String dateStr = firstDayOfMonth.getMonth().name();
+        String dateStr = firstDayOfMonth.getMonth().name().toLowerCase();
         setDescription(
                 String.format("Usage of %s in %s %d", application.getName(), dateStr, firstDayOfMonth.getYear()),
                 "Time",
@@ -115,6 +115,20 @@ public class StatsChartsController {
     @FXML
     private void showAllTime(ActionEvent actionEvent) {
         Optional<LinkedHashMap<Application, Long>> totalUsage = logDao.getTotalUsageForAllEntities();
+        setDescription(
+                "Total usage of all applications",
+                "Application",
+                "Usage in hours");
+
+        XYChart.Series series = new XYChart.Series();
+        ObservableList data = series.getData();
+        totalUsage.get().keySet().forEach(app -> {
+            data.add(new XYChart.Data<String, Number>(app.getName(), totalUsage.get().get(app) / 3600F));
+        });
+
+        setAxisData(series, FXCollections.observableList(totalUsage.get().keySet().stream()
+                .map(Application::getName)
+                .collect(Collectors.toList())));
     }
 
     public void showChart() {

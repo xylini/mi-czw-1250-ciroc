@@ -6,6 +6,7 @@ import pl.edu.agh.timekeeper.db.SessionService;
 
 import javax.persistence.PersistenceException;
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -34,16 +35,16 @@ public class LogApplicationDao extends LogDaoBase<LogApplication, Application> {
 
     @Override
     public Optional<LinkedHashMap<Date, Long>> getHourlyUsageInSecs(Application a, Date dayDate) {
-        return getUsageInSecs(a, this::getHourDateFrom, d -> sameDayPredicate(d, dayDate));
+        return getUsageInSecs(a, this::getHourDateFrom, (start, end) -> dayDatePredicate(start, end, dayDate), this::nextHourStep);
     }
 
     public Optional<LinkedHashMap<Date, Long>> getDailyUsageInSecs(Application a, Date monthDate) {
-        return getUsageInSecs(a, this::getDayDateFrom, d -> sameMonthPredicate(d, monthDate));
+        return getUsageInSecs(a, this::getDayDateFrom, (start, end) -> monthDatePredicate(start, end, monthDate), this::nextDayStep);
     }
 
-    public Optional<LinkedHashMap<Date, Long>> getMonthlyUsageInSecs(Application a) {
-        return getUsageInSecs(a, this::getMonthDateFrom, d -> true);
-    }
+    /*public Optional<LinkedHashMap<Date, Long>> getMonthlyUsageInSecs(Application a) {
+        return getUsageInSecs(a, this::getMonthDateFrom, d -> true, d -> d);
+    }*/
 
     public Optional<LinkedHashMap<Application, Long>> getTotalUsageForAllEntities() {
         Optional<List<LogApplication>> l = getAll();
@@ -69,33 +70,39 @@ public class LogApplicationDao extends LogDaoBase<LogApplication, Application> {
     private Optional<LinkedHashMap<Date, Long>> getUsageInSecs(
             Application a,
             Function<Date, Date> converter,
-            Function<Date, Boolean> filter) {
+            BiFunction<Date, Date, Boolean> filter,
+            Function<Date, Date> step) {
         Optional<List<LogApplication>> logs = getAll(a);
         if (logs.isEmpty()) return Optional.empty();
-        List<LogApplication> l = logs.get().stream().filter(log -> filter.apply(log.getTimeStart())).collect(Collectors.toList());
+        List<LogApplication> l = logs.get().stream().filter(log -> filter.apply(log.getTimeStart(), log.getTimeEnd())).collect(Collectors.toList());
         LinkedHashMap<Date, Long> stats = new LinkedHashMap<>();
 
         for (LogApplication log : l) {
             Date startDate = converter.apply(log.getTimeStart());
             Date endDate = converter.apply(log.getTimeEnd());
-            if(startDate.equals(endDate)) {
-                Long usage = (log.getTimeEnd().getTime() - log.getTimeStart().getTime()) / 1000;
-                insertStat(stats, startDate, usage);
-            } else {
-                Long usage1 = (endDate.getTime() - log.getTimeStart().getTime()) / 1000;
-                Long usage2 = (log.getTimeEnd().getTime() - endDate.getTime()) / 1000;
-                insertStat(stats, startDate, usage1);
-                insertStat(stats, endDate, usage2);
-            }
+            insertStat(stats, log.getTimeStart(), log.getTimeEnd(), startDate, endDate, step);
         }
         return Optional.of(stats);
     }
 
-    private void insertStat(LinkedHashMap<Date, Long> stats, Date d, Long val){
-        if (!stats.keySet().contains(d)) {
-            stats.put(d, val);
+    private void insertStat(
+            LinkedHashMap<Date, Long> stats,
+            Date logTimeStart,
+            Date logTimeEnd,
+            Date startDate,
+            Date endDate,
+            Function<Date, Date> step){
+        Date nextTickDate = step.apply(startDate);
+        if(startDate.equals(endDate) || logTimeEnd.equals(nextTickDate)) {
+            Long usage = (logTimeEnd.getTime() - logTimeStart.getTime()) / 1000;
+            if (!stats.keySet().contains(startDate)) {
+                stats.put(startDate, usage);
+            } else {
+                stats.replace(startDate, stats.get(startDate) + usage);
+            }
         } else {
-            stats.replace(d, stats.get(d) + val);
+            insertStat(stats, logTimeStart, nextTickDate, startDate, nextTickDate, step);
+            insertStat(stats, nextTickDate, logTimeEnd, nextTickDate, endDate, step);
         }
     }
 
@@ -122,11 +129,24 @@ public class LogApplicationDao extends LogDaoBase<LogApplication, Application> {
         return calendar.getTime();
     }
 
-    private Boolean sameDayPredicate(Date d, Date dayDate){
-        return dayDate.equals(getDayDateFrom(d));
+    private Boolean dayDatePredicate(Date start, Date end, Date statDate){
+        return statDate.equals(getDayDateFrom(start))
+                || statDate.equals(getDayDateFrom(end))
+                || (statDate.after(start) && statDate.before(end));
     }
 
-    private Boolean sameMonthPredicate(Date d, Date monthDate){
-        return monthDate.equals(getMonthDateFrom(d));
+    private Boolean monthDatePredicate(Date start, Date end, Date statDate){
+        return statDate.equals(getMonthDateFrom(start))
+                || statDate.equals(getMonthDateFrom(end))
+                || (statDate.after(start) && statDate.before(end));
     }
+
+    private Date nextHourStep(Date d){
+        return Date.from(d.toInstant().plusSeconds(3600));
+    }
+
+    private Date nextDayStep(Date d){
+        return Date.from(d.toInstant().plusSeconds(3600 * 24));
+    }
+
 }

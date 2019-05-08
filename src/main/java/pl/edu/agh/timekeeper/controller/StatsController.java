@@ -63,17 +63,22 @@ public class StatsController {
                 // TODO: Application app = new ApplicationDao().getByName((String) newValue).get()
 
                 // TODO: remove this (test) block ---------------
-                Application app = new ApplicationDao().create(new Application()).get();
-                LogApplication log1 = new LogApplication(app);
-                log1.setTimeStart(Date.from(LocalDateTime.of(2019, 5, 7, 18, 30).atZone(ZoneId.systemDefault()).toInstant()));
-                log1.setTimeEnd(Date.from(LocalDateTime.of(2019, 5, 7, 19, 45).atZone(ZoneId.systemDefault()).toInstant()));
-                LogApplication log2 = new LogApplication(app);
-                log2.setTimeStart(Date.from(LocalDateTime.of(2019, 5, 1, 18, 30).atZone(ZoneId.systemDefault()).toInstant()));
-                log2.setTimeEnd(Date.from((LocalDateTime.of(2019, 5, 1, 19, 45).atZone(ZoneId.systemDefault()).toInstant())));
+                Application app1 = new ApplicationDao().create(new Application("app1")).get();
+                Application app2 = new ApplicationDao().create(new Application("app2")).get();
+                LogApplication log1 = new LogApplication(app1);
+                log1.setTimeStart(Date.from(LocalDateTime.of(2019, 5, 6, 17, 30).atZone(ZoneId.systemDefault()).toInstant()));
+                log1.setTimeEnd(Date.from(LocalDateTime.of(2019, 5, 7, 9, 45).atZone(ZoneId.systemDefault()).toInstant()));
+                LogApplication log2 = new LogApplication(app1);
+                log2.setTimeStart(Date.from(LocalDateTime.of(2019, 4, 30, 18, 30).atZone(ZoneId.systemDefault()).toInstant()));
+                log2.setTimeEnd(Date.from((LocalDateTime.of(2019, 5, 1, 19, 0).atZone(ZoneId.systemDefault()).toInstant())));
+                LogApplication log3 = new LogApplication(app2);
+                log3.setTimeStart(Date.from(LocalDateTime.of(2019, 5, 7, 6, 30).atZone(ZoneId.systemDefault()).toInstant()));
+                log3.setTimeEnd(Date.from(LocalDateTime.of(2019, 5, 7, 9, 0).atZone(ZoneId.systemDefault()).toInstant()));
                 new LogApplicationDao().create(log1);
                 new LogApplicationDao().create(log2);
+                new LogApplicationDao().create(log3);
                 // TODO: ---------------------------------
-                statsChartsController.setApplication(app);
+                statsChartsController.setApplication(app1);
                 statsChartsController.showToday();
             }
         });
