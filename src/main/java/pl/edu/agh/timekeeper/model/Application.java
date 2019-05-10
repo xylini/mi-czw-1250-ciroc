@@ -38,7 +38,7 @@ public class Application implements Serializable {
     public Application() {
     }
 
-    public Application(String name){
+    public Application(String name) {
         this.name = name;
     }
 
@@ -84,6 +84,10 @@ public class Application implements Serializable {
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+    public String getPath() {
+        return path;
     }
 
     public Set<LogApplication> getLogApplications() {
