@@ -1,6 +1,5 @@
 package pl.edu.agh.timekeeper.controller;
 
-import javafx.beans.property.SimpleFloatProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -10,19 +9,14 @@ import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
-import org.hibernate.cfg.Configuration;
-import pl.edu.agh.timekeeper.db.SessionService;
 import pl.edu.agh.timekeeper.db.dao.LogApplicationDao;
-import pl.edu.agh.timekeeper.log.LogApplication;
-import pl.edu.agh.timekeeper.log.LogGroup;
 import pl.edu.agh.timekeeper.model.Application;
-import pl.edu.agh.timekeeper.model.Group;
-import pl.edu.agh.timekeeper.model.Restriction;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.function.BiFunction;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -39,7 +33,7 @@ public class StatsChartsController {
     private Button allTimeButton;
 
     @FXML
-    private BarChart<String,Number> chart;
+    private BarChart<String, Number> chart;
 
     @FXML
     private CategoryAxis xAxis;
@@ -58,14 +52,14 @@ public class StatsChartsController {
         chart.setAnimated(false);
     }
 
-    public void setApplication(Application app){
+    public void setApplication(Application app) {
         this.application = app;
     }
 
     @FXML
     public void showToday() {
         //TODO replace next line (test) with this: ZonedDateTime todayAtMidnight = LocalDate.now().atStartOfDay().atZone(ZoneOffset.systemDefault());
-        ZonedDateTime todayAtMidnight = LocalDate.of(2019, 5, 7).atStartOfDay().atZone(ZoneOffset.systemDefault());
+        ZonedDateTime todayAtMidnight = LocalDate.of(2019, 5, 10).atStartOfDay().atZone(ZoneOffset.systemDefault());
         String dateStr = todayAtMidnight.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
         setDescription(
                 String.format("Usage of %s on %s", application.getName(), dateStr),
@@ -73,7 +67,9 @@ public class StatsChartsController {
                 "Usage in minutes");
 
         Date todayAtMidnightDate = Date.from(todayAtMidnight.toInstant());
-        LinkedHashMap<Date, Long> hourlySecs = logDao.getHourlyUsageInSecs(application, todayAtMidnightDate).get();
+        Optional<LinkedHashMap<Date, Long>>  hsOpt = logDao.getHourlyUsageInSecs(application, todayAtMidnightDate);
+        if(hsOpt.isEmpty()) return;
+        LinkedHashMap<Date, Long> hourlySecs = hsOpt.get();
 
         XYChart.Series series = getSeries(
                 24,
@@ -122,9 +118,9 @@ public class StatsChartsController {
 
         XYChart.Series series = new XYChart.Series();
         ObservableList data = series.getData();
-        totalUsage.get().keySet().forEach(app -> {
+        totalUsage.ifPresent(usage -> usage.keySet().forEach(app -> {
             data.add(new XYChart.Data<String, Number>(app.getName(), totalUsage.get().get(app) / 3600F));
-        });
+        }));
 
         setAxisData(series, FXCollections.observableList(totalUsage.get().keySet().stream()
                 .map(Application::getName)
@@ -134,18 +130,18 @@ public class StatsChartsController {
     public void showChart() {
     }
 
-    private String formatDate(Date date, String pattern){
+    private String formatDate(Date date, String pattern) {
         return LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault())
                 .format(DateTimeFormatter.ofPattern(pattern));
     }
 
-    private void setDescription(String title, String xLabel, String yLabel){
+    private void setDescription(String title, String xLabel, String yLabel) {
         chart.setTitle(title);
         xAxis.setLabel(xLabel);
         yAxis.setLabel(yLabel);
     }
 
-    private void setAxisData(XYChart.Series series, ObservableList<String> labels){
+    private void setAxisData(XYChart.Series series, ObservableList<String> labels) {
         xAxis.getCategories().clear();
         xAxis.setCategories(labels);
 
@@ -161,13 +157,13 @@ public class StatsChartsController {
             LinkedHashMap<Date, Long> usage,
             String labelPattern,
             float unitDivisor
-    ){
+    ) {
         XYChart.Series series = new XYChart.Series();
         ObservableList data = series.getData();
         IntStream.range(0, xAxisRange)
                 .mapToObj(step::apply)
                 .forEach(dateTime -> {
-                    if(!usage.keySet().contains(dateTime)){
+                    if (!usage.keySet().contains(dateTime)) {
                         usage.put(dateTime, 0L);
                         data.add(new XYChart.Data<String, Number>(formatDate(dateTime, labelPattern), 0L));
                     } else {

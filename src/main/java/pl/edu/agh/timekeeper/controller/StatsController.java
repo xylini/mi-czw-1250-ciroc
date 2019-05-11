@@ -9,18 +9,9 @@ import javafx.scene.control.ListView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
-import org.hibernate.cfg.Configuration;
-import pl.edu.agh.timekeeper.db.SessionService;
 import pl.edu.agh.timekeeper.db.dao.ApplicationDao;
-import pl.edu.agh.timekeeper.db.dao.LogApplicationDao;
-import pl.edu.agh.timekeeper.log.LogApplication;
-import pl.edu.agh.timekeeper.model.Application;
 
 import java.io.IOException;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
 
 public class StatsController {
 
@@ -35,20 +26,22 @@ public class StatsController {
     private BorderPane statsPane;
 
     @FXML
-    private ListView applicationsListView;
+    private ListView<String> applicationsListView;
 
     private StatsChartsController statsChartsController;
 
     private StatsTableController statsTableController;
 
-    //TODO private something that has observable list with applications names and time usage data
+    private ObservableList<String> restrictionsNamesList = FXCollections.observableArrayList();
 
     @FXML
     private void initialize() {
-        //test
-        ObservableList<String> list = FXCollections.observableArrayList();
-        list.add("e");
-        applicationsListView.setItems(list);
+        applicationsListView.setItems(restrictionsNamesList);
+
+        // TODO: remove this (test) block ---------------
+        applicationsListView.getItems().add("app1");
+        applicationsListView.getItems().add("app2");
+        // TODO: ---------------------------------
 
         setCenterTable();
         setupListeners();
@@ -60,26 +53,10 @@ public class StatsController {
                 setCenterTable();
             else {
                 if (oldValue == null) setCenterChart();
-                // TODO: Application app = new ApplicationDao().getByName((String) newValue).get()
-
-                // TODO: remove this (test) block ---------------
-                Application app1 = new ApplicationDao().create(new Application("app1")).get();
-                Application app2 = new ApplicationDao().create(new Application("app2")).get();
-                LogApplication log1 = new LogApplication(app1);
-                log1.setTimeStart(Date.from(LocalDateTime.of(2019, 5, 6, 17, 30).atZone(ZoneId.systemDefault()).toInstant()));
-                log1.setTimeEnd(Date.from(LocalDateTime.of(2019, 5, 7, 9, 45).atZone(ZoneId.systemDefault()).toInstant()));
-                LogApplication log2 = new LogApplication(app1);
-                log2.setTimeStart(Date.from(LocalDateTime.of(2019, 4, 30, 18, 30).atZone(ZoneId.systemDefault()).toInstant()));
-                log2.setTimeEnd(Date.from((LocalDateTime.of(2019, 5, 1, 19, 0).atZone(ZoneId.systemDefault()).toInstant())));
-                LogApplication log3 = new LogApplication(app2);
-                log3.setTimeStart(Date.from(LocalDateTime.of(2019, 5, 7, 6, 30).atZone(ZoneId.systemDefault()).toInstant()));
-                log3.setTimeEnd(Date.from(LocalDateTime.of(2019, 5, 7, 9, 0).atZone(ZoneId.systemDefault()).toInstant()));
-                new LogApplicationDao().create(log1);
-                new LogApplicationDao().create(log2);
-                new LogApplicationDao().create(log3);
-                // TODO: ---------------------------------
-                statsChartsController.setApplication(app1);
-                statsChartsController.showToday();
+                new ApplicationDao().getByName(newValue).ifPresent(app -> {
+                    statsChartsController.setApplication(app);
+                    statsChartsController.showToday();
+                });
             }
         });
     }
@@ -88,6 +65,7 @@ public class StatsController {
         FXMLLoader loader = new FXMLLoader(this.getClass().getResource(TABLE_VIEW_PATH));
         setCenter(loader);
         statsTableController = loader.getController();
+        statsTableController.setRestrictions(restrictionsNamesList);
     }
 
     private void setCenterChart() {
