@@ -5,6 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import pl.edu.agh.timekeeper.windows.FocusedWindowDataExtractor;
 import org.hibernate.cfg.Configuration;
 import pl.edu.agh.timekeeper.db.SessionService;
 import pl.edu.agh.timekeeper.db.dao.ApplicationDao;
@@ -55,6 +56,9 @@ public class Main extends Application {
         new ApplicationDao().addRestriction(app2,r2);
         // TODO: ---------------------------------
 
+        Thread focusedWindowThread = new Thread(new FocusedWindowDataExtractor());
+        focusedWindowThread.setDaemon(true);
+        focusedWindowThread.start();
         FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/views/mainView.fxml"));
         BorderPane pane = new BorderPane(loader.load());
         Scene scene = new Scene(pane);

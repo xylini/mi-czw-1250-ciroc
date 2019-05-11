@@ -27,6 +27,17 @@ public class ApplicationDao extends DaoBase<Application> {
         return Optional.empty();
     }
 
+    public Optional<Application> getByPath(String path) {
+        try {
+            return Optional.of(SessionService.getCurrentSession()
+                    .createQuery(String.format("SELECT t FROM %s t WHERE t.path = :path", TABLE_NAME), Application.class)
+                    .setParameter("path", path).getSingleResult());
+        } catch (PersistenceException e) {
+            e.printStackTrace();
+        }
+        return Optional.empty();
+    }
+
     public boolean addRestriction(Application a, Restriction r) {
         if (a.getRestriction() != null) return false;
         a.setRestriction(r);
