@@ -21,6 +21,10 @@ public class Application implements Serializable {
     @Column(name = "NAME", unique = true)
     private String name;
 
+    @NotNull
+    @Column(name = "PATH", unique = true)
+    private String path;
+
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "application", orphanRemoval = true)
     private Set<LogApplication> logApplications = new HashSet<>();
 
@@ -35,12 +39,14 @@ public class Application implements Serializable {
     public Application() {
     }
 
-    public Application(String name) {
+    public Application(String name, String path) {
         this.name = name;
+        this.path = path;
     }
 
-    public Application(String name, Group group) {
+    public Application(String name, String path, Group group) {
         this.name = name;
+        this.path = path;
 
         this.group = group;
         group.addApplication(this);
@@ -60,6 +66,14 @@ public class Application implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
     }
 
     public Set<LogApplication> getLogApplications() {

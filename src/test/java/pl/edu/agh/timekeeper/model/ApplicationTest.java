@@ -44,8 +44,9 @@ class ApplicationTest {
     void addTest() {
         session.beginTransaction();
 
+        String path = "/byleco";
         Group myGroup = new Group("*.mp3");
-        Application myApplication = new Application("cos.mp3", myGroup);
+        Application myApplication = new Application("cos.mp3", path, myGroup);
 
         Restriction myRestriction = Restriction.getRestrictionBuilder()
                 .setLimit(new MyTime(2,2))
@@ -80,9 +81,10 @@ class ApplicationTest {
     void removeTest() {
         session.beginTransaction();
 
+        String path = "/byleco";
         Group myGroup = new Group("*.mp3");
-        Application myApplication = new Application("cos.mp3", myGroup);
-        Application myApplication_2 = new Application("nicos.mp3", myGroup);
+        Application myApplication = new Application("cos.mp3", path, myGroup);
+        Application myApplication_2 = new Application("nicos.mp3", path, myGroup);
 
         Restriction myRestriction = Restriction.getRestrictionBuilder()
                 .setLimit(new MyTime(2, 2))
@@ -128,11 +130,12 @@ class ApplicationTest {
     void updateTest() {
         session.beginTransaction();
 
+        String path = "/bylecos";
         Group myGroup = new Group("*.mp3");
-        Application myApplication = new Application("cos.mp3", myGroup);
+        Application myApplication = new Application("cos.mp3", path, myGroup);
 
         Group myGroup_2 = new Group("*.jpg");
-        Application myApplication_2 = new Application("to.jpg", myGroup_2);
+        Application myApplication_2 = new Application("to.jpg", path, myGroup_2);
 
         session.save(myGroup);
         session.save(myApplication);

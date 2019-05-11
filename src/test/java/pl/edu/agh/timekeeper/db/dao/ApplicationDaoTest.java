@@ -28,7 +28,7 @@ public class ApplicationDaoTest extends DaoTestBase<ApplicationDao, Application>
 
     @Override
     protected Application getEntity() {
-        return new Application("some application");
+        return new Application("some application", "/byleco"); //Krystian: pozwolilem sobie chwilowo dodac taka opcje, najwyzej sobie to pozniej zmienisz :)
     }
 
     @Test
@@ -46,9 +46,10 @@ public class ApplicationDaoTest extends DaoTestBase<ApplicationDao, Application>
     @Test
     void createTest() {
         // given
-        Application app1 = new Application("App1");
-        Application app2 = new Application("App2");
-        Application app3 = new Application("App1");
+        String path = "/byleco"; //Krystian: pozwolilem sobie chwilowo dodac taka opcje, najwyzej sobie to pozniej zmienisz :)
+        Application app1 = new Application("App1", path);
+        Application app2 = new Application("App2", path);
+        Application app3 = new Application("App1", path);
         // when
         Optional<Application> first = applicationDao.create(app1);
         Optional<Application> second = applicationDao.create(app2);

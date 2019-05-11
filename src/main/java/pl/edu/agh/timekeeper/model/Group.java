@@ -28,7 +28,7 @@ public class Group implements Serializable {
     @JoinColumn(name = "RESTRICTION_ID")
     private Restriction restriction;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "group")
     private Set<Application> applications = new HashSet<>();
 
     public Group() {
@@ -36,6 +36,15 @@ public class Group implements Serializable {
 
     public Group(String name) {
         this.name = name;
+    }
+
+    public Group(String name, Set<Application> applications){
+        this.name = name;
+        this.applications = applications;
+
+        for(Application newApplications: applications){
+            newApplications.setGroup(this);
+        }
     }
 
     public int getId() {

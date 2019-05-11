@@ -48,8 +48,9 @@ class LogApplicationTest {
     void addTest() {
         session.beginTransaction();
 
+        String path = "/byleco";
         Group myGroup = new Group("*.mp3");
-        Application myApplication = new Application("cos.mp3", myGroup);
+        Application myApplication = new Application("cos.mp3", path, myGroup);
         Restriction myRestriction = Restriction.getRestrictionBuilder()
                 .setLimit(new MyTime(2,2))
                 .setStart(new MyTime(3,3))
@@ -85,8 +86,9 @@ class LogApplicationTest {
     void removeTest() {
         session.beginTransaction();
 
+        String path = "/byleco";
         Group myGroup = new Group("*.mp3");
-        Application myApplication = new Application("cos.mp3", myGroup);
+        Application myApplication = new Application("cos.mp3", path, myGroup);
         Restriction myRestriction = Restriction.getRestrictionBuilder()
                 .setLimit(new MyTime(2,2))
                 .setStart(new MyTime(3,3))
@@ -126,8 +128,9 @@ class LogApplicationTest {
     void updateTest() {
         session.beginTransaction();
 
+        String path = "/byleco";
         Group myGroup = new Group("*.mp3");
-        Application myApplication = new Application("cos.mp3", myGroup);
+        Application myApplication = new Application("cos.mp3", path, myGroup);
         Restriction myRestriction = Restriction.getRestrictionBuilder()
                 .setLimit(new MyTime(2,2))
                 .setStart(new MyTime(3,3))
