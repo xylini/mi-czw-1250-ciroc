@@ -38,13 +38,6 @@ public class Group implements Serializable {
         this.name = name;
     }
 
-    public Group(String name, Restriction restriction) {
-        this.name = name;
-
-        this.restriction = restriction;
-        restriction.setGroup(this);
-    }
-
     public int getId() {
         return id;
     }

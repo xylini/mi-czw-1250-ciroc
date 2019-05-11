@@ -7,3 +7,6 @@ out/
 /project/
 mytestdb.db
 mydb.db
+local.properties
+*.ipr
+*.iws

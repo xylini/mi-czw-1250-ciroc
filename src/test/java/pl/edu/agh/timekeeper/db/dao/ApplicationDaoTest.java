@@ -64,10 +64,11 @@ public class ApplicationDaoTest extends DaoTestBase<ApplicationDao, Application>
     void addRestrictionTest() {
         // given
         Application application = getEntity();
-        Restriction restriction = new Restriction(
-                new MyTime(1, 0),
-                new MyTime(1, 0),
-                new MyTime(2, 0));
+        Restriction restriction = Restriction.getRestrictionBuilder()
+                .setLimit(new MyTime(1, 0))
+                .setStart(new MyTime(1,0))
+                .setEnd(new MyTime(2,0))
+                .build();
         applicationDao.create(application);
         restrictionDao.create(restriction);
         // when
@@ -83,10 +84,11 @@ public class ApplicationDaoTest extends DaoTestBase<ApplicationDao, Application>
     void updateRestrictionWhenNoRestrictionSetTest() {
         // given
         Application application = getEntity();
-        Restriction restriction = new Restriction(
-                new MyTime(1, 0),
-                new MyTime(1, 0),
-                new MyTime(2, 0));
+        Restriction restriction = Restriction.getRestrictionBuilder()
+                .setLimit(new MyTime(1, 0))
+                .setStart(new MyTime(1,0))
+                .setEnd(new MyTime(2,0))
+                .build();
         applicationDao.create(application);
         restrictionDao.create(restriction);
         // when
@@ -99,14 +101,16 @@ public class ApplicationDaoTest extends DaoTestBase<ApplicationDao, Application>
     void updateRestrictionWhenRestrictionSetTest() {
         // given
         Application application = getEntity();
-        Restriction restriction = new Restriction(
-                new MyTime(1, 0),
-                new MyTime(1, 0),
-                new MyTime(2, 0));
-        Restriction restriction2 = new Restriction(
-                new MyTime(1, 0),
-                new MyTime(1, 0),
-                new MyTime(3, 0));
+        Restriction restriction = Restriction.getRestrictionBuilder()
+                .setLimit(new MyTime(1, 0))
+                .setStart(new MyTime(1,0))
+                .setEnd(new MyTime(2,0))
+                .build();
+        Restriction restriction2 = Restriction.getRestrictionBuilder()
+                .setLimit(new MyTime(1, 0))
+                .setStart(new MyTime(1,0))
+                .setEnd(new MyTime(3,0))
+                .build();
         applicationDao.create(application);
         restrictionDao.create(restriction);
         restrictionDao.create(restriction2);
@@ -127,10 +131,11 @@ public class ApplicationDaoTest extends DaoTestBase<ApplicationDao, Application>
     void removeExistingRestrictionTest() {
         // given
         Application application = getEntity();
-        Restriction restriction = new Restriction(
-                new MyTime(1, 0),
-                new MyTime(1, 0),
-                new MyTime(2, 0));
+        Restriction restriction = Restriction.getRestrictionBuilder()
+                .setLimit(new MyTime(1, 0))
+                .setStart(new MyTime(1,0))
+                .setEnd(new MyTime(2,0))
+                .build();
         Application application1 = applicationDao.create(application).get();
         System.out.println("ID: " + application1.getId());
         restrictionDao.create(restriction);
@@ -148,10 +153,11 @@ public class ApplicationDaoTest extends DaoTestBase<ApplicationDao, Application>
     void removeNotExistingRestrictionTest() {
         // given
         Application application = getEntity();
-        Restriction restriction = new Restriction(
-                new MyTime(1, 0),
-                new MyTime(1, 0),
-                new MyTime(2, 0));
+        Restriction restriction = Restriction.getRestrictionBuilder()
+                .setLimit(new MyTime(1, 0))
+                .setStart(new MyTime(1,0))
+                .setEnd(new MyTime(2,0))
+                .build();
         applicationDao.create(application);
         restrictionDao.create(restriction);
         // when

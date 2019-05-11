@@ -34,32 +34,23 @@ public class Restriction implements Serializable {
     @OneToOne(mappedBy = "restriction")
     private Group group;
 
-    public Restriction() {
-    }
-
-    public Restriction(MyTime limit, MyTime start, MyTime end) {
-        this.limit = limit;
-        this.start = start;
-        this.end = end;
-    }
-
-    public Restriction(MyTime limit, MyTime start, MyTime end, Application application) {
+    public Restriction(MyTime limit, MyTime start, MyTime end, Application application, Group group) {
         this.limit = limit;
         this.start = start;
         this.end = end;
 
+        if(application != null){
+            application.setRestriction(this);
+        }
         this.application = application;
-        application.setRestriction(this);
-    }
 
-    public Restriction(MyTime limit, MyTime start, MyTime end, Group group) {
-        this.limit = limit;
-        this.start = start;
-        this.end = end;
-
+        if(group != null){
+            group.setRestriction(this);
+        }
         this.group = group;
-        group.setRestriction(this);
     }
+
+    public Restriction(){}
 
     public int getId() {
         return id;
@@ -107,6 +98,10 @@ public class Restriction implements Serializable {
 
     public void setGroup(Group group) {
         this.group = group;
+    }
+
+    public static RestrictionBuilder getRestrictionBuilder(){
+        return new RestrictionBuilder();
     }
 
     @Override

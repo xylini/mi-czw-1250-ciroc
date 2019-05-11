@@ -48,9 +48,16 @@ class LogApplicationTest {
     void addTest() {
         session.beginTransaction();
 
-        Restriction myRestriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
-        Group myGroup = new Group("*.mp3", myRestriction);
-        Application myApplication = new Application("cos.mp3", myRestriction, myGroup);
+        Group myGroup = new Group("*.mp3");
+        Application myApplication = new Application("cos.mp3", myGroup);
+        Restriction myRestriction = Restriction.getRestrictionBuilder()
+                .setLimit(new MyTime(2,2))
+                .setStart(new MyTime(3,3))
+                .setEnd(new MyTime(4,4))
+                .setGroup(myGroup)
+                .setApplication(myApplication)
+                .build();
+
         LogApplication myLogApplication = new LogApplication(myApplication);
         LogApplication myLogApplication_2 = new LogApplication(myApplication);
 
@@ -78,9 +85,15 @@ class LogApplicationTest {
     void removeTest() {
         session.beginTransaction();
 
-        Restriction myRestriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
-        Group myGroup = new Group("*.mp3", myRestriction);
-        Application myApplication = new Application("cos.mp3", myRestriction, myGroup);
+        Group myGroup = new Group("*.mp3");
+        Application myApplication = new Application("cos.mp3", myGroup);
+        Restriction myRestriction = Restriction.getRestrictionBuilder()
+                .setLimit(new MyTime(2,2))
+                .setStart(new MyTime(3,3))
+                .setEnd(new MyTime(4,4))
+                .setGroup(myGroup)
+                .setApplication(myApplication)
+                .build();
         LogApplication myLogApplication = new LogApplication(myApplication);
         LogApplication myLogApplication_2 = new LogApplication(myApplication);
 
@@ -113,9 +126,15 @@ class LogApplicationTest {
     void updateTest() {
         session.beginTransaction();
 
-        Restriction myRestriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
-        Group myGroup = new Group("*.mp3", myRestriction);
-        Application myApplication = new Application("cos.mp3", myRestriction, myGroup);
+        Group myGroup = new Group("*.mp3");
+        Application myApplication = new Application("cos.mp3", myGroup);
+        Restriction myRestriction = Restriction.getRestrictionBuilder()
+                .setLimit(new MyTime(2,2))
+                .setStart(new MyTime(3,3))
+                .setEnd(new MyTime(4,4))
+                .setGroup(myGroup)
+                .setApplication(myApplication)
+                .build();
         LogApplication myLogApplication = new LogApplication(myApplication);
         LogApplication myLogApplication_2 = new LogApplication(myApplication);
 

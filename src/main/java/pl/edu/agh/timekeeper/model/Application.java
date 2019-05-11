@@ -39,25 +39,8 @@ public class Application implements Serializable {
         this.name = name;
     }
 
-    public Application(String name, Restriction restriction) {
-        this.name = name;
-
-        this.restriction = restriction;
-        restriction.setApplication(this);
-    }
-
     public Application(String name, Group group) {
         this.name = name;
-
-        this.group = group;
-        group.addApplication(this);
-    }
-
-    public Application(String name, Restriction restriction, Group group) {
-        this.name = name;
-
-        this.restriction = restriction;
-        restriction.setApplication(this);
 
         this.group = group;
         group.addApplication(this);

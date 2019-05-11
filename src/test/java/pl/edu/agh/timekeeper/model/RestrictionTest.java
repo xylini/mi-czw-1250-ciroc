@@ -44,27 +44,43 @@ class RestrictionTest {
     void addTest() {
         session.beginTransaction();
 
-        Restriction my_restriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
-        Restriction my_restriction_2 = new Restriction(new MyTime(3, 3), new MyTime(4, 4), new MyTime(4, 4));
-        session.save(my_restriction);
-        session.save(my_restriction_2);
+        Restriction myRestriction = Restriction.getRestrictionBuilder()
+                .setLimit(new MyTime(2,2))
+                .setStart(new MyTime(3,3))
+                .setEnd(new MyTime(4,4))
+                .build();
+        Restriction myRestriction_2 = Restriction.getRestrictionBuilder()
+                .setLimit(new MyTime(3,3))
+                .setStart(new MyTime(4,4))
+                .setEnd(new MyTime(4,4))
+                .build();
 
+        session.save(myRestriction);
+        session.save(myRestriction_2);
         session.getTransaction().commit();
 
         List<Restriction> all_restrictions = session.createQuery(
                 "from Restriction", Restriction.class).getResultList();
 
         assertEquals(all_restrictions.size(), 2);
-        assertEquals(my_restriction, all_restrictions.get(0));
-        assertEquals(my_restriction_2, all_restrictions.get(1));
+        assertEquals(myRestriction, all_restrictions.get(0));
+        assertEquals(myRestriction_2, all_restrictions.get(1));
     }
 
     @Test
     void removeTest() {
         session.beginTransaction();
 
-        Restriction myRestriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
-        Restriction myRestriction_2 = new Restriction(new MyTime(3, 3), new MyTime(4, 4), new MyTime(4, 4));
+        Restriction myRestriction = Restriction.getRestrictionBuilder()
+                .setLimit(new MyTime(2,2))
+                .setStart(new MyTime(3,3))
+                .setEnd(new MyTime(4,4))
+                .build();
+        Restriction myRestriction_2 = Restriction.getRestrictionBuilder()
+                .setLimit(new MyTime(3,3))
+                .setStart(new MyTime(4,4))
+                .setEnd(new MyTime(4,4))
+                .build();
         session.save(myRestriction);
         session.save(myRestriction_2);
 
@@ -87,7 +103,11 @@ class RestrictionTest {
     void updateTest() {
         session.beginTransaction();
 
-        Restriction myRestriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
+        Restriction myRestriction = Restriction.getRestrictionBuilder()
+                .setLimit(new MyTime(2,2))
+                .setStart(new MyTime(3,3))
+                .setEnd(new MyTime(4,4))
+                .build();
         session.save(myRestriction);
 
         session.getTransaction().commit();

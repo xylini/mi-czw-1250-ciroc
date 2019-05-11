@@ -34,4 +34,4 @@ javafx {
     version = '11.0.2'
 }
 
-mainClassName = 'pl.agh.edu.timekeeper.Main'
+mainClassName = 'pl.edu.agh.timekeeper.Main'
