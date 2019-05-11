@@ -17,7 +17,6 @@ public class Application implements Serializable {
     @Column(name = "ID", updatable = false)
     private int id;
 
-    @NotNull
     @Column(name = "NAME", unique = true)
     private String name;
 
@@ -75,7 +74,7 @@ public class Application implements Serializable {
     public void setPath(String path) {
         this.path = path;
     }
-
+  
     public Set<LogApplication> getLogApplications() {
         return logApplications;
     }
