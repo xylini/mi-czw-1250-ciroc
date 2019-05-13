@@ -52,12 +52,12 @@ public class MainScreenController {
             if (newValue == null)
                 oldValue.setSelected(true);
         }));
-        mainVBox.prefHeightProperty().bind(mainBorderPane.prefHeightProperty());
-        mainVBox.prefWidthProperty().bind(mainBorderPane.prefWidthProperty());
-        restrictionsButton.prefWidthProperty().bind(mainVBox.prefWidthProperty());
-        statsButton.prefWidthProperty().bind(mainVBox.prefWidthProperty());
-        prefButton.prefWidthProperty().bind(mainVBox.prefWidthProperty());
-        helpButton.prefWidthProperty().bind(mainVBox.prefWidthProperty());
+        mainBorderPane.prefHeightProperty().bind(mainVBox.heightProperty());
+        mainBorderPane.prefWidthProperty().bind(mainVBox.widthProperty());
+        restrictionsButton.prefWidthProperty().bind(mainVBox.widthProperty());
+        statsButton.prefWidthProperty().bind(mainVBox.widthProperty());
+        prefButton.prefWidthProperty().bind(mainVBox.widthProperty());
+        helpButton.prefWidthProperty().bind(mainVBox.widthProperty());
     }
 
     private void prepareRestrictionView() throws IOException {
