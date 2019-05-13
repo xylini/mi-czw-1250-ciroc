@@ -6,14 +6,16 @@ import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.Button;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 
 public class StatsChartsController {
 
     @FXML
-    private Button todayButton;
+    private Pane chartsPane;
 
     @FXML
-    private Button lastWeekButton;
+    private Button todayButton;
 
     @FXML
     private Button lastMonthButton;
@@ -25,38 +27,43 @@ public class StatsChartsController {
     private BarChart chart;
 
     @FXML
+    private HBox bottomButtonsBox;
+
+    @FXML
     private CategoryAxis xAxis;
 
     @FXML
     private NumberAxis yAxis;
 
-    //TODO private Application application; //application to retrieve usage data from it
+    private StatsController statsController;
 
     @FXML
     private void initialize() {
 
     }
 
-//    TODO public void setApplication(){
-//
-//    }
-
     @FXML
     private void showToday(ActionEvent actionEvent) {
-    }
-
-    @FXML
-    private void showLastWeek(ActionEvent actionEvent) {
     }
 
     @FXML
     private void showLastMonth(ActionEvent actionEvent) {
     }
 
-    @FXML
-    private void showAllTime(ActionEvent actionEvent) {
+    public void setStatsController(StatsController statsController){
+        this.statsController = statsController;
+    }
+
+    public void setBindings(){
+        chartsPane.prefHeightProperty().bind(statsController.getStatsPane().heightProperty());
+        chartsPane.prefWidthProperty().bind(statsController.getStatsPane().widthProperty()
+                .subtract(statsController.getApplicationsListView().widthProperty()));
+        chart.prefWidthProperty().bind(chartsPane.widthProperty());
+        chart.prefHeightProperty().bind(chartsPane.heightProperty().subtract(bottomButtonsBox.getHeight()));
     }
 
     public void showChart() {
     }
+
+
 }
