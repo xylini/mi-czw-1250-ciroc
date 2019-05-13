@@ -12,23 +12,18 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 
-<?import javafx.scene.shape.Line?>
-<Pane prefWidth="375.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<Pane maxWidth="335" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
     <children>
-        <VBox alignment="CENTER">
+        <VBox spacing="10.0">
             <children>
-                <HBox alignment="CENTER">
-                    <TextField fx:id="nameRestrictionField" promptText="Type your name of restriction" alignment="CENTER"
-                               prefHeight="25.0" prefWidth="250.0"/>
+                <HBox>
+                    <TextField fx:id="nameRestrictionField" prefHeight="25.0" prefWidth="250.0"
+                               promptText="Type your name of restriction"/>
                 </HBox>
-                <HBox alignment="CENTER">
+                <HBox spacing="10.0">
                     <children>
-                        <RadioButton fx:id="appRadioButton" mnemonicParsing="false"
-                                     selected="true" text="Application"/>
-                        <RadioButton fx:id="groupRadioButton" mnemonicParsing="false"
-                                     text="Group"/>
-                        <RadioButton fx:id="filePathRadioButton" mnemonicParsing="false"
-                                     text="File Path"/>
+                        <RadioButton fx:id="appRadioButton" mnemonicParsing="false" selected="true" text="Application"/>
+                        <RadioButton fx:id="groupRadioButton" mnemonicParsing="false" text="Group"/>
                     </children>
                     <opaqueInsets>
                         <Insets top="10.0"/>
@@ -38,13 +33,15 @@
                         <Insets bottom="10.0"/>
                     </VBox.margin>
                 </HBox>
-                <HBox fx:id="restrictionHBox" alignment="CENTER">
+                <HBox fx:id="restrictionHBox">
                 </HBox>
-                <Label text="Daily restriction" />
-                <HBox alignment="CENTER">
+                <Label text="Daily restriction"/>
+                <HBox>
                     <children>
-                        <TextField fx:id="hoursDailyField" promptText="Hours" alignment="CENTER" prefHeight="25.0" prefWidth="60.0"/>
-                        <TextField fx:id="minutesDailyField" promptText="Min" alignment="CENTER" prefHeight="25.0" prefWidth="60.0"/>
+                        <TextField fx:id="hoursDailyField" alignment="CENTER" prefHeight="25.0" prefWidth="60.0"
+                                   promptText="Hours"/>
+                        <TextField fx:id="minutesDailyField" alignment="CENTER" prefHeight="25.0" prefWidth="60.0"
+                                   promptText="Min"/>
                     </children>
                 </HBox>
                 <Label text="Hours range">
@@ -54,13 +51,13 @@
                 </Label>
                 <ScrollPane fitToWidth="true">
                     <content>
-                        <VBox fx:id="scrollBox" prefHeight="183.0" prefWidth="400.0" spacing="10.0"
+                        <VBox fx:id="scrollBox" prefHeight="183.0" prefWidth="320.0" spacing="10.0"
                               style="-fx-background-color: transparent;">
                             <children>
                                 <Button fx:id="addRangeButton" mnemonicParsing="false" onAction="#addButtonClicked"
-                                        prefHeight="30.0" prefWidth="50.0">
+                                        prefHeight="25.0" prefWidth="25.0">
                                     <graphic>
-                                        <ImageView fitWidth="40" fitHeight="25" pickOnBounds="true"
+                                        <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true"
                                                    preserveRatio="true">
                                             <image>
                                                 <Image url="@../images/plus.png"/>
@@ -72,9 +69,12 @@
                         </VBox>
                     </content>
                 </ScrollPane>
-                <Button fx:id="okButton" mnemonicParsing="false" onAction="#okClicked" prefHeight="50.0"
+                <Button fx:id="okButton" mnemonicParsing="false" onAction="#okClicked" prefHeight="25.0"
                         prefWidth="150.0" text="Add restriction"/>
             </children>
+            <padding>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+            </padding>
         </VBox>
     </children>
 </Pane>

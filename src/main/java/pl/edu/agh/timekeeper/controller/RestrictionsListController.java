@@ -15,6 +15,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import javax.swing.event.ChangeListener;
 import java.io.*;
@@ -58,12 +59,8 @@ public class RestrictionsListController {
 
     @FXML
     private void initialize() {
-        // Two line only for testing :TODO need to join real apps names
+        // TODO need to join real apps names
         this.appsNames.setAll("Halo", "Hello", "Hi");
-//        restrictionListView.itemsProperty().addListener((observable, oldValue, newValue) -> {
-//            System.out.println(observable.toString());
-//            System.out.println(oldValue + " NEW VALUE: " + newValue);
-//        });
         restrictionListView.setItems(this.appsNames);
         this.restrictionTabPane.tabDragPolicyProperty().setValue(TabPane.TabDragPolicy.REORDER);
         openAppTab();
@@ -75,29 +72,28 @@ public class RestrictionsListController {
     private void openAppTab() {
         restrictionListView.setOnMouseClicked(mouseEvent -> {
             if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
-                if (mouseEvent.getClickCount() == 2) {
-                    String item = restrictionListView.getSelectionModel().getSelectedItem();
-                    if (item != null) {
-                        boolean isNew = true;
-                        for (Tab tab : restrictionTabPane.getTabs())
-                            if (tab.getText().equals(item)) {
-                                isNew = false;
-                            }
-                        if (isNew) {
-                            Tab tab = new Tab();
-                            FXMLLoader loader = new FXMLLoader();
-                            loader.setLocation(getClass().getResource(RESTRICTION_VIEW_PATH));
-                            ScrollPane restrictionScrollPane = null;
-                            try {
-                                restrictionScrollPane = loader.load();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                            tab.setContent(restrictionScrollPane);
-                            tab.setText(item);
-                            this.restrictionTabPane.getTabs().add(0,tab);
-                            restrictionTabPane.getSelectionModel().select(0);
+                String item = restrictionListView.getSelectionModel().getSelectedItem();
+                if (item != null) {
+                    boolean isNew = true;
+                    for (Tab tab : restrictionTabPane.getTabs())
+                        if (tab.getText().equals(item)) {
+                            isNew = false;
+                            restrictionTabPane.getSelectionModel().select(tab);
                         }
+                    if (isNew) {
+                        Tab tab = new Tab();
+                        FXMLLoader loader = new FXMLLoader();
+                        loader.setLocation(getClass().getResource(RESTRICTION_VIEW_PATH));
+                        ScrollPane restrictionScrollPane = null;
+                        try {
+                            restrictionScrollPane = loader.load();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        tab.setContent(restrictionScrollPane);
+                        tab.setText(item);
+                        this.restrictionTabPane.getTabs().add(0, tab);
+                        restrictionTabPane.getSelectionModel().select(0);
                     }
                 }
             }
@@ -135,8 +131,13 @@ public class RestrictionsListController {
         alert.setHeaderText("Are you sure to remove this restriction?");
         alert.getButtonTypes().setAll(ButtonType.NO, ButtonType.YES);
         alert.showAndWait();
+
         if (alert.getResult() == ButtonType.YES) {
-            restrictionListView.getItems().removeAll(restrictionListView.getSelectionModel().getSelectedItem());
+            for (Tab tab : restrictionTabPane.getTabs()) {
+                if (tab.getText().equals(restrictionListView.getSelectionModel().getSelectedItem()))
+                    restrictionTabPane.getTabs().remove(tab);
+            }
+            restrictionListView.getItems().remove(restrictionListView.getSelectionModel().getSelectedItem());
         }
     }
 
@@ -144,8 +145,10 @@ public class RestrictionsListController {
         try {
             Stage stage = new Stage();
             stage.setTitle(title);
-            stage.setScene(new Scene(loader.load(), 500, 550));
+            stage.setScene(new Scene(loader.load(), 335, 480));
             stage.setAlwaysOnTop(true);
+            stage.setResizable(false);
+            stage.initStyle(StageStyle.UTILITY);
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();

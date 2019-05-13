@@ -31,9 +31,6 @@ public class AddRestrictionController {
     private RadioButton groupRadioButton;
 
     @FXML
-    private RadioButton filePathRadioButton;
-
-    @FXML
     private Button addRangeButton;
 
     @FXML
@@ -51,11 +48,9 @@ public class AddRestrictionController {
     @FXML
     private RestrictionsListController restrictionsListController;
 
-    private ComboBox applicationsComboBox = new ComboBox();
+    private TextField applicationsComboBox = new TextField();
 
     private ComboBox groupComboBox = new ComboBox();
-
-    private TextField filePath = new TextField();
 
     private final ToggleGroup groupRadioButtons = new ToggleGroup();
 
@@ -64,7 +59,6 @@ public class AddRestrictionController {
     private void initialize() {
         appRadioButton.setToggleGroup(groupRadioButtons);
         groupRadioButton.setToggleGroup(groupRadioButtons);
-        filePathRadioButton.setToggleGroup(groupRadioButtons);
 
         if (!restrictionHBox.getChildren().contains(applicationsComboBox))
             restrictionHBox.getChildren().add(applicationsComboBox);
@@ -75,8 +69,6 @@ public class AddRestrictionController {
                 restrictionHBox.getChildren().add(applicationsComboBox);
             } else if (groupRadioButton.equals(newValue)) {
                 restrictionHBox.getChildren().add(groupComboBox);
-            } else if (filePathRadioButton.equals(newValue)) {
-                restrictionHBox.getChildren().add(filePath);
             }
         });
 
@@ -99,14 +91,20 @@ public class AddRestrictionController {
         box.setPadding(new Insets(5));
         box.setAlignment(Pos.CENTER_LEFT);
         List<TextField> textFields = new ArrayList<>(Arrays.asList(new TextField(), new TextField(), new TextField(), new TextField()));
-        for (TextField field : textFields)
-            field.setPrefSize(36, 26);
+        for (int index = 0; index < textFields.size(); index++) {
+            textFields.get(index).setPrefSize(36, 25);
+            if (index % 2 == 0) {
+                textFields.get(index).setPromptText("HH");
+            } else {
+                textFields.get(index).setPromptText("MM");
+            }
+        }
         Label toLabel = new Label("To");
         //Delete button
         Button deleteButton = new Button();
         ImageView deleteImg = new ImageView("images/delete.png");
-        deleteImg.setFitWidth(25);
-        deleteImg.setFitHeight(25);
+        deleteImg.setFitWidth(20);
+        deleteImg.setFitHeight(20);
         deleteButton.setGraphic(deleteImg);
         deleteButton.setOnMouseClicked(deleteEvent);
         //
