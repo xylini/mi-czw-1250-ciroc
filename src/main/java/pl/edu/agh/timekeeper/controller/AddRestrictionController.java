@@ -66,8 +66,8 @@ public class AddRestrictionController {
         groupRadioButton.setToggleGroup(groupRadioButtons);
         filePathRadioButton.setToggleGroup(groupRadioButtons);
 
-        if (restrictionHBox.getChildren().contains(applicationsComboBox)) {
-        } else restrictionHBox.getChildren().add(applicationsComboBox);
+        if (!restrictionHBox.getChildren().contains(applicationsComboBox))
+            restrictionHBox.getChildren().add(applicationsComboBox);
 
         groupRadioButtons.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
             restrictionHBox.getChildren().clear();
