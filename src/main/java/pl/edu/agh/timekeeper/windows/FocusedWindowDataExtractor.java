@@ -28,8 +28,6 @@ public class FocusedWindowDataExtractor implements Runnable {
             GetModuleFileNameExA(process, null, processPathBuffer, MAX_LENGTH);
             String focusedWindowProcessPath = Native.toString(processPathBuffer);
             timer.setApplicationPath(focusedWindowProcessPath);
-            System.out.print(focusedWindowProcessPath + "    ");
-            System.out.println(timer.getSecondsUsedToday());
         }
     }
 

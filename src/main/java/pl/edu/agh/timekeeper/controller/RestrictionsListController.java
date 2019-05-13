@@ -1,24 +1,20 @@
 package pl.edu.agh.timekeeper.controller;
 
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.Property;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-import javax.swing.event.ChangeListener;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RestrictionsListController {
 
@@ -40,7 +36,7 @@ public class RestrictionsListController {
     private TabPane restrictionTabPane;
 
     @FXML
-    public ListView<String> restrictionListView;
+    private ListView<String> restrictionListView;
 
     @FXML
     private Button addButton;
@@ -100,8 +96,8 @@ public class RestrictionsListController {
         });
     }
 
-    public ObservableList<String> getAppsNames() {
-        return appsNames;
+    public ListView<String> getRestrictionListView(){
+        return this.restrictionListView;
     }
 
     public void setAppsNames(ObservableList<String> appsNames) {
@@ -133,10 +129,12 @@ public class RestrictionsListController {
         alert.showAndWait();
 
         if (alert.getResult() == ButtonType.YES) {
+            List<Tab> tabsToRemove = new ArrayList<>();
             for (Tab tab : restrictionTabPane.getTabs()) {
                 if (tab.getText().equals(restrictionListView.getSelectionModel().getSelectedItem()))
-                    restrictionTabPane.getTabs().remove(tab);
+                    tabsToRemove.add(tab);
             }
+            restrictionTabPane.getTabs().removeAll(tabsToRemove);
             restrictionListView.getItems().remove(restrictionListView.getSelectionModel().getSelectedItem());
         }
     }
@@ -146,6 +144,7 @@ public class RestrictionsListController {
             Stage stage = new Stage();
             stage.setTitle(title);
             stage.setScene(new Scene(loader.load(), 335, 480));
+            stage.initModality(Modality.APPLICATION_MODAL);
             stage.setAlwaysOnTop(true);
             stage.setResizable(false);
             stage.initStyle(StageStyle.UTILITY);

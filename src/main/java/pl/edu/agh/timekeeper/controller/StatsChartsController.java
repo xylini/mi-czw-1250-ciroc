@@ -50,11 +50,11 @@ public class StatsChartsController {
     private void showLastMonth(ActionEvent actionEvent) {
     }
 
-    public void setStatsController(StatsController statsController){
+    public void setStatsController(StatsController statsController) {
         this.statsController = statsController;
     }
 
-    public void setBindings(){
+    public void setBindings() {
         chartsPane.prefHeightProperty().bind(statsController.getStatsPane().heightProperty());
         chartsPane.prefWidthProperty().bind(statsController.getStatsPane().widthProperty()
                 .subtract(statsController.getApplicationsListView().widthProperty()));
