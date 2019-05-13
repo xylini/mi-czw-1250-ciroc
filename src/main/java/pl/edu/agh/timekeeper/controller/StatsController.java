@@ -5,9 +5,8 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 
@@ -20,7 +19,10 @@ public class StatsController {
     private static final String CHART_VIEW_PATH = "/views/statsChartsView.fxml";
 
     @FXML
-    public Button overallButton;
+    public Label overallLabel;
+
+    @FXML
+    public Label allTimeLabel;
 
     @FXML
     private Pane listPane;
@@ -40,9 +42,9 @@ public class StatsController {
     @FXML
     private void initialize() {
         //test
-        ObservableList<String> list = FXCollections.observableArrayList();
+        ObservableList list = FXCollections.observableArrayList();
+        list = applicationsListView.getItems();
         list.add("e");
-
         applicationsListView.setItems(list);
 
         setCenterTable();
@@ -51,12 +53,13 @@ public class StatsController {
 
     private void setupListeners() {
         applicationsListView.getSelectionModel().selectedItemProperty().addListener((list, oldValue, newValue) -> {
-            if (newValue == null) {
+            if (newValue == overallLabel) {
                 setCenterTable();
-            }
+            } else if (newValue == allTimeLabel)
+                //TODO add chart with all times not ChartView
+                setCenterChart();
             else {
-                if (oldValue == null)
-                    setCenterChart();
+                setCenterChart();
                 //TODO statsChartsController.setApplication(newValue)
             }
         });
@@ -84,8 +87,4 @@ public class StatsController {
         }
     }
 
-    @FXML
-    private void overallButton(MouseEvent mouseEvent) {
-        applicationsListView.getSelectionModel().clearSelection();
-    }
 }

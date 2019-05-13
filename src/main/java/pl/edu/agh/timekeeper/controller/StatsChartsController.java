@@ -42,13 +42,8 @@ public class StatsChartsController {
     private void showToday(ActionEvent actionEvent) {
     }
 
-
     @FXML
     private void showLastMonth(ActionEvent actionEvent) {
-    }
-
-    @FXML
-    private void showAllTime(ActionEvent actionEvent) {
     }
 
     public void showChart() {

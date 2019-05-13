@@ -1,15 +1,11 @@
 package pl.edu.agh.timekeeper.controller;
 
-import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
@@ -69,7 +65,9 @@ public class AddRestrictionController {
         appRadioButton.setToggleGroup(groupRadioButtons);
         groupRadioButton.setToggleGroup(groupRadioButtons);
         filePathRadioButton.setToggleGroup(groupRadioButtons);
-        restrictionHBox.getChildren().add(applicationsComboBox);
+
+        if (restrictionHBox.getChildren().contains(applicationsComboBox)) {
+        } else restrictionHBox.getChildren().add(applicationsComboBox);
 
         groupRadioButtons.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
             restrictionHBox.getChildren().clear();
@@ -90,7 +88,7 @@ public class AddRestrictionController {
         ((Stage) okButton.getScene().getWindow()).close();
     }
 
-    public void setRestrictionsListController(RestrictionsListController restrictionsListController){
+    public void setRestrictionsListController(RestrictionsListController restrictionsListController) {
         this.restrictionsListController = restrictionsListController;
     }
 

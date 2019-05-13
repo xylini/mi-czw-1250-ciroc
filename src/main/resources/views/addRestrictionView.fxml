@@ -12,10 +12,15 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 
+<?import javafx.scene.shape.Line?>
 <Pane prefWidth="375.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
     <children>
         <VBox alignment="CENTER">
             <children>
+                <HBox alignment="CENTER">
+                    <TextField fx:id="nameRestrictionField" promptText="Type your name of restriction" alignment="CENTER"
+                               prefHeight="25.0" prefWidth="250.0"/>
+                </HBox>
                 <HBox alignment="CENTER">
                     <children>
                         <RadioButton fx:id="appRadioButton" mnemonicParsing="false"
@@ -33,23 +38,13 @@
                         <Insets bottom="10.0"/>
                     </VBox.margin>
                 </HBox>
-                <HBox alignment="CENTER">
-                    <Label text="Name of restriction: "/>
-                    <TextField fx:id="nameRestrictionField" alignment="CENTER" prefHeight="25.0" prefWidth="150.0"/>
-                </HBox>
                 <HBox fx:id="restrictionHBox" alignment="CENTER">
                 </HBox>
-                <Label text="Daily restriction">
-                    <VBox.margin>
-                        <Insets bottom="10.0" top="10.0"/>
-                    </VBox.margin>
-                </Label>
+                <Label text="Daily restriction" />
                 <HBox alignment="CENTER">
                     <children>
-                        <Label text="Hours: "/>
-                        <TextField fx:id="hoursDailyField" alignment="CENTER" prefHeight="25.0" prefWidth="40.0"/>
-                        <Label text="Minutes: "/>
-                        <TextField fx:id="minutesDailyField" alignment="CENTER" prefHeight="25.0" prefWidth="40.0"/>
+                        <TextField fx:id="hoursDailyField" promptText="Hours" alignment="CENTER" prefHeight="25.0" prefWidth="60.0"/>
+                        <TextField fx:id="minutesDailyField" promptText="Min" alignment="CENTER" prefHeight="25.0" prefWidth="60.0"/>
                     </children>
                 </HBox>
                 <Label text="Hours range">
