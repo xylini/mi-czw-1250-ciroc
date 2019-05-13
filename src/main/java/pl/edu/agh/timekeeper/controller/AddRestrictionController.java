@@ -9,29 +9,33 @@ import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 public class AddRestrictionController {
 
     @FXML
-    public TextField nameRestrictionField;
+    private Pane mainPane;
 
     @FXML
-    public HBox restrictionHBox;
+    private TextField restrictionNameField;
+
+    @FXML
+    private HBox restrictionHBox;
 
     @FXML
     private RadioButton appRadioButton;
 
     @FXML
     private RadioButton groupRadioButton;
-
-    @FXML
-    private Button addRangeButton;
 
     @FXML
     private VBox scrollBox;
@@ -48,43 +52,57 @@ public class AddRestrictionController {
     @FXML
     private RestrictionsListController restrictionsListController;
 
-    private TextField applicationsComboBox = new TextField();
+    private TextField applicationNameField = new TextField();
 
     private ComboBox groupComboBox = new ComboBox();
 
     private final ToggleGroup groupRadioButtons = new ToggleGroup();
-
 
     @FXML
     private void initialize() {
         appRadioButton.setToggleGroup(groupRadioButtons);
         groupRadioButton.setToggleGroup(groupRadioButtons);
 
-        if (!restrictionHBox.getChildren().contains(applicationsComboBox))
-            restrictionHBox.getChildren().add(applicationsComboBox);
+        if (!restrictionHBox.getChildren().contains(applicationNameField)) {
+            Button browseButton = new Button("Browse");
+            browseButton.setOnAction(this::browseClicked);
+            applicationNameField.setPrefSize(250, 26);
+            restrictionHBox.getChildren().addAll(applicationNameField, browseButton);
+        }
 
         groupRadioButtons.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
             restrictionHBox.getChildren().clear();
             if (appRadioButton.equals(newValue)) {
-                restrictionHBox.getChildren().add(applicationsComboBox);
+                restrictionHBox.getChildren().add(applicationNameField);
             } else if (groupRadioButton.equals(newValue)) {
                 restrictionHBox.getChildren().add(groupComboBox);
             }
         });
-
     }
 
     @FXML
     private void okClicked(ActionEvent actionEvent) {
-        restrictionsListController.restrictionListView.getItems().add(nameRestrictionField.getText());
+        restrictionsListController.getRestrictionListView().getItems().add(restrictionNameField.getText());
         ((Stage) okButton.getScene().getWindow()).close();
+    }
+
+    private void browseClicked(ActionEvent actionEvent) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select file to impose a restriction");
+        Stage stage = (Stage) mainPane.getScene().getWindow();
+        Optional<File> file = Optional.ofNullable(fileChooser.showOpenDialog(stage));
+        file.ifPresent((f) -> {
+            applicationNameField.setText(f.getName());
+            //TODO get application from database or create it, then create a restriction
+        });
     }
 
     public void setRestrictionsListController(RestrictionsListController restrictionsListController) {
         this.restrictionsListController = restrictionsListController;
     }
 
-    public void addButtonClicked(ActionEvent actionEvent) {
+    @FXML
+    private void addButtonClicked(ActionEvent actionEvent) {
         int indexHBox = scrollBox.getChildren().size() - 1;
         HBox box = new HBox();
         box.setSpacing(5);

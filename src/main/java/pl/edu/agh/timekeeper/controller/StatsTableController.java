@@ -3,7 +3,6 @@ package pl.edu.agh.timekeeper.controller;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.layout.Pane;
 
 public class StatsTableController {
 
@@ -26,11 +25,11 @@ public class StatsTableController {
 
     }
 
-    public void setStatsController(StatsController statsController){
+    public void setStatsController(StatsController statsController) {
         this.statsController = statsController;
     }
 
-    public void setBindings(){
+    public void setBindings() {
         statsTable.prefHeightProperty().bind(statsController.getStatsPane().heightProperty());
         statsTable.prefWidthProperty().bind(statsController.getStatsPane().widthProperty()
                 .subtract(statsController.getApplicationsListView().widthProperty()));

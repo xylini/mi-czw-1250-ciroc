@@ -69,7 +69,7 @@ public class MainScreenController {
         mainBorderPane.setTop(restrictionsListController.getRestrictionsSplitPane());
     }
 
-    private void setLoaderLocation(String path){
+    private void setLoaderLocation(String path) {
         this.loader = new FXMLLoader();
         this.loader.setLocation(this.getClass().getResource(path));
     }
