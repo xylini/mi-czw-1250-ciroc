@@ -61,10 +61,11 @@ public class GroupDaoTest extends DaoTestBase<GroupDao, Group> {
     void addRestrictionTest() {
         // given
         Group group = getEntity();
-        Restriction restriction = new Restriction(
-                new MyTime(1, 0),
-                new MyTime(1, 0),
-                new MyTime(2, 0));
+        Restriction restriction = Restriction.getRestrictionBuilder()
+                .setLimit(new MyTime(1, 0))
+                .setStart(new MyTime(1,0))
+                .setEnd(new MyTime(2,0))
+                .build();
         groupDao.create(group);
         restrictionDao.create(restriction);
         // when
@@ -80,10 +81,11 @@ public class GroupDaoTest extends DaoTestBase<GroupDao, Group> {
     void updateRestrictionWhenNoRestrictionSetTest() {
         // given
         Group group = getEntity();
-        Restriction restriction = new Restriction(
-                new MyTime(1, 0),
-                new MyTime(1, 0),
-                new MyTime(2, 0));
+        Restriction restriction = Restriction.getRestrictionBuilder()
+                .setLimit(new MyTime(1, 0))
+                .setStart(new MyTime(1,0))
+                .setEnd(new MyTime(2,0))
+                .build();
         groupDao.create(group);
         restrictionDao.create(restriction);
         // when
@@ -96,14 +98,16 @@ public class GroupDaoTest extends DaoTestBase<GroupDao, Group> {
     void updateRestrictionWhenRestrictionSetTest() {
         // given
         Group group = getEntity();
-        Restriction restriction = new Restriction(
-                new MyTime(1, 0),
-                new MyTime(1, 0),
-                new MyTime(2, 0));
-        Restriction restriction2 = new Restriction(
-                new MyTime(1, 0),
-                new MyTime(1, 0),
-                new MyTime(3, 0));
+        Restriction restriction = Restriction.getRestrictionBuilder()
+                .setLimit(new MyTime(1, 0))
+                .setStart(new MyTime(1,0))
+                .setEnd(new MyTime(2,0))
+                .build();
+        Restriction restriction2 = Restriction.getRestrictionBuilder()
+                .setLimit(new MyTime(1, 0))
+                .setStart(new MyTime(1,0))
+                .setEnd(new MyTime(3,0))
+                .build();
         groupDao.create(group);
         restrictionDao.create(restriction);
         restrictionDao.create(restriction2);
@@ -122,10 +126,11 @@ public class GroupDaoTest extends DaoTestBase<GroupDao, Group> {
     void removeExistingRestrictionTest() {
         // given
         Group group = getEntity();
-        Restriction restriction = new Restriction(
-                new MyTime(1, 0),
-                new MyTime(1, 0),
-                new MyTime(2, 0));
+        Restriction restriction = Restriction.getRestrictionBuilder()
+                .setLimit(new MyTime(1, 0))
+                .setStart(new MyTime(1,0))
+                .setEnd(new MyTime(2,0))
+                .build();
         groupDao.create(group);
         restrictionDao.create(restriction);
         groupDao.addRestriction(group, restriction);
@@ -141,10 +146,11 @@ public class GroupDaoTest extends DaoTestBase<GroupDao, Group> {
     void removeNotExistingRestrictionWhenNoRestrictionSetTest() {
         // given
         Group group = getEntity();
-        Restriction restriction = new Restriction(
-                new MyTime(1, 0),
-                new MyTime(1, 0),
-                new MyTime(2, 0));
+        Restriction restriction = Restriction.getRestrictionBuilder()
+                .setLimit(new MyTime(1, 0))
+                .setStart(new MyTime(1,0))
+                .setEnd(new MyTime(2,0))
+                .build();
         groupDao.create(group);
         restrictionDao.create(restriction);
         // when

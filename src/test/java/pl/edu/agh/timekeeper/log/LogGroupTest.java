@@ -48,8 +48,14 @@ class LogGroupTest {
     void addTest() {
         session.beginTransaction();
 
-        Restriction myRestriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
-        Group myGroup = new Group("*.mp3", myRestriction);
+        Group myGroup = new Group("*.mp3");
+        Restriction myRestriction = Restriction.getRestrictionBuilder()
+                .setLimit(new MyTime(2,2))
+                .setStart(new MyTime(3,3))
+                .setEnd(new MyTime(4,4))
+                .setGroup(myGroup)
+                .build();
+
         LogGroup myLogGroup = new LogGroup(myGroup);
         LogGroup myLogGroup_2 = new LogGroup(myGroup);
 
@@ -76,8 +82,13 @@ class LogGroupTest {
     void removeTest() {
         session.beginTransaction();
 
-        Restriction myRestriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
-        Group myGroup = new Group("*.mp3", myRestriction);
+        Group myGroup = new Group("*.mp3");
+        Restriction myRestriction = Restriction.getRestrictionBuilder()
+                .setLimit(new MyTime(2,2))
+                .setStart(new MyTime(3,3))
+                .setEnd(new MyTime(4,4))
+                .setGroup(myGroup)
+                .build();
         LogGroup myLogGroup = new LogGroup(myGroup);
         LogGroup myLogGroup_2 = new LogGroup(myGroup);
 
@@ -109,8 +120,13 @@ class LogGroupTest {
     void updateTest() {
         session.beginTransaction();
 
-        Restriction myRestriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
-        Group myGroup = new Group("*.mp3", myRestriction);
+        Group myGroup = new Group("*.mp3");
+        Restriction myRestriction = Restriction.getRestrictionBuilder()
+                .setLimit(new MyTime(2,2))
+                .setStart(new MyTime(3,3))
+                .setEnd(new MyTime(4,4))
+                .setGroup(myGroup)
+                .build();
         LogGroup myLogGroup = new LogGroup(myGroup);
         LogGroup myLogGroup_2 = new LogGroup(myGroup);
 
