@@ -11,7 +11,7 @@
     <left>
         <Pane fx:id="listPane" prefHeight="370.0" prefWidth="150.0" BorderPane.alignment="CENTER">
             <VBox>
-                <ListView fx:id="applicationsListView" layoutY="27.0" prefHeight="343.0" prefWidth="150.0">
+                <ListView fx:id="restrictionsListView" layoutY="27.0" prefHeight="343.0" prefWidth="150.0">
                     <Label fx:id="overallLabel" text="Overall Stats"
                            prefHeight="25"/>
                     <Label fx:id="allTimeLabel" text="All Time Chart"
