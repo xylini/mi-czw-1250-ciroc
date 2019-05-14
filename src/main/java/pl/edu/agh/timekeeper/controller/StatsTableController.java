@@ -6,7 +6,6 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import pl.edu.agh.timekeeper.db.dao.ApplicationDao;
@@ -30,13 +29,15 @@ public class StatsTableController {
     private TableColumn<UsageStatistics, Application> restrictionName;
 
     @FXML
-    private TableColumn<UsageStatistics, Duration> limit;
+    private TableColumn<UsageStatistics, Duration> dailyLimitColumn;
 
     @FXML
-    private TableColumn<UsageStatistics, Duration> timeToday;
+    private TableColumn<UsageStatistics, Duration> timeSpentTodayColumn;
 
     @FXML
-    private TableColumn<UsageStatistics, Duration> totalTime;
+    private TableColumn<UsageStatistics, Duration> overallTimeSpentColumn;
+
+    private StatsController statsController;
 
     private ObservableList<String> restrictions = FXCollections.observableArrayList();
 
@@ -63,26 +64,15 @@ public class StatsTableController {
     }
 
     @FXML
-    private TableColumn dailyLimitColumn;
-
-    @FXML
-    private TableColumn timeSpentTodayColumn;
-
-    @FXML
-    private TableColumn overallTimeSpentColumn;
-
-    private StatsController statsController;
-
-    @FXML
     public void initialize() {
         restrictionName.setCellValueFactory(new PropertyValueFactory<>("restrictionName"));
-        limit.setCellValueFactory(new PropertyValueFactory<>("limit"));
-        timeToday.setCellValueFactory(new PropertyValueFactory<>("todayUsage"));
-        totalTime.setCellValueFactory(new PropertyValueFactory<>("totalUsage"));
+        dailyLimitColumn.setCellValueFactory(new PropertyValueFactory<>("limit"));
+        timeSpentTodayColumn.setCellValueFactory(new PropertyValueFactory<>("todayUsage"));
+        overallTimeSpentColumn.setCellValueFactory(new PropertyValueFactory<>("totalUsage"));
 
-        limit.setCellFactory(column -> getDurationTableCell());
-        timeToday.setCellFactory(column -> getDurationTableCell());
-        totalTime.setCellFactory(column -> getDurationTableCell());
+        dailyLimitColumn.setCellFactory(column -> getDurationTableCell());
+        timeSpentTodayColumn.setCellFactory(column -> getDurationTableCell());
+        overallTimeSpentColumn.setCellFactory(column -> getDurationTableCell());
 
         restrictions.addListener((ListChangeListener<String>) c -> {
             while (c.next()) {
@@ -139,7 +129,7 @@ public class StatsTableController {
     public void setBindings() {
         statsTable.prefHeightProperty().bind(statsController.getStatsPane().heightProperty());
         statsTable.prefWidthProperty().bind(statsController.getStatsPane().widthProperty()
-                .subtract(statsController.getApplicationsListView().widthProperty()));
+                .subtract(statsController.getRestrictionsListView().widthProperty()));
         dailyLimitColumn.prefWidthProperty().bind(statsTable.widthProperty().divide(3.0));
         timeSpentTodayColumn.prefWidthProperty().bind(statsTable.widthProperty().divide(3.0));
         overallTimeSpentColumn.prefWidthProperty().bind(statsTable.widthProperty().divide(3.0));

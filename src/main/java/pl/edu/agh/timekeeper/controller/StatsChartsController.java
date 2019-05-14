@@ -66,8 +66,14 @@ public class StatsChartsController {
         this.application = app;
     }
 
+    public void showChart(){
+        showToday();
+    }
+
     @FXML
-    private void showToday(ActionEvent actionEvent) {
+    private void showToday() {
+        lastMonthButton.setVisible(true);
+        todayButton.setVisible(true);
         //TODO replace next line (test) with this: ZonedDateTime todayAtMidnight = LocalDate.now().atStartOfDay().atZone(ZoneOffset.systemDefault());
         ZonedDateTime todayAtMidnight = LocalDate.of(2019, 5, 10).atStartOfDay().atZone(ZoneOffset.systemDefault());
         String dateStr = todayAtMidnight.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
@@ -94,6 +100,8 @@ public class StatsChartsController {
 
     @FXML
     private void showLastMonth(ActionEvent actionEvent) {
+        lastMonthButton.setVisible(true);
+        todayButton.setVisible(true);
         //TODO replace next line (test) with this: ZonedDateTime firstDayOfMonth = LocalDate.now().withDayOfMonth(1).atStartOfDay().atZone(ZoneOffset.systemDefault());
         ZonedDateTime firstDayOfMonth = LocalDate.of(2019, 5, 11).withDayOfMonth(1).atStartOfDay().atZone(ZoneOffset.systemDefault());
         String dateStr = firstDayOfMonth.getMonth().name().toLowerCase();
@@ -118,8 +126,10 @@ public class StatsChartsController {
                 .collect(Collectors.toList())));
     }
 
-    @FXML
-    private void showAllTime(ActionEvent actionEvent) {
+    //@FXML
+    public void showAllTime() {
+        lastMonthButton.setVisible(false);
+        todayButton.setVisible(false);
         Optional<LinkedHashMap<Application, Long>> totalUsage = logDao.getTotalUsageForAllEntities();
         setDescription(
                 "Total usage of all applications",
@@ -144,7 +154,7 @@ public class StatsChartsController {
     public void setBindings() {
         chartsPane.prefHeightProperty().bind(statsController.getStatsPane().heightProperty());
         chartsPane.prefWidthProperty().bind(statsController.getStatsPane().widthProperty()
-                .subtract(statsController.getApplicationsListView().widthProperty()));
+                .subtract(statsController.getRestrictionsListView().widthProperty()));
         chart.prefWidthProperty().bind(chartsPane.widthProperty());
         chart.prefHeightProperty().bind(chartsPane.heightProperty().subtract(bottomButtonsBox.getHeight()));
     }

@@ -7,13 +7,16 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import pl.edu.agh.timekeeper.db.dao.ApplicationDao;
+import pl.edu.agh.timekeeper.db.dao.RestrictionDao;
+import pl.edu.agh.timekeeper.model.Restriction;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 public class StatsController {
 
@@ -34,27 +37,23 @@ public class StatsController {
     private BorderPane statsPane;
 
     @FXML
-    private ListView<String> applicationsListView;
+    private ListView restrictionsListView;
 
     private StatsChartsController statsChartsController;
 
     private StatsTableController statsTableController;
 
-    private ObservableList<String> restrictionsNamesList = FXCollections.observableArrayList();
+    private ObservableList<String> restrictionsNames = FXCollections.observableArrayList();
 
     @FXML
     private void initialize() {
-        applicationsListView.setItems(restrictionsNamesList);
+        //restrictionsListView.getItems().addAll(restrictionsNamesList);
 
         // TODO: remove this (test) block ---------------
-        applicationsListView.getItems().add("app1");
-        applicationsListView.getItems().add("app2");
+        restrictionsNames.add("app1");
+        restrictionsNames.add("app2");
+        restrictionsListView.getItems().addAll(restrictionsNames);
         // TODO: ---------------------------------
-        //test
-        ObservableList list = FXCollections.observableArrayList();
-        list = applicationsListView.getItems();
-        list.add("e");
-        applicationsListView.setItems(list);
 
         setCenterTable();
         setupListeners();
@@ -64,34 +63,31 @@ public class StatsController {
         return statsPane;
     }
 
-    public ListView getApplicationsListView() {
-        return applicationsListView;
+    public ListView getRestrictionsListView() {
+        return restrictionsListView;
     }
 
     private void setupListeners() {
-        applicationsListView.getSelectionModel().selectedItemProperty().addListener((list, oldValue, newValue) -> {
+        restrictionsListView.getSelectionModel().selectedItemProperty().addListener((list, oldValue, newValue) -> {
             if (newValue == overallLabel) {
                 setCenterTable();
-            } else if (newValue == allTimeLabel)
-                //TODO add chart with all times not ChartView
+            } else if (newValue == allTimeLabel) {
                 setCenterChart();
-            else {
-                if (oldValue == null) setCenterChart();
-                new ApplicationDao().getByName(newValue).ifPresent(app -> {
+                statsChartsController.showAllTime();
+            } else {
+                setCenterChart();
+                //Restriction restriction = new RestrictionDao().getByName((String) newValue);
+                //Application app = restriction.getApplication();
+                new ApplicationDao().getByName((String) newValue).ifPresent(app -> {
                     statsChartsController.setApplication(app);
-                    statsChartsController.showToday();
+                    statsChartsController.showChart();
                 });
-                setCenterChart();
-                //TODO statsChartsController.setApplication(newValue)
             }
         });
     }
 
     private void setCenterTable() {
         FXMLLoader loader = new FXMLLoader(this.getClass().getResource(TABLE_VIEW_PATH));
-        setCenter(loader);
-        statsTableController = loader.getController();
-        statsTableController.setRestrictions(restrictionsNamesList);
         TableView tableView;
         try {
             tableView = loader.load();
@@ -99,19 +95,14 @@ public class StatsController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        StatsTableController statsTableController = loader.getController();
+        statsTableController = loader.getController();
         statsTableController.setStatsController(this);
+        statsTableController.setRestrictions(restrictionsNames);
         statsTableController.setBindings();
     }
 
     private void setCenterChart() {
         FXMLLoader loader = new FXMLLoader(this.getClass().getResource(CHART_VIEW_PATH));
-        setCenter(loader);
-        statsChartsController = loader.getController();
-    }
-
-    private void setCenter(FXMLLoader loader) {
-        Node node;
         Pane pane;
         try {
             pane = loader.load();
@@ -119,7 +110,7 @@ public class StatsController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        StatsChartsController statsChartsController = loader.getController();
+        statsChartsController = loader.getController();
         statsChartsController.setStatsController(this);
         statsChartsController.setBindings();
     }

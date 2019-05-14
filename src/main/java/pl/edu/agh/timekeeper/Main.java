@@ -32,8 +32,8 @@ public class Main extends Application {
                 .buildSessionFactory());
 
         // TODO: remove this block ---------------
-        pl.edu.agh.timekeeper.model.Application app1 = new ApplicationDao().create(new pl.edu.agh.timekeeper.model.Application("app1")).get();
-        pl.edu.agh.timekeeper.model.Application app2 = new ApplicationDao().create(new pl.edu.agh.timekeeper.model.Application("app2")).get();
+        pl.edu.agh.timekeeper.model.Application app1 = new ApplicationDao().create(new pl.edu.agh.timekeeper.model.Application("app1", "app1")).get();
+        pl.edu.agh.timekeeper.model.Application app2 = new ApplicationDao().create(new pl.edu.agh.timekeeper.model.Application("app2","app2")).get();
         LogApplication log1 = new LogApplication(app1);
         log1.setTimeStart(Date.from(LocalDateTime.of(2019, 5, 9, 17, 30).atZone(ZoneId.systemDefault()).toInstant()));
         log1.setTimeEnd(Date.from(LocalDateTime.of(2019, 5, 10, 9, 45).atZone(ZoneId.systemDefault()).toInstant()));
