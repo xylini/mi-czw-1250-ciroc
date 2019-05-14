@@ -66,6 +66,8 @@ public class AddRestrictionController {
 
     private TextField applicationPathField = new TextField();
 
+    private Button browseButton;
+
     private ComboBox groupComboBox = new ComboBox();
 
     private final ToggleGroup groupRadioButtons = new ToggleGroup();
@@ -76,22 +78,29 @@ public class AddRestrictionController {
 
     private ObservableList<Pair<MyTime, MyTime>> rangeRestrictions = FXCollections.observableArrayList();
 
+    private void makeBrowseButton() {
+        this.browseButton = new Button("Browse");
+        browseButton.setOnAction(this::browseClicked);
+    }
+
     @FXML
     private void initialize() {
         appRadioButton.setToggleGroup(groupRadioButtons);
         groupRadioButton.setToggleGroup(groupRadioButtons);
-
-        if (!restrictionHBox.getChildren().contains(applicationPathField)) {
-            Button browseButton = new Button("Browse");
-            browseButton.setOnAction(this::browseClicked);
-            applicationPathField.setPrefSize(250, 26);
+        makeBrowseButton();
+        if (appRadioButton.isSelected()) {
+            restrictionHBox.getChildren().clear();
+            applicationNameField.setPrefSize(250, 26);
             restrictionHBox.getChildren().addAll(applicationPathField, browseButton);
         }
+        addRadioButtonsListener();
+    }
 
+    private void addRadioButtonsListener() {
         groupRadioButtons.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
             restrictionHBox.getChildren().clear();
             if (appRadioButton.equals(newValue)) {
-                restrictionHBox.getChildren().add(applicationPathField);
+                restrictionHBox.getChildren().addAll(applicationPathField, browseButton);
             } else if (groupRadioButton.equals(newValue)) {
                 restrictionHBox.getChildren().add(groupComboBox);
             }
