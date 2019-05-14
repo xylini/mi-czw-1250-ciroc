@@ -90,7 +90,7 @@ public class AddRestrictionController {
         makeBrowseButton();
         if (appRadioButton.isSelected()) {
             restrictionHBox.getChildren().clear();
-            applicationNameField.setPrefSize(250, 26);
+            applicationPathField.setPrefSize(250, 26);
             restrictionHBox.getChildren().addAll(applicationPathField, browseButton);
         }
         addRadioButtonsListener();
