@@ -1,6 +1,7 @@
 package pl.edu.agh.timekeeper.model;
 
 public class RestrictionBuilder {
+    private String name;
     private MyTime limit;
     private MyTime start;
     private MyTime end;
@@ -8,6 +9,11 @@ public class RestrictionBuilder {
     private Group group;
 
     public RestrictionBuilder(){}
+
+    public RestrictionBuilder setName(String name) {
+        this.name = name;
+        return this;
+    }
 
     public RestrictionBuilder setLimit(MyTime limit) {
         this.limit = limit;
@@ -35,6 +41,6 @@ public class RestrictionBuilder {
     }
 
     public Restriction build(){
-        return new Restriction(limit, start, end, application, group);
+        return new Restriction(name, limit, start, end, application, group);
     }
 }

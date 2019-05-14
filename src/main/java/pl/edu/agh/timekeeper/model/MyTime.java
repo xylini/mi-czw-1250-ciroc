@@ -32,6 +32,10 @@ public class MyTime implements Serializable {
         this.minute = minute;
     }
 
+    public boolean isAfter(MyTime other){
+        return this.hour > other.hour || (this.hour == other.hour && this.minute > other.minute);
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null) return false;
