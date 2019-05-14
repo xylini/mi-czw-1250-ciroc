@@ -52,28 +52,38 @@ public class AddRestrictionController {
     @FXML
     private RestrictionsListController restrictionsListController;
 
+    private Button browseButton;
+
     private TextField applicationNameField = new TextField();
 
     private ComboBox groupComboBox = new ComboBox();
 
     private final ToggleGroup groupRadioButtons = new ToggleGroup();
 
+    private void makeBrowseButton() {
+        this.browseButton = new Button("Browse");
+        browseButton.setOnAction(this::browseClicked);
+    }
+
     @FXML
     private void initialize() {
         appRadioButton.setToggleGroup(groupRadioButtons);
         groupRadioButton.setToggleGroup(groupRadioButtons);
+        makeBrowseButton();
 
-        if (!restrictionHBox.getChildren().contains(applicationNameField)) {
-            Button browseButton = new Button("Browse");
-            browseButton.setOnAction(this::browseClicked);
-            applicationNameField.setPrefSize(250, 26);
+        if (appRadioButton.isSelected()) {
+            restrictionHBox.getChildren().clear();
+            applicationNameField.setPrefSize(250, 25);
             restrictionHBox.getChildren().addAll(applicationNameField, browseButton);
         }
+        addRadioButtonsListener();
+    }
 
+    private void addRadioButtonsListener() {
         groupRadioButtons.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
             restrictionHBox.getChildren().clear();
             if (appRadioButton.equals(newValue)) {
-                restrictionHBox.getChildren().add(applicationNameField);
+                restrictionHBox.getChildren().addAll(applicationNameField, browseButton);
             } else if (groupRadioButton.equals(newValue)) {
                 restrictionHBox.getChildren().add(groupComboBox);
             }
@@ -83,6 +93,7 @@ public class AddRestrictionController {
     @FXML
     private void okClicked(ActionEvent actionEvent) {
         restrictionsListController.getRestrictionListView().getItems().add(restrictionNameField.getText());
+        applicationNameField.clear();
         ((Stage) okButton.getScene().getWindow()).close();
     }
 
