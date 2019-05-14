@@ -38,29 +38,14 @@ public class Application implements Serializable {
     public Application() {
     }
 
-    public Application(String name) {
+    public Application(String name, String path) {
         this.name = name;
+        this.path = path;
     }
 
-    public Application(String name, Restriction restriction) {
+    public Application(String name, String path, Group group) {
         this.name = name;
-
-        this.restriction = restriction;
-        restriction.setApplication(this);
-    }
-
-    public Application(String name, Group group) {
-        this.name = name;
-
-        this.group = group;
-        group.addApplication(this);
-    }
-
-    public Application(String name, Restriction restriction, Group group) {
-        this.name = name;
-
-        this.restriction = restriction;
-        restriction.setApplication(this);
+        this.path = path;
 
         this.group = group;
         group.addApplication(this);
@@ -82,14 +67,14 @@ public class Application implements Serializable {
         this.name = name;
     }
 
-    public void setPath(String path) {
-        this.path = path;
-    }
-
     public String getPath() {
         return path;
     }
 
+    public void setPath(String path) {
+        this.path = path;
+    }
+  
     public Set<LogApplication> getLogApplications() {
         return logApplications;
     }

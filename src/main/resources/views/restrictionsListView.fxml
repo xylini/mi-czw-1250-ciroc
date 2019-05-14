@@ -2,47 +2,54 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<HBox fx:id="restrictionsHBox" prefHeight="570.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.edu.agh.timekeeper.controller.RestrictionsListController">
-   <children>
-      <VBox prefHeight="450.0" prefWidth="300.0">
-         <children>
-            <HBox prefHeight="30.0" prefWidth="300.0">
-               <children>
-                  <Button fx:id="addButton" mnemonicParsing="false" prefHeight="30.0" prefWidth="100.0" onAction="#addButtonClicked">
-                     <graphic>
-                        <ImageView fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@../images/plus.png" />
-                           </image>
-                        </ImageView>
-                     </graphic></Button>
-                  <Button fx:id="editButton" mnemonicParsing="false" prefHeight="30.0" prefWidth="100.0" onAction="#editButtonClicked">
-                     <graphic>
-                        <ImageView fitHeight="150.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@../images/pencil.png" />
-                           </image>
-                        </ImageView>
-                     </graphic></Button>
-                  <Button fx:id="removeButton" mnemonicParsing="false" prefHeight="30.0" prefWidth="100.0" onAction="#removeButtonClicked">
-                     <graphic>
-                        <ImageView fitHeight="150.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@../images/delete.png" />
-                           </image>
-                        </ImageView>
-                     </graphic></Button>
-               </children>
+<SplitPane fx:id="restrictionsSplitPane" dividerPositions="0.1781954887218045" prefHeight="570.0" prefWidth="800.0"
+           xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="pl.edu.agh.timekeeper.controller.RestrictionsListController">
+    <VBox prefHeight="570.0" prefWidth="-Infinity">
+        <children>
+            <HBox prefHeight="30.0" prefWidth="-Infinity" maxWidth="250">
+                <children>
+                    <Button fx:id="addButton" mnemonicParsing="false" onAction="#addButtonClicked" prefHeight="30.0"
+                            prefWidth="100.0">
+                        <graphic>
+                            <ImageView fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                                <image>
+                                    <Image url="@../images/plus.png"/>
+                                </image>
+                            </ImageView>
+                        </graphic>
+                    </Button>
+                    <Button fx:id="editButton" mnemonicParsing="false" onAction="#editButtonClicked" prefHeight="30.0"
+                            prefWidth="100.0">
+                        <graphic>
+                            <ImageView fitHeight="150.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                                <image>
+                                    <Image url="@../images/pencil.png"/>
+                                </image>
+                            </ImageView>
+                        </graphic>
+                    </Button>
+                    <Button fx:id="removeButton" mnemonicParsing="false" onAction="#removeButtonClicked"
+                            prefHeight="30.0" prefWidth="100.0">
+                        <graphic>
+                            <ImageView fitHeight="150.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                                <image>
+                                    <Image url="@../images/delete.png"/>
+                                </image>
+                            </ImageView>
+                        </graphic>
+                    </Button>
+                </children>
             </HBox>
-            <ListView fx:id="restrictionListView" prefHeight="540.0" prefWidth="300.0" />
-         </children>
-      </VBox>
-      <TabPane fx:id="restrictionTabPane" prefHeight="570.0" prefWidth="500.0" tabClosingPolicy="UNAVAILABLE" />
-   </children>
-</HBox>
+            <ListView fx:id="restrictionListView" prefHeight="540.0" prefWidth="-Infinity"/>
+        </children>
+    </VBox>
+    <TabPane fx:id="restrictionTabPane" prefHeight="570.0" prefWidth="500.0" tabClosingPolicy="SELECTED_TAB"/>
+</SplitPane>

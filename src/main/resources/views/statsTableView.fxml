@@ -2,17 +2,12 @@
 
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
-<?import javafx.scene.layout.Pane?>
 
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="450.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.edu.agh.timekeeper.controller.StatsTableController">
-   <children>
-      <TableView fx:id="statsTable" prefHeight="400.0" prefWidth="600.0">
-         <columns>
-            <TableColumn fx:id="restrictionName" minWidth="0.0" prefWidth="150.0" text="Restriction" />
-            <TableColumn fx:id="limit" minWidth="0.0" prefWidth="150.0" text="Daily limit" />
-            <TableColumn fx:id="timeToday" prefWidth="150.0" text="Time spent today" />
-            <TableColumn fx:id="totalTime" prefWidth="150.0" text="Overall time spent" />
-         </columns>
-      </TableView>
-   </children>
-</Pane>
+
+<TableView fx:id="statsTable" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.edu.agh.timekeeper.controller.StatsTableController">
+   <columns>
+      <TableColumn fx:id="dailyLimitColumn" minWidth="0.0" prefWidth="150.0" text="Daily limit" />
+      <TableColumn fx:id="timeSpentTodayColumn" prefWidth="150.0" text="Time spent today" />
+      <TableColumn fx:id="overallTimeSpentColumn" prefWidth="150.0" text="Overall time spent" />
+   </columns>
+</TableView>

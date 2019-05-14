@@ -9,6 +9,8 @@ import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import pl.edu.agh.timekeeper.db.dao.LogApplicationDao;
 import pl.edu.agh.timekeeper.model.Application;
 
@@ -24,6 +26,9 @@ import java.util.stream.IntStream;
 public class StatsChartsController {
 
     @FXML
+    private Pane chartsPane;
+
+    @FXML
     private Button todayButton;
 
     @FXML
@@ -36,6 +41,9 @@ public class StatsChartsController {
     private BarChart<String, Number> chart;
 
     @FXML
+    private HBox bottomButtonsBox;
+
+    @FXML
     private CategoryAxis xAxis;
 
     @FXML
@@ -44,6 +52,8 @@ public class StatsChartsController {
     private LogApplicationDao logDao;
 
     private Application application;
+
+    private StatsController statsController;
 
     @FXML
     private void initialize() {
@@ -57,7 +67,7 @@ public class StatsChartsController {
     }
 
     @FXML
-    public void showToday() {
+    private void showToday(ActionEvent actionEvent) {
         //TODO replace next line (test) with this: ZonedDateTime todayAtMidnight = LocalDate.now().atStartOfDay().atZone(ZoneOffset.systemDefault());
         ZonedDateTime todayAtMidnight = LocalDate.of(2019, 5, 10).atStartOfDay().atZone(ZoneOffset.systemDefault());
         String dateStr = todayAtMidnight.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
@@ -127,7 +137,16 @@ public class StatsChartsController {
                 .collect(Collectors.toList())));
     }
 
-    public void showChart() {
+    public void setStatsController(StatsController statsController) {
+        this.statsController = statsController;
+    }
+
+    public void setBindings() {
+        chartsPane.prefHeightProperty().bind(statsController.getStatsPane().heightProperty());
+        chartsPane.prefWidthProperty().bind(statsController.getStatsPane().widthProperty()
+                .subtract(statsController.getApplicationsListView().widthProperty()));
+        chart.prefWidthProperty().bind(chartsPane.widthProperty());
+        chart.prefHeightProperty().bind(chartsPane.heightProperty().subtract(bottomButtonsBox.getHeight()));
     }
 
     private String formatDate(Date date, String pattern) {

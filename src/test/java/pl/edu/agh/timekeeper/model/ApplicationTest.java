@@ -44,9 +44,17 @@ class ApplicationTest {
     void addTest() {
         session.beginTransaction();
 
-        Restriction myRestriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
-        Group myGroup = new Group("*.mp3", myRestriction);
-        Application myApplication = new Application("cos.mp3", myRestriction, myGroup);
+        String path = "/byleco";
+        Group myGroup = new Group("*.mp3");
+        Application myApplication = new Application("cos.mp3", path, myGroup);
+
+        Restriction myRestriction = Restriction.getRestrictionBuilder()
+                .setLimit(new MyTime(2,2))
+                .setStart(new MyTime(3,3))
+                .setEnd(new MyTime(4,4))
+                .setApplication(myApplication)
+                .setGroup(myGroup)
+                .build();
 
         session.save(myRestriction);
         session.save(myGroup);
@@ -73,11 +81,23 @@ class ApplicationTest {
     void removeTest() {
         session.beginTransaction();
 
-        Restriction myRestriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
-        Restriction myRestriction_2 = new Restriction(new MyTime(2, 34), new MyTime(3, 3), new MyTime(4, 4));
-        Group myGroup = new Group("*.mp3", myRestriction_2);
-        Application myApplication = new Application("cos.mp3", myRestriction, myGroup);
-        Application myApplication_2 = new Application("nicos.mp3", myGroup);
+        String path = "/byleco";
+        Group myGroup = new Group("*.mp3");
+        Application myApplication = new Application("cos.mp3", path, myGroup);
+        Application myApplication_2 = new Application("nicos.mp3", path, myGroup);
+
+        Restriction myRestriction = Restriction.getRestrictionBuilder()
+                .setLimit(new MyTime(2, 2))
+                .setStart(new MyTime(3,3))
+                .setEnd(new MyTime(4,4))
+                .setApplication(myApplication)
+                .build();
+        Restriction myRestriction_2 = Restriction.getRestrictionBuilder()
+                .setLimit(new MyTime(2, 34))
+                .setStart(new MyTime(3,3))
+                .setEnd(new MyTime(4,4))
+                .setGroup(myGroup)
+                .build();
 
         session.save(myRestriction);
         session.save(myRestriction_2);
@@ -110,15 +130,13 @@ class ApplicationTest {
     void updateTest() {
         session.beginTransaction();
 
-        Restriction myRestriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
+        String path = "/bylecos";
+        Group myGroup = new Group("*.mp3");
+        Application myApplication = new Application("cos.mp3", path, myGroup);
 
-        Group myGroup = new Group("*.mp3", myRestriction);
-        Application myApplication = new Application("cos.mp3", myRestriction, myGroup);
+        Group myGroup_2 = new Group("*.jpg");
+        Application myApplication_2 = new Application("to.jpg", path, myGroup_2);
 
-        Group myGroup_2 = new Group("*.jpg", myRestriction);
-        Application myApplication_2 = new Application("to.jpg", myRestriction, myGroup_2);
-
-        session.save(myRestriction);
         session.save(myGroup);
         session.save(myApplication);
         session.save(myGroup_2);

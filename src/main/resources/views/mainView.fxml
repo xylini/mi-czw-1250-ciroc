@@ -2,22 +2,22 @@
 
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.BorderPane?>
 
-<VBox fx:id="mainVBox" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.edu.agh.timekeeper.controller.MainScreenController">
+<VBox fx:id="mainVBox" prefWidth="800.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.edu.agh.timekeeper.controller.MainScreenController">
     <children>
           <HBox fx:id="menuButtonHBox">
               <children>
-              <ToggleButton fx:id="restrictionsButton" mnemonicParsing="false" prefHeight="30.0" prefWidth="200" text="Restrictions" onAction="#restrictionButtonClicked">
+              <ToggleButton fx:id="restrictionsButton" mnemonicParsing="false" onAction="#restrictionButtonClicked" prefHeight="30.0" prefWidth="200" text="Restrictions">
                   <toggleGroup>
                       <ToggleGroup fx:id="menuButtons" />
                   </toggleGroup>
               </ToggleButton>
-              <ToggleButton fx:id="statsButton" mnemonicParsing="false" prefHeight="30.0" prefWidth="200" text="Statistics" toggleGroup="$menuButtons" onAction="#statsButtonClicked" />
-              <ToggleButton fx:id="prefButton" mnemonicParsing="false" prefHeight="30.0" prefWidth="200" text="Preferences" toggleGroup="$menuButtons" onAction="#prefButtonClicked" />
-              <ToggleButton fx:id="helpButton" mnemonicParsing="false" prefHeight="30.0" prefWidth="200" text="Help" toggleGroup="$menuButtons" onAction="#helpButtonClicked" />
+              <ToggleButton fx:id="statsButton" mnemonicParsing="false" onAction="#statsButtonClicked" prefHeight="30.0" prefWidth="200" text="Statistics" toggleGroup="$menuButtons" />
+              <ToggleButton fx:id="prefButton" mnemonicParsing="false" onAction="#prefButtonClicked" prefHeight="30.0" prefWidth="200" text="Preferences" toggleGroup="$menuButtons" />
+              <ToggleButton fx:id="helpButton" mnemonicParsing="false" onAction="#helpButtonClicked" prefHeight="30.0" prefWidth="200" text="Help" toggleGroup="$menuButtons" />
               </children>
           </HBox>
         <BorderPane fx:id="mainBorderPane" prefHeight="570.0" prefWidth="800.0">

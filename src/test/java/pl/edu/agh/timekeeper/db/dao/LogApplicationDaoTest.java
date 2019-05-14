@@ -32,8 +32,9 @@ public class LogApplicationDaoTest extends DaoTestBase<LogApplicationDao, LogApp
     @Test
     void getDailyUsageInSecsTest() {
         // given
-        Application a1 = new Application("app1");
-        Application a2 = new Application("app2");
+        String path = "/byleco"; //Krystian: pozwolilem sobie chwilowo dodac taka opcje, najwyzej sobie to pozniej zmienisz :)
+        Application a1 = new Application("app1", path);
+        Application a2 = new Application("app2", path);
         LogApplication log1 = new LogApplication(a1);
         LogApplication log2 = new LogApplication(a1);
         LogApplication log3 = new LogApplication(a1);
