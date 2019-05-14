@@ -9,26 +9,26 @@
 <?import javafx.scene.layout.Pane?>
 
 <Pane fx:id="chartsPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="350.0" prefWidth="450.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.edu.agh.timekeeper.controller.StatsChartsController">
-   <children>
-      <BarChart fx:id="chart" prefHeight="300.0" prefWidth="450.0">
-        <xAxis>
-          <CategoryAxis side="BOTTOM" fx:id="xAxis" />
-        </xAxis>
-        <yAxis>
-          <NumberAxis fx:id="yAxis" side="LEFT" />
-        </yAxis>
-      </BarChart>
-      <HBox fx:id="bottomButtonsBox" alignment="CENTER" layoutY="300.0" prefHeight="50.0" prefWidth="450.0" spacing="10.0">
-         <children>
-            <Button fx:id="todayButton" mnemonicParsing="false" onAction="#showToday" prefHeight="40.0" prefWidth="100.0" text="Today" />
-            <Button fx:id="lastMonthButton" mnemonicParsing="false" onAction="#showLastMonth" prefHeight="40.0" prefWidth="100.0" text="Last month" />
-         </children>
-         <opaqueInsets>
-            <Insets />
-         </opaqueInsets>
-         <padding>
-            <Insets bottom="5.0" left="10.0" right="10.0" top="5.0" />
-         </padding>
-      </HBox>
-   </children>
+    <children>
+        <BarChart fx:id="chart" prefHeight="300.0" prefWidth="450.0">
+            <xAxis>
+                <CategoryAxis side="BOTTOM" fx:id="xAxis" />
+            </xAxis>
+            <yAxis>
+                <NumberAxis fx:id="yAxis" side="LEFT" />
+            </yAxis>
+        </BarChart>
+        <HBox fx:id="bottomButtonsBox" alignment="CENTER" layoutY="300.0" prefHeight="50.0" prefWidth="450.0" spacing="10.0">
+            <children>
+                <Button fx:id="todayButton" mnemonicParsing="false" onAction="#showToday" prefHeight="40.0" prefWidth="100.0" text="Today" />
+                <Button fx:id="lastMonthButton" mnemonicParsing="false" onAction="#showLastMonth" prefHeight="40.0" prefWidth="100.0" text="Last month" />
+            </children>
+            <opaqueInsets>
+                <Insets />
+            </opaqueInsets>
+            <padding>
+                <Insets bottom="5.0" left="10.0" right="10.0" top="5.0" />
+            </padding>
+        </HBox>
+    </children>
 </Pane>
