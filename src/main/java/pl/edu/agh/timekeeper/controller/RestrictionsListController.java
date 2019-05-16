@@ -21,16 +21,8 @@ public class RestrictionsListController {
     private static final String RESTRICTION_VIEW_PATH = "/views/restrictionView.fxml";
     private static final String ADD_RESTRICTION_VIEW_PATH = "/views/addRestrictionView.fxml";
 
-    public void setRestrictionsSplitPane(SplitPane restrictionsSplitPane) {
-        this.restrictionsSplitPane = restrictionsSplitPane;
-    }
-
     @FXML
     private SplitPane restrictionsSplitPane;
-
-    public SplitPane getRestrictionsSplitPane() {
-        return restrictionsSplitPane;
-    }
 
     @FXML
     private TabPane restrictionTabPane;
@@ -96,8 +88,16 @@ public class RestrictionsListController {
         });
     }
 
-    public ListView<String> getRestrictionListView(){
+    public ListView<String> getRestrictionListView() {
         return this.restrictionListView;
+    }
+
+    public void setRestrictionsSplitPane(SplitPane restrictionsSplitPane) {
+        this.restrictionsSplitPane = restrictionsSplitPane;
+    }
+
+    public SplitPane getRestrictionsSplitPane() {
+        return restrictionsSplitPane;
     }
 
     public void setAppsNames(ObservableList<String> appsNames) {
@@ -111,8 +111,8 @@ public class RestrictionsListController {
     @FXML
     private void addButtonClicked() {
         FXMLLoader loader = new FXMLLoader(this.getClass().getResource(ADD_RESTRICTION_VIEW_PATH));
-        loader.setController(addRestrictionController);
         openWindow(loader, "Add restriction");
+        ((AddRestrictionController) loader.getController()).setRestrictionsListController(this);
     }
 
     @FXML
