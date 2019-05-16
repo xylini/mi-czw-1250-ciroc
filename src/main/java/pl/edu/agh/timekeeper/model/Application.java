@@ -12,7 +12,7 @@ import java.util.Set;
 @Table(name = "APPLICATIONS")
 public class Application implements Serializable {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @NotNull
     @Column(name = "ID", updatable = false)
     private int id;

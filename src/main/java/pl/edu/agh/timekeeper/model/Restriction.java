@@ -8,7 +8,7 @@ import java.io.Serializable;
 @Table(name = "RESTRICTIONS")
 public class Restriction implements Serializable {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @NotNull
     @Column(name = "ID", updatable = false)
     private int id;

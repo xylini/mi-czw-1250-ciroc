@@ -11,7 +11,7 @@ import java.util.Date;
 @Table(name = "LOG_APPLICATIONS")
 public class LogApplication implements Serializable {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @NotNull
     @Column(name = "ID", updatable = false)
     private int id;

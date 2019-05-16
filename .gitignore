@@ -6,7 +6,9 @@ out/
 *.iml
 /project/
 mytestdb.db
+mytestdb.mv.db
 mydb.db
+mydb.mv.db
 local.properties
 *.ipr
 *.iws
