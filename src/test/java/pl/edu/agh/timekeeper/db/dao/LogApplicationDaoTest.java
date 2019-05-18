@@ -34,7 +34,7 @@ public class LogApplicationDaoTest extends DaoTestBase<LogApplicationDao, LogApp
         // given
         String path = "/byleco"; //Krystian: pozwolilem sobie chwilowo dodac taka opcje, najwyzej sobie to pozniej zmienisz :)
         Application a1 = new Application("app1", path);
-        Application a2 = new Application("app2", path);
+        Application a2 = new Application("app2", path+"2");
         LogApplication log1 = new LogApplication(a1);
         LogApplication log2 = new LogApplication(a1);
         LogApplication log3 = new LogApplication(a1);

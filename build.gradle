@@ -18,8 +18,7 @@ dependencies {
     compile 'org.hibernate:hibernate-core:5.4.2.Final'
     compile group: 'org.hibernate', name: 'hibernate-validator', version: '6.0.16.Final'
     
-    compile group: 'org.xerial', name: 'sqlite-jdbc', version: '3.27.2.1'
-    compile group: 'com.zsoltfabok', name: 'sqlite-dialect', version: '1.0'
+    compile group: 'com.h2database', name: 'h2', version: '1.4.199'
 
     implementation 'net.java.dev.jna:jna:4.1.0'
     implementation 'net.java.dev.jna:jna-platform:4.1.0'

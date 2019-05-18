@@ -12,7 +12,7 @@ import java.util.Set;
 @Table(name = "GROUPS")
 public class Group implements Serializable {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @NotNull
     @Column(name = "ID", updatable = false)
     private int id;

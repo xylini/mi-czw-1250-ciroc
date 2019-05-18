@@ -48,7 +48,7 @@ public class ApplicationDaoTest extends DaoTestBase<ApplicationDao, Application>
         // given
         String path = "/byleco"; //Krystian: pozwolilem sobie chwilowo dodac taka opcje, najwyzej sobie to pozniej zmienisz :)
         Application app1 = new Application("App1", path);
-        Application app2 = new Application("App2", path);
+        Application app2 = new Application("App2", path+"2");
         Application app3 = new Application("App1", path);
         // when
         Optional<Application> first = applicationDao.create(app1);
