@@ -50,8 +50,10 @@ public class Main extends Application {
         new LogApplicationDao().create(log3);
         Restriction r1 = new Restriction();
         r1.setLimit(new MyTime(1,30));
+        r1.setName("app1 restriction");
         Restriction r2 = new Restriction();
         r2.setLimit(new MyTime(2,45));
+        r2.setName("app2 restriction");
         new RestrictionDao().create(r1);
         new RestrictionDao().create(r2);
         new ApplicationDao().addRestriction(app1,r1);

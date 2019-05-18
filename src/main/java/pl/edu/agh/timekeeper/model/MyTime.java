@@ -52,4 +52,9 @@ public class MyTime implements Serializable {
     public int hashCode() {
         return 13;
     }
+
+    @Override
+    public String toString() {
+        return hour + ":" + minute;
+    }
 }

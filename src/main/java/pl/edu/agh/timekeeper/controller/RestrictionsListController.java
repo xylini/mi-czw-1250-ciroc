@@ -138,8 +138,11 @@ public class RestrictionsListController {
                 if (tab.getText().equals(restrictionListView.getSelectionModel().getSelectedItem()))
                     tabsToRemove.add(tab);
             }
+            String restrictionName = restrictionListView.getSelectionModel().getSelectedItem();
             restrictionTabPane.getTabs().removeAll(tabsToRemove);
-            restrictionListView.getItems().remove(restrictionListView.getSelectionModel().getSelectedItem());
+            restrictionListView.getItems().remove(restrictionName);
+            restrictionDao.deleteByName(restrictionName);
+
         }
     }
 

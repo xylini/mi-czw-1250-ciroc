@@ -3,7 +3,7 @@ package pl.edu.agh.timekeeper.controller;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -26,10 +26,7 @@ import pl.edu.agh.timekeeper.model.Restriction;
 import pl.edu.agh.timekeeper.model.RestrictionBuilder;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.IntStream;
 
 public class AddRestrictionController {
@@ -76,7 +73,7 @@ public class AddRestrictionController {
 
     private final RestrictionDao restrictionDao = new RestrictionDao();
 
-    private ObservableList<Pair<MyTime, MyTime>> rangeRestrictions = FXCollections.observableArrayList();
+    private ObservableMap<Integer, Pair<MyTime, MyTime>> rangeRestrictions = FXCollections.observableHashMap();
 
     private void makeBrowseButton() {
         this.browseButton = new Button("Browse");
@@ -141,7 +138,7 @@ public class AddRestrictionController {
 
         MyTime dailyLimit = getMyTime(hoursDailyField, minutesDailyField);
 
-        Restriction restriction = buildRestriction(app, rangeRestrictions, dailyLimit);
+        Restriction restriction = buildRestriction(app, rangeRestrictions.values(), dailyLimit);
         if(appOpt.isEmpty()) applicationDao.create(app);
         restrictionDao.create(restriction);
         restrictionsListController.getRestrictionListView().getItems().add(restrictionName);
@@ -192,7 +189,6 @@ public class AddRestrictionController {
         box.getChildren().addAll(
                 new Label("From"), textFields.get(0), new Label(":"), textFields.get(1),
                 toLabel, textFields.get(2), new Label(":"), textFields.get(3), deleteButton);
-        rangeRestrictions.add(null);
         IntStream.range(0, 4).forEach(i -> textFields.get(i).textProperty()
                 .addListener(getTimeTextFieldChangeListener(textFields)));
         scrollBox.getChildren().add(indexHBox, box);
@@ -248,14 +244,14 @@ public class AddRestrictionController {
                 (change.getControlNewText().matches("(([1-5][0-9])|[0-9])?")) ? change : null);
     }
 
-    private Restriction buildRestriction(Application app, List<Pair<MyTime, MyTime>> rangeRestrictions, MyTime dailyLimit){
+    private Restriction buildRestriction(Application app, Collection<Pair<MyTime, MyTime>> rangeRestrictions, MyTime dailyLimit){
         RestrictionBuilder restrictionBuilder = new RestrictionBuilder()
                 .setApplication(app)
                 .setName(restrictionNameField.getText());
         if(!rangeRestrictions.isEmpty()) {
             restrictionBuilder
-                    .setStart(rangeRestrictions.get(0).getKey())
-                    .setEnd(rangeRestrictions.get(0).getValue());
+                    .setStart(((Pair<MyTime, MyTime>) rangeRestrictions.toArray()[0]).getKey())
+                    .setEnd(((Pair<MyTime, MyTime>) rangeRestrictions.toArray()[0]).getValue());
         }
         if(dailyLimit != null){
             restrictionBuilder.setLimit(dailyLimit);
@@ -268,8 +264,9 @@ public class AddRestrictionController {
             MyTime start = getMyTime(textFields.get(0), textFields.get(1));
             MyTime end = getMyTime(textFields.get(2), textFields.get(3));
             Pair<MyTime, MyTime> newTime = (start != null && end != null && end.isAfter(start))? new Pair<>(start, end) : null;
-            rangeRestrictions.set(scrollBox.getChildren().size()-2, newTime);
-
+            Integer index = scrollBox.getChildren().size()-2;
+            if(newTime != null) rangeRestrictions.put(index, newTime);
+            else rangeRestrictions.remove(index);
         };
     }
 }
