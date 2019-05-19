@@ -11,8 +11,10 @@ import javafx.scene.input.MouseButton;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import pl.edu.agh.timekeeper.db.dao.RestrictionDao;
+import pl.edu.agh.timekeeper.model.Restriction;
 
-import java.io.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,20 +51,18 @@ public class RestrictionsListController {
 
     private MainScreenController mainScreenController;
 
-    private AddRestrictionController addRestrictionController = new AddRestrictionController();
+    private ObservableList<String> restrictionNames = FXCollections.observableArrayList();
 
-    private ObservableList<String> appsNames = FXCollections.observableArrayList();
+    private RestrictionDao restrictionDao = new RestrictionDao();
 
     @FXML
     private void initialize() {
-        // TODO need to join real apps names
-        this.appsNames.setAll("Halo", "Hello", "Hi");
-        restrictionListView.setItems(this.appsNames);
+        restrictionDao.getAll().get().forEach(r -> this.restrictionNames.add(r.getName()));
+        restrictionListView.setItems(this.restrictionNames);
         this.restrictionTabPane.tabDragPolicyProperty().setValue(TabPane.TabDragPolicy.REORDER);
         openAppTab();
         removeButton.disableProperty().bind(Bindings.isEmpty(restrictionListView.getSelectionModel().getSelectedItems()));
         editButton.disableProperty().bind(Bindings.isEmpty(restrictionListView.getSelectionModel().getSelectedItems()));
-        addRestrictionController.setRestrictionsListController(this);
     }
 
     private void openAppTab() {
@@ -77,6 +77,8 @@ public class RestrictionsListController {
                             restrictionTabPane.getSelectionModel().select(tab);
                         }
                     if (isNew) {
+                        Restriction r = restrictionDao.getByName(item).get();
+                        //TODO: set fields with r attributes
                         Tab tab = new Tab();
                         FXMLLoader loader = new FXMLLoader();
                         loader.setLocation(getClass().getResource(RESTRICTION_VIEW_PATH));
@@ -100,8 +102,8 @@ public class RestrictionsListController {
         return this.restrictionListView;
     }
 
-    public void setAppsNames(ObservableList<String> appsNames) {
-        this.appsNames = appsNames;
+    public void setRestrictionNames(ObservableList<String> restrictionNames) {
+        this.restrictionNames = restrictionNames;
     }
 
     public void setMainScreenController(MainScreenController mainScreenController) {
@@ -111,6 +113,8 @@ public class RestrictionsListController {
     @FXML
     private void addButtonClicked() {
         FXMLLoader loader = new FXMLLoader(this.getClass().getResource(ADD_RESTRICTION_VIEW_PATH));
+        AddRestrictionController addRestrictionController = new AddRestrictionController();
+        addRestrictionController.setRestrictionsListController(this);
         loader.setController(addRestrictionController);
         openWindow(loader, "Add restriction");
     }
@@ -134,8 +138,11 @@ public class RestrictionsListController {
                 if (tab.getText().equals(restrictionListView.getSelectionModel().getSelectedItem()))
                     tabsToRemove.add(tab);
             }
+            String restrictionName = restrictionListView.getSelectionModel().getSelectedItem();
             restrictionTabPane.getTabs().removeAll(tabsToRemove);
-            restrictionListView.getItems().remove(restrictionListView.getSelectionModel().getSelectedItem());
+            restrictionListView.getItems().remove(restrictionName);
+            restrictionDao.deleteByName(restrictionName);
+
         }
     }
 

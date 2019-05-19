@@ -33,7 +33,8 @@ public class ApplicationDao extends DaoBase<Application> {
                     .createQuery(String.format("SELECT t FROM %s t WHERE t.path = :path", TABLE_NAME), Application.class)
                     .setParameter("path", path).getSingleResult());
         } catch (PersistenceException e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
+            //e.printStackTrace();
         }
         return Optional.empty();
     }
