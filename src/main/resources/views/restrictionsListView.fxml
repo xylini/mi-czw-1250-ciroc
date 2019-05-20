@@ -46,6 +46,16 @@
                             </ImageView>
                         </graphic>
                     </Button>
+                    <Button fx:id="resetButton" mnemonicParsing="false" onAction="#resetStatistics"
+                            prefHeight="30.0" prefWidth="100.0">
+                        <graphic>
+                            <ImageView fitHeight="150.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                                <image>
+                                    <Image url="@../images/reset.png"/>
+                                </image>
+                            </ImageView>
+                        </graphic>
+                    </Button>
                 </children>
             </HBox>
             <ListView fx:id="restrictionListView" prefHeight="540.0" prefWidth="-Infinity"/>

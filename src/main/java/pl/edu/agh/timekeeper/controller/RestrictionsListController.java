@@ -11,12 +11,18 @@ import javafx.scene.input.MouseButton;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.hibernate.cfg.Configuration;
+import pl.edu.agh.timekeeper.db.SessionService;
 import pl.edu.agh.timekeeper.db.dao.RestrictionDao;
+import pl.edu.agh.timekeeper.log.LogApplication;
+import pl.edu.agh.timekeeper.model.Application;
 import pl.edu.agh.timekeeper.model.Restriction;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class RestrictionsListController {
 
@@ -49,6 +55,9 @@ public class RestrictionsListController {
     @FXML
     private Button removeButton;
 
+    @FXML
+    private Button resetButton;
+
     private MainScreenController mainScreenController;
 
     private ObservableList<String> restrictionNames = FXCollections.observableArrayList();
@@ -63,6 +72,7 @@ public class RestrictionsListController {
         openAppTab();
         removeButton.disableProperty().bind(Bindings.isEmpty(restrictionListView.getSelectionModel().getSelectedItems()));
         editButton.disableProperty().bind(Bindings.isEmpty(restrictionListView.getSelectionModel().getSelectedItems()));
+        resetButton.disableProperty().bind(Bindings.isEmpty(restrictionListView.getSelectionModel().getSelectedItems()));
     }
 
     private void openAppTab() {
@@ -77,8 +87,6 @@ public class RestrictionsListController {
                             restrictionTabPane.getSelectionModel().select(tab);
                         }
                     if (isNew) {
-                        Restriction r = restrictionDao.getByName(item).get();
-                        //TODO: set fields with r attributes
                         Tab tab = new Tab();
                         FXMLLoader loader = new FXMLLoader();
                         loader.setLocation(getClass().getResource(RESTRICTION_VIEW_PATH));
@@ -142,7 +150,33 @@ public class RestrictionsListController {
             restrictionTabPane.getTabs().removeAll(tabsToRemove);
             restrictionListView.getItems().remove(restrictionName);
             restrictionDao.deleteByName(restrictionName);
+        }
+    }
 
+    @FXML
+    private void resetStatistics(){
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setHeaderText("Are you sure to reset statistics for this restriction?");
+        alert.getButtonTypes().setAll(ButtonType.NO, ButtonType.YES);
+        alert.showAndWait();
+
+        if (alert.getResult() == ButtonType.YES) {
+            String nameToRestart = restrictionListView.getSelectionModel().getSelectedItem();
+            SessionService.openSession(new Configuration()
+                    .configure("hibernate.cfg.xml")
+                    .buildSessionFactory());
+            SessionService.getCurrentSession().beginTransaction();
+            String hql = "from Application where name = :name";
+            Application application = (Application) SessionService.getCurrentSession().createQuery(hql)
+                    .setParameter("name", nameToRestart).getSingleResult();
+
+            Set<LogApplication> myLogs = application.getLogApplications();
+            for(LogApplication myLog : myLogs){
+                myLog.setApplication(null);
+            }
+            application.setLogApplications(new HashSet<>());
+            SessionService.getCurrentSession().getTransaction().commit();
+            SessionService.closeCurrentSession();
         }
     }
 
