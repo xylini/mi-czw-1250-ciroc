@@ -43,6 +43,8 @@ public class RestrictionsListController {
 
     private MainScreenController mainScreenController;
 
+    private RestrictionTabController restrictionTabController;
+
     private ObservableList<String> restrictionNames = FXCollections.observableArrayList();
 
     private RestrictionDao restrictionDao = new RestrictionDao();
@@ -55,6 +57,19 @@ public class RestrictionsListController {
         openAppTab();
         removeButton.disableProperty().bind(Bindings.isEmpty(restrictionListView.getSelectionModel().getSelectedItems()));
         editButton.disableProperty().bind(Bindings.isEmpty(restrictionListView.getSelectionModel().getSelectedItems()));
+        initRestrictionTabController();
+    }
+
+    private void initRestrictionTabController() {
+        FXMLLoader loader = new FXMLLoader(this.getClass().getResource(RESTRICTION_VIEW_PATH));
+        ScrollPane restrictionScrollPane = null;
+        try {
+            restrictionScrollPane = loader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        restrictionTabController = loader.getController();
+        restrictionTabController.setRestrictionScrollPane(restrictionScrollPane);
     }
 
     private void openAppTab() {
@@ -69,18 +84,10 @@ public class RestrictionsListController {
                             restrictionTabPane.getSelectionModel().select(tab);
                         }
                     if (isNew) {
-                        Restriction r = restrictionDao.getByName(item).get();
-                        //TODO: set fields with r attributes
+                        initRestrictionTabController();
+                        restrictionTabController.setRestriction(restrictionDao.getByName(item).get());
                         Tab tab = new Tab();
-                        FXMLLoader loader = new FXMLLoader();
-                        loader.setLocation(getClass().getResource(RESTRICTION_VIEW_PATH));
-                        ScrollPane restrictionScrollPane = null;
-                        try {
-                            restrictionScrollPane = loader.load();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        tab.setContent(restrictionScrollPane);
+                        tab.setContent(restrictionTabController.getRestrictionScrollPane());
                         tab.setText(item);
                         this.restrictionTabPane.getTabs().add(0, tab);
                         restrictionTabPane.getSelectionModel().select(0);
