@@ -27,6 +27,7 @@ class ApplicationTest {
         configuration.addAnnotatedClass(LogApplication.class);
         configuration.addAnnotatedClass(LogGroup.class);
         configuration.addAnnotatedClass(Restriction.class);
+        configuration.addAnnotatedClass(TimePair.class);
     }
 
     @BeforeEach
@@ -49,9 +50,8 @@ class ApplicationTest {
         Application myApplication = new Application("cos.mp3", path, myGroup);
 
         Restriction myRestriction = Restriction.getRestrictionBuilder()
-                .setLimit(new MyTime(2,2))
-                .setStart(new MyTime(3,3))
-                .setEnd(new MyTime(4,4))
+                .setLimit(new MyTime(2, 2))
+                .addBlockedHours(new TimePair(new MyTime(3, 3), new MyTime(4, 4)))
                 .setApplication(myApplication)
                 .setGroup(myGroup)
                 .build();
@@ -84,18 +84,16 @@ class ApplicationTest {
         String path = "/byleco";
         Group myGroup = new Group("*.mp3");
         Application myApplication = new Application("cos.mp3", path, myGroup);
-        Application myApplication_2 = new Application("nicos.mp3", path+"2", myGroup);
+        Application myApplication_2 = new Application("nicos.mp3", path + "2", myGroup);
 
         Restriction myRestriction = Restriction.getRestrictionBuilder()
                 .setLimit(new MyTime(2, 2))
-                .setStart(new MyTime(3,3))
-                .setEnd(new MyTime(4,4))
+                .addBlockedHours(new TimePair(new MyTime(3, 3), new MyTime(4, 4)))
                 .setApplication(myApplication)
                 .build();
         Restriction myRestriction_2 = Restriction.getRestrictionBuilder()
                 .setLimit(new MyTime(2, 34))
-                .setStart(new MyTime(3,3))
-                .setEnd(new MyTime(4,4))
+                .addBlockedHours(new TimePair(new MyTime(3, 3), new MyTime(4, 4)))
                 .setGroup(myGroup)
                 .build();
 
@@ -135,7 +133,7 @@ class ApplicationTest {
         Application myApplication = new Application("cos.mp3", path, myGroup);
 
         Group myGroup_2 = new Group("*.jpg");
-        Application myApplication_2 = new Application("to.jpg", path+"2", myGroup_2);
+        Application myApplication_2 = new Application("to.jpg", path + "2", myGroup_2);
 
         session.save(myGroup);
         session.save(myApplication);

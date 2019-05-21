@@ -6,11 +6,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import pl.edu.agh.timekeeper.model.Application;
-import pl.edu.agh.timekeeper.model.Group;
-import pl.edu.agh.timekeeper.model.MyTime;
-import pl.edu.agh.timekeeper.model.Restriction;
+import pl.edu.agh.timekeeper.model.*;
 
+import java.util.List;
 import java.util.Optional;
 
 public class RestrictionTabController {
@@ -50,15 +48,28 @@ public class RestrictionTabController {
         Application application = restriction.getApplication();
         restrictionItemLabel.setText("Application path: " + application.getPath());
         Optional<MyTime> limit = Optional.ofNullable(restriction.getLimit());
-        Optional<MyTime> start = Optional.ofNullable(restriction.getStart());
-        Optional<MyTime> end = Optional.ofNullable(restriction.getEnd());
+        List<TimePair> blockedHours = restriction.getBlockedHours();
         limit.ifPresent(value -> {
             HBox box = new HBox();
             box.setPadding(new Insets(5));
             box.setSpacing(5);
-            box.getChildren().addAll(new Label("Daily limit: " + value.getHour() + " hours, " + value.getMinute() + " minutes"));
+            box.getChildren().add(new Label("Daily limit: " + value.getHour() + " hours, " + value.getMinute() + " minutes"));
             restrictionTabBox.getChildren().add(box);
         });
-        //TODO display forbidden hours ranges
+        HBox headerBox = new HBox();
+        if (!blockedHours.isEmpty()) {
+            headerBox.setPadding(new Insets(5));
+            headerBox.setSpacing(5);
+            headerBox.getChildren().add(new Label("Blocked hours: "));
+            restrictionTabBox.getChildren().add(headerBox);
+        }
+        blockedHours.forEach(pair -> {
+            HBox box = new HBox();
+            box.setPadding(new Insets(5));
+            box.setSpacing(5);
+            box.getChildren().add(new Label("From: " + pair.getStart().getHour() + ":" + pair.getStart().getMinute()
+                    + " to " + pair.getEnd().getHour() + ":" + pair.getEnd().getMinute()));
+            restrictionTabBox.getChildren().add(box);
+        });
     }
 }

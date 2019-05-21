@@ -1,14 +1,18 @@
 package pl.edu.agh.timekeeper.model;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 public class RestrictionBuilder {
     private String name;
     private MyTime limit;
-    private MyTime start;
-    private MyTime end;
+    private List<TimePair> blockedHours = new ArrayList<>();
     private Application application;
     private Group group;
 
-    public RestrictionBuilder(){}
+    public RestrictionBuilder() {
+    }
 
     public RestrictionBuilder setName(String name) {
         this.name = name;
@@ -20,13 +24,13 @@ public class RestrictionBuilder {
         return this;
     }
 
-    public RestrictionBuilder setStart(MyTime start) {
-        this.start = start;
+    public RestrictionBuilder addBlockedHours(TimePair pair) {
+        this.blockedHours.add(pair);
         return this;
     }
 
-    public RestrictionBuilder setEnd(MyTime end) {
-        this.end = end;
+    public RestrictionBuilder addBlockedHours(Collection<TimePair> pairs) {
+        this.blockedHours.addAll(pairs);
         return this;
     }
 
@@ -40,7 +44,7 @@ public class RestrictionBuilder {
         return this;
     }
 
-    public Restriction build(){
-        return new Restriction(name, limit, start, end, application, group);
+    public Restriction build() {
+        return new Restriction(name, limit, blockedHours, application, group);
     }
 }

@@ -20,10 +20,7 @@ import javafx.stage.Stage;
 import javafx.util.Pair;
 import pl.edu.agh.timekeeper.db.dao.ApplicationDao;
 import pl.edu.agh.timekeeper.db.dao.RestrictionDao;
-import pl.edu.agh.timekeeper.model.Application;
-import pl.edu.agh.timekeeper.model.MyTime;
-import pl.edu.agh.timekeeper.model.Restriction;
-import pl.edu.agh.timekeeper.model.RestrictionBuilder;
+import pl.edu.agh.timekeeper.model.*;
 
 import java.io.File;
 import java.util.*;
@@ -73,7 +70,7 @@ public class AddRestrictionController {
 
     private final RestrictionDao restrictionDao = new RestrictionDao();
 
-    private ObservableMap<Integer, Pair<MyTime, MyTime>> rangeRestrictions = FXCollections.observableHashMap();
+    private ObservableMap<Integer, TimePair> rangeRestrictions = FXCollections.observableHashMap();
 
     private void makeBrowseButton() {
         this.browseButton = new Button("Browse");
@@ -116,7 +113,7 @@ public class AddRestrictionController {
     @FXML
     private void okClicked(ActionEvent actionEvent) {
         RadioButton selectedRadioButton = (RadioButton) groupRadioButtons.getSelectedToggle();
-        if(!selectedRadioButton.equals(appRadioButton)) return; //TODO handle group case
+        if (!selectedRadioButton.equals(appRadioButton)) return; //TODO handle group case
 
         String applicationPath = applicationPathField.getText();
         String restrictionName = restrictionNameField.getText();
@@ -124,13 +121,13 @@ public class AddRestrictionController {
         Optional<Application> appOpt = applicationDao.getByPath(applicationPath);
         Application app = appOpt.orElseGet(() -> new Application(applicationPath, applicationPath));
 
-        if(app.getRestriction() != null){
+        if (app.getRestriction() != null) {
             // TODO: show message "Restriction for this application already exists"
             System.out.println("Restriction for this application already exists");
             return;
         }
 
-        if(restrictionsListController.getRestrictionListView().getItems().contains(restrictionName)){
+        if (restrictionsListController.getRestrictionListView().getItems().contains(restrictionName)) {
             // TODO: show message "Restriction with given name already exists"
             System.out.println("Restriction with given name already exists");
             return;
@@ -139,7 +136,7 @@ public class AddRestrictionController {
         MyTime dailyLimit = getMyTime(hoursDailyField, minutesDailyField);
 
         Restriction restriction = buildRestriction(app, rangeRestrictions.values(), dailyLimit);
-        if(appOpt.isEmpty()) applicationDao.create(app);
+        if (appOpt.isEmpty()) applicationDao.create(app);
         restrictionDao.create(restriction);
         restrictionsListController.getRestrictionListView().getItems().add(restrictionName);
         ((Stage) okButton.getScene().getWindow()).close();
@@ -207,34 +204,34 @@ public class AddRestrictionController {
         }
     };
 
-    private MyTime getMyTime(TextField hours, TextField minutes){
-        if(hours.getText().equals("") && minutes.getText().equals("")){
+    private MyTime getMyTime(TextField hours, TextField minutes) {
+        if (hours.getText().equals("") && minutes.getText().equals("")) {
             return null;
         }
         int h = 0;
         int m = 0;
-        if(!hours.getText().equals("")){
+        if (!hours.getText().equals("")) {
             h = Integer.valueOf(hours.getText());
         }
-        if(!minutes.getText().equals("")){
+        if (!minutes.getText().equals("")) {
             m = Integer.valueOf(minutes.getText());
         }
         return new MyTime(h, m);
     }
 
-    private TextField getHourTextField(){
+    private TextField getHourTextField() {
         TextField textField = new TextField();
         textField.setTextFormatter(getHourTextFormatter());
         return textField;
     }
 
-    private TextField getMinuteTextField(){
+    private TextField getMinuteTextField() {
         TextField textField = new TextField();
         textField.setTextFormatter(getMinuteTextFormatter());
         return textField;
     }
 
-    private TextFormatter<Integer> getHourTextFormatter(){
+    private TextFormatter<Integer> getHourTextFormatter() {
         return new TextFormatter<>(change ->
                 (change.getControlNewText().matches("((1[0-9])|(2[0-3])|[0-9])?")) ? change : null);
     }
@@ -244,28 +241,27 @@ public class AddRestrictionController {
                 (change.getControlNewText().matches("(([1-5][0-9])|[0-9])?")) ? change : null);
     }
 
-    private Restriction buildRestriction(Application app, Collection<Pair<MyTime, MyTime>> rangeRestrictions, MyTime dailyLimit){
+    private Restriction buildRestriction(Application app, Collection<TimePair> rangeRestrictions, MyTime dailyLimit) {
         RestrictionBuilder restrictionBuilder = new RestrictionBuilder()
                 .setApplication(app)
                 .setName(restrictionNameField.getText());
-        if(!rangeRestrictions.isEmpty()) {
+        if (!rangeRestrictions.isEmpty()) {
             restrictionBuilder
-                    .setStart(((Pair<MyTime, MyTime>) rangeRestrictions.toArray()[0]).getKey())
-                    .setEnd(((Pair<MyTime, MyTime>) rangeRestrictions.toArray()[0]).getValue());
+                    .addBlockedHours(rangeRestrictions);
         }
-        if(dailyLimit != null){
+        if (dailyLimit != null) {
             restrictionBuilder.setLimit(dailyLimit);
         }
         return restrictionBuilder.build();
     }
 
-    private ChangeListener<String> getTimeTextFieldChangeListener(List<TextField> textFields){
+    private ChangeListener<String> getTimeTextFieldChangeListener(List<TextField> textFields) {
         return (observable, oldValue, newValue) -> {
             MyTime start = getMyTime(textFields.get(0), textFields.get(1));
             MyTime end = getMyTime(textFields.get(2), textFields.get(3));
-            Pair<MyTime, MyTime> newTime = (start != null && end != null && end.isAfter(start))? new Pair<>(start, end) : null;
-            Integer index = scrollBox.getChildren().size()-2;
-            if(newTime != null) rangeRestrictions.put(index, newTime);
+            TimePair newTime = (start != null && end != null && end.isAfter(start)) ? new TimePair(start, end) : null;
+            Integer index = scrollBox.getChildren().size() - 2;
+            if (newTime != null) rangeRestrictions.put(index, newTime);
             else rangeRestrictions.remove(index);
         };
     }

@@ -3,6 +3,9 @@ package pl.edu.agh.timekeeper.model;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 @Entity
 @Table(name = "RESTRICTIONS")
@@ -21,15 +24,8 @@ public class Restriction implements Serializable {
     @AttributeOverride(name = "minute", column = @Column(name = "LIMIT_MINUTE"))
     private MyTime limit;
 
-    @Embedded
-    @AttributeOverride(name = "hour", column = @Column(name = "START_HOUR"))
-    @AttributeOverride(name = "minute", column = @Column(name = "START_MINUTE"))
-    private MyTime start;
-
-    @Embedded
-    @AttributeOverride(name = "hour", column = @Column(name = "END_HOUR"))
-    @AttributeOverride(name = "minute", column = @Column(name = "END_MINUTE"))
-    private MyTime end;
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "restriction")
+    private List<TimePair> blockedHours = new ArrayList<>();
 
     @OneToOne(mappedBy = "restriction")
     private Application application;
@@ -37,24 +33,24 @@ public class Restriction implements Serializable {
     @OneToOne(mappedBy = "restriction")
     private Group group;
 
-    public Restriction(String name, MyTime limit, MyTime start, MyTime end, Application application, Group group) {
+    public Restriction(String name, MyTime limit, Collection<TimePair> blockedHours, Application application, Group group) {
         this.name = name;
         this.limit = limit;
-        this.start = start;
-        this.end = end;
+        this.blockedHours.addAll(blockedHours);
 
-        if(application != null){
+        if (application != null) {
             application.setRestriction(this);
         }
         this.application = application;
 
-        if(group != null){
+        if (group != null) {
             group.setRestriction(this);
         }
         this.group = group;
     }
 
-    public Restriction(){}
+    public Restriction() {
+    }
 
     public int getId() {
         return id;
@@ -80,20 +76,12 @@ public class Restriction implements Serializable {
         this.limit = limit;
     }
 
-    public MyTime getStart() {
-        return start;
+    public List<TimePair> getBlockedHours() {
+        return blockedHours;
     }
 
-    public void setStart(MyTime start) {
-        this.start = start;
-    }
-
-    public MyTime getEnd() {
-        return end;
-    }
-
-    public void setEnd(MyTime end) {
-        this.end = end;
+    public void setBlockedHours(List<TimePair> blockedHours) {
+        this.blockedHours = blockedHours;
     }
 
     public Application getApplication() {
@@ -112,7 +100,7 @@ public class Restriction implements Serializable {
         this.group = group;
     }
 
-    public static RestrictionBuilder getRestrictionBuilder(){
+    public static RestrictionBuilder getRestrictionBuilder() {
         return new RestrictionBuilder();
     }
 
@@ -127,9 +115,7 @@ public class Restriction implements Serializable {
             return false;
         else if (!this.limit.equals(((Restriction) obj).getLimit()))
             return false;
-        else if (!this.start.equals(((Restriction) obj).getStart()))
-            return false;
-        else return this.end.equals(((Restriction) obj).getEnd());
+        else return this.blockedHours.equals(((Restriction) obj).getBlockedHours());
     }
 
     @Override
