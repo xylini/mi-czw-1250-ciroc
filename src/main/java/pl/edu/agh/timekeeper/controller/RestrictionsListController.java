@@ -102,8 +102,9 @@ public class RestrictionsListController {
         return restrictionsSplitPane;
     }
 
-    public void setAppsNames(ObservableList<String> appsNames) {
-        this.appsNames = appsNames;
+    public void setRestrictionNames(ObservableList<String> restrictionNames) {
+        this.restrictionNames = restrictionNames;
+    }
 
     public void setMainScreenController(MainScreenController mainScreenController) {
         this.mainScreenController = mainScreenController;
