@@ -37,6 +37,7 @@ public class Restriction implements Serializable {
         this.name = name;
         this.limit = limit;
         this.blockedHours.addAll(blockedHours);
+        this.blockedHours.forEach(pair -> pair.setRestriction(this));
 
         if (application != null) {
             application.setRestriction(this);
@@ -82,6 +83,7 @@ public class Restriction implements Serializable {
 
     public void setBlockedHours(List<TimePair> blockedHours) {
         this.blockedHours = blockedHours;
+        this.blockedHours.forEach(pair -> pair.setRestriction(this));
     }
 
     public Application getApplication() {

@@ -67,8 +67,10 @@ public class RestrictionTabController {
             HBox box = new HBox();
             box.setPadding(new Insets(5));
             box.setSpacing(5);
-            box.getChildren().add(new Label("From: " + pair.getStart().getHour() + ":" + pair.getStart().getMinute()
-                    + " to " + pair.getEnd().getHour() + ":" + pair.getEnd().getMinute()));
+            box.getChildren().add(new Label("From " + pair.getStart().getHour() + ":"
+                    + String.format("%02d", pair.getStart().getMinute())
+                    + " to " + pair.getEnd().getHour()
+                    + ":" + String.format("%02d", pair.getEnd().getMinute())));
             restrictionTabBox.getChildren().add(box);
         });
     }
