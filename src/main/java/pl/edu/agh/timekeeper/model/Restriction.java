@@ -13,6 +13,9 @@ public class Restriction implements Serializable {
     @Column(name = "ID", updatable = false)
     private int id;
 
+    @Column(name = "NAME", unique = true)
+    private String name;
+
     @Embedded
     @AttributeOverride(name = "hour", column = @Column(name = "LIMIT_HOUR"))
     @AttributeOverride(name = "minute", column = @Column(name = "LIMIT_MINUTE"))
@@ -34,7 +37,8 @@ public class Restriction implements Serializable {
     @OneToOne(mappedBy = "restriction")
     private Group group;
 
-    public Restriction(MyTime limit, MyTime start, MyTime end, Application application, Group group) {
+    public Restriction(String name, MyTime limit, MyTime start, MyTime end, Application application, Group group) {
+        this.name = name;
         this.limit = limit;
         this.start = start;
         this.end = end;
@@ -58,6 +62,14 @@ public class Restriction implements Serializable {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public MyTime getLimit() {
