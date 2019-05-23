@@ -6,6 +6,7 @@ import pl.edu.agh.timekeeper.model.Group;
 import pl.edu.agh.timekeeper.log.LogGroup;
 import pl.edu.agh.timekeeper.model.MyTime;
 import pl.edu.agh.timekeeper.model.Restriction;
+import pl.edu.agh.timekeeper.model.TimePair;
 
 import java.util.Date;
 import java.util.List;
@@ -63,8 +64,7 @@ public class GroupDaoTest extends DaoTestBase<GroupDao, Group> {
         Group group = getEntity();
         Restriction restriction = Restriction.getRestrictionBuilder()
                 .setLimit(new MyTime(1, 0))
-                .setStart(new MyTime(1,0))
-                .setEnd(new MyTime(2,0))
+                .addBlockedHours(new TimePair(new MyTime(1, 0), new MyTime(2, 0)))
                 .build();
         groupDao.create(group);
         restrictionDao.create(restriction);
@@ -83,8 +83,7 @@ public class GroupDaoTest extends DaoTestBase<GroupDao, Group> {
         Group group = getEntity();
         Restriction restriction = Restriction.getRestrictionBuilder()
                 .setLimit(new MyTime(1, 0))
-                .setStart(new MyTime(1,0))
-                .setEnd(new MyTime(2,0))
+                .addBlockedHours(new TimePair(new MyTime(1, 0), new MyTime(2, 0)))
                 .build();
         groupDao.create(group);
         restrictionDao.create(restriction);
@@ -100,13 +99,11 @@ public class GroupDaoTest extends DaoTestBase<GroupDao, Group> {
         Group group = getEntity();
         Restriction restriction = Restriction.getRestrictionBuilder()
                 .setLimit(new MyTime(1, 0))
-                .setStart(new MyTime(1,0))
-                .setEnd(new MyTime(2,0))
+                .addBlockedHours(new TimePair(new MyTime(1, 0), new MyTime(2, 0)))
                 .build();
         Restriction restriction2 = Restriction.getRestrictionBuilder()
                 .setLimit(new MyTime(1, 0))
-                .setStart(new MyTime(1,0))
-                .setEnd(new MyTime(3,0))
+                .addBlockedHours(new TimePair(new MyTime(1, 0), new MyTime(3, 0)))
                 .build();
         groupDao.create(group);
         restrictionDao.create(restriction);
@@ -128,8 +125,7 @@ public class GroupDaoTest extends DaoTestBase<GroupDao, Group> {
         Group group = getEntity();
         Restriction restriction = Restriction.getRestrictionBuilder()
                 .setLimit(new MyTime(1, 0))
-                .setStart(new MyTime(1,0))
-                .setEnd(new MyTime(2,0))
+                .addBlockedHours(new TimePair(new MyTime(1, 0), new MyTime(2, 0)))
                 .build();
         groupDao.create(group);
         restrictionDao.create(restriction);
@@ -148,8 +144,7 @@ public class GroupDaoTest extends DaoTestBase<GroupDao, Group> {
         Group group = getEntity();
         Restriction restriction = Restriction.getRestrictionBuilder()
                 .setLimit(new MyTime(1, 0))
-                .setStart(new MyTime(1,0))
-                .setEnd(new MyTime(2,0))
+                .addBlockedHours(new TimePair(new MyTime(1, 0), new MyTime(2, 0)))
                 .build();
         groupDao.create(group);
         restrictionDao.create(restriction);

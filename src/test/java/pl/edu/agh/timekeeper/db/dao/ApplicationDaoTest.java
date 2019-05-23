@@ -2,11 +2,8 @@ package pl.edu.agh.timekeeper.db.dao;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import pl.edu.agh.timekeeper.model.Application;
-import pl.edu.agh.timekeeper.model.Group;
+import pl.edu.agh.timekeeper.model.*;
 import pl.edu.agh.timekeeper.log.LogApplication;
-import pl.edu.agh.timekeeper.model.MyTime;
-import pl.edu.agh.timekeeper.model.Restriction;
 
 import java.util.Date;
 import java.util.List;
@@ -48,7 +45,7 @@ public class ApplicationDaoTest extends DaoTestBase<ApplicationDao, Application>
         // given
         String path = "/byleco"; //Krystian: pozwolilem sobie chwilowo dodac taka opcje, najwyzej sobie to pozniej zmienisz :)
         Application app1 = new Application("App1", path);
-        Application app2 = new Application("App2", path+"2");
+        Application app2 = new Application("App2", path + "2");
         Application app3 = new Application("App1", path);
         // when
         Optional<Application> first = applicationDao.create(app1);
@@ -66,9 +63,8 @@ public class ApplicationDaoTest extends DaoTestBase<ApplicationDao, Application>
         // given
         Application application = getEntity();
         Restriction restriction = Restriction.getRestrictionBuilder()
+                .addBlockedHours(new TimePair(new MyTime(1, 0), new MyTime(2, 0)))
                 .setLimit(new MyTime(1, 0))
-                .setStart(new MyTime(1,0))
-                .setEnd(new MyTime(2,0))
                 .build();
         applicationDao.create(application);
         restrictionDao.create(restriction);
@@ -87,8 +83,7 @@ public class ApplicationDaoTest extends DaoTestBase<ApplicationDao, Application>
         Application application = getEntity();
         Restriction restriction = Restriction.getRestrictionBuilder()
                 .setLimit(new MyTime(1, 0))
-                .setStart(new MyTime(1,0))
-                .setEnd(new MyTime(2,0))
+                .addBlockedHours(new TimePair(new MyTime(1, 0), new MyTime(2, 0)))
                 .build();
         applicationDao.create(application);
         restrictionDao.create(restriction);
@@ -104,13 +99,11 @@ public class ApplicationDaoTest extends DaoTestBase<ApplicationDao, Application>
         Application application = getEntity();
         Restriction restriction = Restriction.getRestrictionBuilder()
                 .setLimit(new MyTime(1, 0))
-                .setStart(new MyTime(1,0))
-                .setEnd(new MyTime(2,0))
+                .addBlockedHours(new TimePair(new MyTime(1, 0), new MyTime(2, 0)))
                 .build();
         Restriction restriction2 = Restriction.getRestrictionBuilder()
                 .setLimit(new MyTime(1, 0))
-                .setStart(new MyTime(1,0))
-                .setEnd(new MyTime(3,0))
+                .addBlockedHours(new TimePair(new MyTime(1, 0), new MyTime(3, 0)))
                 .build();
         applicationDao.create(application);
         restrictionDao.create(restriction);
@@ -134,8 +127,7 @@ public class ApplicationDaoTest extends DaoTestBase<ApplicationDao, Application>
         Application application = getEntity();
         Restriction restriction = Restriction.getRestrictionBuilder()
                 .setLimit(new MyTime(1, 0))
-                .setStart(new MyTime(1,0))
-                .setEnd(new MyTime(2,0))
+                .addBlockedHours(new TimePair(new MyTime(1, 0), new MyTime(2, 0)))
                 .build();
         Application application1 = applicationDao.create(application).get();
         System.out.println("ID: " + application1.getId());
@@ -156,8 +148,7 @@ public class ApplicationDaoTest extends DaoTestBase<ApplicationDao, Application>
         Application application = getEntity();
         Restriction restriction = Restriction.getRestrictionBuilder()
                 .setLimit(new MyTime(1, 0))
-                .setStart(new MyTime(1,0))
-                .setEnd(new MyTime(2,0))
+                .addBlockedHours(new TimePair(new MyTime(1, 0), new MyTime(2, 0)))
                 .build();
         applicationDao.create(application);
         restrictionDao.create(restriction);

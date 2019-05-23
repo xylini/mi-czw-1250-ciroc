@@ -34,30 +34,30 @@ public class Main extends Application {
                 .buildSessionFactory());
       
         // TODO: remove this block ---------------
-        pl.edu.agh.timekeeper.model.Application app1 = new ApplicationDao().create(new pl.edu.agh.timekeeper.model.Application("app1", "app1")).get();
-        pl.edu.agh.timekeeper.model.Application app2 = new ApplicationDao().create(new pl.edu.agh.timekeeper.model.Application("app2","app2")).get();
-        LogApplication log1 = new LogApplication(app1);
-        log1.setTimeStart(Date.from(LocalDateTime.of(2019, 5, 9, 17, 30).atZone(ZoneId.systemDefault()).toInstant()));
-        log1.setTimeEnd(Date.from(LocalDateTime.of(2019, 5, 10, 9, 45).atZone(ZoneId.systemDefault()).toInstant()));
-        LogApplication log2 = new LogApplication(app1);
-        log2.setTimeStart(Date.from(LocalDateTime.of(2019, 4, 30, 18, 30).atZone(ZoneId.systemDefault()).toInstant()));
-        log2.setTimeEnd(Date.from((LocalDateTime.of(2019, 5, 1, 19, 0).atZone(ZoneId.systemDefault()).toInstant())));
-        LogApplication log3 = new LogApplication(app2);
-        log3.setTimeStart(Date.from(LocalDateTime.of(2019, 5, 7, 6, 30).atZone(ZoneId.systemDefault()).toInstant()));
-        log3.setTimeEnd(Date.from(LocalDateTime.of(2019, 5, 7, 9, 0).atZone(ZoneId.systemDefault()).toInstant()));
-        new LogApplicationDao().create(log1);
-        new LogApplicationDao().create(log2);
-        new LogApplicationDao().create(log3);
-        Restriction r1 = new Restriction();
-        r1.setLimit(new MyTime(1,30));
-        r1.setName("app1 restriction");
-        Restriction r2 = new Restriction();
-        r2.setLimit(new MyTime(2,45));
-        r2.setName("app2 restriction");
-        new RestrictionDao().create(r1);
-        new RestrictionDao().create(r2);
-        new ApplicationDao().addRestriction(app1,r1);
-        new ApplicationDao().addRestriction(app2,r2);
+//        pl.edu.agh.timekeeper.model.Application app1 = new ApplicationDao().create(new pl.edu.agh.timekeeper.model.Application("app1", "app1")).get();
+//        pl.edu.agh.timekeeper.model.Application app2 = new ApplicationDao().create(new pl.edu.agh.timekeeper.model.Application("app2","app2")).get();
+//        LogApplication log1 = new LogApplication(app1);
+//        log1.setTimeStart(Date.from(LocalDateTime.of(2019, 5, 9, 17, 30).atZone(ZoneId.systemDefault()).toInstant()));
+//        log1.setTimeEnd(Date.from(LocalDateTime.of(2019, 5, 10, 9, 45).atZone(ZoneId.systemDefault()).toInstant()));
+//        LogApplication log2 = new LogApplication(app1);
+//        log2.setTimeStart(Date.from(LocalDateTime.of(2019, 4, 30, 18, 30).atZone(ZoneId.systemDefault()).toInstant()));
+//        log2.setTimeEnd(Date.from((LocalDateTime.of(2019, 5, 1, 19, 0).atZone(ZoneId.systemDefault()).toInstant())));
+//        LogApplication log3 = new LogApplication(app2);
+//        log3.setTimeStart(Date.from(LocalDateTime.of(2019, 5, 7, 6, 30).atZone(ZoneId.systemDefault()).toInstant()));
+//        log3.setTimeEnd(Date.from(LocalDateTime.of(2019, 5, 7, 9, 0).atZone(ZoneId.systemDefault()).toInstant()));
+//        new LogApplicationDao().create(log1);
+//        new LogApplicationDao().create(log2);
+//        new LogApplicationDao().create(log3);
+//        Restriction r1 = new Restriction();
+//        r1.setLimit(new MyTime(1,30));
+//        r1.setName("app1 restriction");
+//        Restriction r2 = new Restriction();
+//        r2.setLimit(new MyTime(2,45));
+//        r2.setName("app2 restriction");
+//        new RestrictionDao().create(r1);
+//        new RestrictionDao().create(r2);
+//        new ApplicationDao().addRestriction(app1,r1);
+//        new ApplicationDao().addRestriction(app2,r2);
         // TODO: ---------------------------------
 
         Thread focusedWindowThread = new Thread(new FocusedWindowDataExtractor());

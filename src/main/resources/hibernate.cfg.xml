@@ -14,12 +14,13 @@
         <property name="connection.password">root</property>
 
         <property name="hibernate.connection.pool_size">10</property>
-        <property name="hibernate.hbm2ddl.auto">create-drop</property>
+        <property name="hibernate.hbm2ddl.auto">update</property>
 
         <mapping class="pl.edu.agh.timekeeper.model.Application"/>
         <mapping class="pl.edu.agh.timekeeper.model.Restriction"/>
         <mapping class="pl.edu.agh.timekeeper.model.Group"/>
         <mapping class="pl.edu.agh.timekeeper.model.MyTime"/>
+        <mapping class="pl.edu.agh.timekeeper.model.TimePair"/>
         <mapping class="pl.edu.agh.timekeeper.log.LogApplication"/>
         <mapping class="pl.edu.agh.timekeeper.log.LogGroup"/>
 

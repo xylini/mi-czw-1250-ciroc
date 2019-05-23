@@ -27,6 +27,7 @@ class RestrictionTest {
         configuration.addAnnotatedClass(LogApplication.class);
         configuration.addAnnotatedClass(LogGroup.class);
         configuration.addAnnotatedClass(Restriction.class);
+        configuration.addAnnotatedClass(TimePair.class);
     }
 
     @BeforeEach
@@ -45,14 +46,12 @@ class RestrictionTest {
         session.beginTransaction();
 
         Restriction myRestriction = Restriction.getRestrictionBuilder()
-                .setLimit(new MyTime(2,2))
-                .setStart(new MyTime(3,3))
-                .setEnd(new MyTime(4,4))
+                .setLimit(new MyTime(2, 2))
+                .addBlockedHours(new TimePair(new MyTime(3, 3), new MyTime(4, 4)))
                 .build();
         Restriction myRestriction_2 = Restriction.getRestrictionBuilder()
-                .setLimit(new MyTime(3,3))
-                .setStart(new MyTime(4,4))
-                .setEnd(new MyTime(4,4))
+                .setLimit(new MyTime(3, 3))
+                .addBlockedHours(new TimePair(new MyTime(3, 3), new MyTime(4, 4)))
                 .build();
 
         session.save(myRestriction);
@@ -72,14 +71,12 @@ class RestrictionTest {
         session.beginTransaction();
 
         Restriction myRestriction = Restriction.getRestrictionBuilder()
-                .setLimit(new MyTime(2,2))
-                .setStart(new MyTime(3,3))
-                .setEnd(new MyTime(4,4))
+                .setLimit(new MyTime(2, 2))
+                .addBlockedHours(new TimePair(new MyTime(3, 3), new MyTime(4, 4)))
                 .build();
         Restriction myRestriction_2 = Restriction.getRestrictionBuilder()
-                .setLimit(new MyTime(3,3))
-                .setStart(new MyTime(4,4))
-                .setEnd(new MyTime(4,4))
+                .setLimit(new MyTime(3, 3))
+                .addBlockedHours(new TimePair(new MyTime(3, 3), new MyTime(4, 4)))
                 .build();
         session.save(myRestriction);
         session.save(myRestriction_2);
@@ -104,9 +101,8 @@ class RestrictionTest {
         session.beginTransaction();
 
         Restriction myRestriction = Restriction.getRestrictionBuilder()
-                .setLimit(new MyTime(2,2))
-                .setStart(new MyTime(3,3))
-                .setEnd(new MyTime(4,4))
+                .setLimit(new MyTime(2, 2))
+                .addBlockedHours(new TimePair(new MyTime(3, 3), new MyTime(4, 4)))
                 .build();
         session.save(myRestriction);
 

@@ -28,6 +28,7 @@ class GroupTest {
         configuration.addAnnotatedClass(LogApplication.class);
         configuration.addAnnotatedClass(LogGroup.class);
         configuration.addAnnotatedClass(Restriction.class);
+        configuration.addAnnotatedClass(TimePair.class);
     }
 
     @BeforeEach
@@ -47,9 +48,8 @@ class GroupTest {
 
         Group myGroup = new Group("*.mp3");
         Restriction myRestriction = Restriction.getRestrictionBuilder()
-                .setLimit(new MyTime(2,2))
-                .setStart(new MyTime(3,3))
-                .setEnd(new MyTime(4,4))
+                .setLimit(new MyTime(2, 2))
+                .addBlockedHours(new TimePair(new MyTime(3, 3), new MyTime(4, 4)))
                 .setGroup(myGroup)
                 .build();
 
@@ -80,17 +80,15 @@ class GroupTest {
 
         Group myGroup = new Group("*.mp3");
         Restriction myRestriction = Restriction.getRestrictionBuilder()
-                .setLimit(new MyTime(2,2))
-                .setStart(new MyTime(3,3))
-                .setEnd(new MyTime(4,4))
+                .setLimit(new MyTime(2, 2))
+                .addBlockedHours(new TimePair(new MyTime(3, 3), new MyTime(4, 4)))
                 .setGroup(myGroup)
                 .build();
 
         Group myGroup_2 = new Group("*.wav");
         Restriction myRestriction_2 = Restriction.getRestrictionBuilder()
-                .setLimit(new MyTime(6,40))
-                .setStart(new MyTime(3,3))
-                .setEnd(new MyTime(4,4))
+                .setLimit(new MyTime(6, 40))
+                .addBlockedHours(new TimePair(new MyTime(3, 3), new MyTime(4, 4)))
                 .setGroup(myGroup_2)
                 .build();
 
@@ -132,17 +130,15 @@ class GroupTest {
 
         Group myGroup = new Group("*.mp3");
         Restriction myRestriction = Restriction.getRestrictionBuilder()
-                .setLimit(new MyTime(2,2))
-                .setStart(new MyTime(3,3))
-                .setEnd(new MyTime(4,4))
+                .setLimit(new MyTime(2, 2))
+                .addBlockedHours(new TimePair(new MyTime(3, 3), new MyTime(4, 4)))
                 .setGroup(myGroup)
                 .build();
 
         Group myGroup_2 = new Group("*.wav");
         Restriction myRestriction_2 = Restriction.getRestrictionBuilder()
-                .setLimit(new MyTime(10,2))
-                .setStart(new MyTime(3,3))
-                .setEnd(new MyTime(4,4))
+                .setLimit(new MyTime(10, 2))
+                .addBlockedHours(new TimePair(new MyTime(3, 3), new MyTime(4, 4)))
                 .setGroup(myGroup_2)
                 .build();
 

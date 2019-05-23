@@ -7,10 +7,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import pl.edu.agh.timekeeper.model.Application;
-import pl.edu.agh.timekeeper.model.Group;
-import pl.edu.agh.timekeeper.model.Restriction;
-import pl.edu.agh.timekeeper.model.MyTime;
+import pl.edu.agh.timekeeper.model.*;
 
 import java.util.Date;
 import java.util.List;
@@ -31,6 +28,7 @@ class LogGroupTest {
         configuration.addAnnotatedClass(LogApplication.class);
         configuration.addAnnotatedClass(LogGroup.class);
         configuration.addAnnotatedClass(Restriction.class);
+        configuration.addAnnotatedClass(TimePair.class);
     }
 
     @BeforeEach
@@ -50,9 +48,8 @@ class LogGroupTest {
 
         Group myGroup = new Group("*.mp3");
         Restriction myRestriction = Restriction.getRestrictionBuilder()
-                .setLimit(new MyTime(2,2))
-                .setStart(new MyTime(3,3))
-                .setEnd(new MyTime(4,4))
+                .setLimit(new MyTime(2, 2))
+                .addBlockedHours(new TimePair(new MyTime(3, 3), new MyTime(4, 4)))
                 .setGroup(myGroup)
                 .build();
 
@@ -84,9 +81,8 @@ class LogGroupTest {
 
         Group myGroup = new Group("*.mp3");
         Restriction myRestriction = Restriction.getRestrictionBuilder()
-                .setLimit(new MyTime(2,2))
-                .setStart(new MyTime(3,3))
-                .setEnd(new MyTime(4,4))
+                .setLimit(new MyTime(2, 2))
+                .addBlockedHours(new TimePair(new MyTime(3, 3), new MyTime(4, 4)))
                 .setGroup(myGroup)
                 .build();
         LogGroup myLogGroup = new LogGroup(myGroup);
@@ -122,9 +118,8 @@ class LogGroupTest {
 
         Group myGroup = new Group("*.mp3");
         Restriction myRestriction = Restriction.getRestrictionBuilder()
-                .setLimit(new MyTime(2,2))
-                .setStart(new MyTime(3,3))
-                .setEnd(new MyTime(4,4))
+                .setLimit(new MyTime(2, 2))
+                .addBlockedHours(new TimePair(new MyTime(3, 3), new MyTime(4, 4)))
                 .setGroup(myGroup)
                 .build();
         LogGroup myLogGroup = new LogGroup(myGroup);
