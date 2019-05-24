@@ -8,23 +8,24 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
+import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import pl.edu.agh.timekeeper.db.dao.RestrictionDao;
-import pl.edu.agh.timekeeper.model.Restriction;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class RestrictionsListController {
 
-    private static final String RESTRICTION_VIEW_PATH = "/views/restrictionView.fxml";
-    private static final String ADD_RESTRICTION_VIEW_PATH = "/views/addRestrictionView.fxml";
-
     @FXML
     private SplitPane restrictionsSplitPane;
+
+    @FXML
+    private VBox listVBox;
 
     @FXML
     private TabPane restrictionTabPane;
@@ -41,7 +42,8 @@ public class RestrictionsListController {
     @FXML
     private Button removeButton;
 
-    private MainScreenController mainScreenController;
+    private static final String RESTRICTION_VIEW_PATH = "/views/restrictionView.fxml";
+    private static final String ADD_RESTRICTION_VIEW_PATH = "/views/addRestrictionView.fxml";
 
     private RestrictionTabController restrictionTabController;
 
@@ -54,9 +56,16 @@ public class RestrictionsListController {
         restrictionDao.getAll().get().forEach(r -> this.restrictionNames.add(r.getName()));
         restrictionListView.setItems(this.restrictionNames);
         this.restrictionTabPane.tabDragPolicyProperty().setValue(TabPane.TabDragPolicy.REORDER);
-        openAppTab();
+        setOnRestrictionListClicked();
         removeButton.disableProperty().bind(Bindings.isEmpty(restrictionListView.getSelectionModel().getSelectedItems()));
         editButton.disableProperty().bind(Bindings.isEmpty(restrictionListView.getSelectionModel().getSelectedItems()));
+        listVBox.prefHeightProperty().bind(restrictionsSplitPane.heightProperty());
+        listVBox.prefWidthProperty().bind(restrictionsSplitPane.widthProperty());
+        listVBox.maxWidthProperty().bind(restrictionsSplitPane.widthProperty().multiply(0.3));
+        restrictionListView.prefHeightProperty().bind(listVBox.heightProperty().subtract(addButton.heightProperty()));
+        restrictionListView.prefWidthProperty().bind(listVBox.widthProperty().subtract(addButton.widthProperty()));
+        restrictionTabPane.prefHeightProperty().bind(restrictionsSplitPane.heightProperty());
+        restrictionTabPane.prefWidthProperty().bind(restrictionsSplitPane.widthProperty());
         initRestrictionTabController();
     }
 
@@ -72,18 +81,26 @@ public class RestrictionsListController {
         restrictionTabController.setRestrictionScrollPane(restrictionScrollPane);
     }
 
-    private void openAppTab() {
+    public ListView<String> getRestrictionListView() {
+        return this.restrictionListView;
+    }
+
+    public SplitPane getRestrictionsSplitPane() {
+        return restrictionsSplitPane;
+    }
+
+    private void setOnRestrictionListClicked() {
         restrictionListView.setOnMouseClicked(mouseEvent -> {
             if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
-                String item = restrictionListView.getSelectionModel().getSelectedItem();
-                if (item != null) {
-                    boolean isNew = true;
+                Optional<String> selectedItem = Optional.ofNullable(restrictionListView.getSelectionModel().getSelectedItem());
+                selectedItem.ifPresent(item -> {
+                    boolean isOpen = false;
                     for (Tab tab : restrictionTabPane.getTabs())
                         if (tab.getText().equals(item)) {
-                            isNew = false;
+                            isOpen = true;
                             restrictionTabPane.getSelectionModel().select(tab);
                         }
-                    if (isNew) {
+                    if (!isOpen) {
                         initRestrictionTabController();
                         restrictionTabController.setRestriction(restrictionDao.getByName(item).get());
                         Tab tab = new Tab();
@@ -92,29 +109,9 @@ public class RestrictionsListController {
                         this.restrictionTabPane.getTabs().add(0, tab);
                         restrictionTabPane.getSelectionModel().select(0);
                     }
-                }
+                });
             }
         });
-    }
-
-    public ListView<String> getRestrictionListView() {
-        return this.restrictionListView;
-    }
-
-    public void setRestrictionsSplitPane(SplitPane restrictionsSplitPane) {
-        this.restrictionsSplitPane = restrictionsSplitPane;
-    }
-
-    public SplitPane getRestrictionsSplitPane() {
-        return restrictionsSplitPane;
-    }
-
-    public void setRestrictionNames(ObservableList<String> restrictionNames) {
-        this.restrictionNames = restrictionNames;
-    }
-
-    public void setMainScreenController(MainScreenController mainScreenController) {
-        this.mainScreenController = mainScreenController;
     }
 
     @FXML
@@ -164,10 +161,5 @@ public class RestrictionsListController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public void setBindings() {
-        restrictionsSplitPane.prefHeightProperty().bind(mainScreenController.getMainVBox().prefHeightProperty());
-        restrictionsSplitPane.prefWidthProperty().bind(mainScreenController.getMainVBox().prefWidthProperty());
     }
 }

@@ -66,6 +66,7 @@ public class Main extends Application {
         FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/views/mainView.fxml"));
         BorderPane pane = new BorderPane(loader.load());
         Scene scene = new Scene(pane);
+        primaryStage.setTitle("TimeKeeper");
         primaryStage.setScene(scene);
         primaryStage.setOnCloseRequest(event -> {
             System.out.println("Closing session");

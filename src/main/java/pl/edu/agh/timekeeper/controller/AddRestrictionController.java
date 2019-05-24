@@ -17,7 +17,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import javafx.util.Pair;
 import pl.edu.agh.timekeeper.db.dao.ApplicationDao;
 import pl.edu.agh.timekeeper.db.dao.RestrictionDao;
 import pl.edu.agh.timekeeper.model.*;
@@ -58,6 +57,8 @@ public class AddRestrictionController {
     @FXML
     private RestrictionsListController restrictionsListController;
 
+    private static final String IMAGE_DELETE_PATH = "images/delete.png";
+
     private TextField applicationPathField = new TextField();
 
     private Button browseButton;
@@ -88,6 +89,10 @@ public class AddRestrictionController {
             restrictionHBox.getChildren().addAll(applicationPathField, browseButton);
         }
         addRadioButtonsListener();
+    }
+
+    public void setRestrictionsListController(RestrictionsListController restrictionsListController) {
+        this.restrictionsListController = restrictionsListController;
     }
 
     private void addRadioButtonsListener() {
@@ -122,21 +127,20 @@ public class AddRestrictionController {
         Application app = appOpt.orElseGet(() -> new Application(applicationPath, applicationPath));
 
         if (app.getRestriction() != null) {
-            // TODO: show message "Restriction for this application already exists"
             System.out.println("Restriction for this application already exists");
             return;
         }
 
         if (restrictionsListController.getRestrictionListView().getItems().contains(restrictionName)) {
-            // TODO: show message "Restriction with given name already exists"
             System.out.println("Restriction with given name already exists");
             return;
         }
 
-        MyTime dailyLimit = getMyTime(hoursDailyField, minutesDailyField);
+        MyTime dailyLimit = getTimeFromTextFields(hoursDailyField, minutesDailyField);
 
         Restriction restriction = buildRestriction(app, rangeRestrictions.values(), dailyLimit);
-        if (appOpt.isEmpty()) applicationDao.create(app);
+        if (appOpt.isEmpty())
+            applicationDao.create(app);
         restrictionDao.create(restriction);
         restrictionsListController.getRestrictionListView().getItems().add(restrictionName);
         ((Stage) okButton.getScene().getWindow()).close();
@@ -147,13 +151,7 @@ public class AddRestrictionController {
         fileChooser.setTitle("Select file to impose a restriction");
         Stage stage = (Stage) mainPane.getScene().getWindow();
         Optional<File> file = Optional.ofNullable(fileChooser.showOpenDialog(stage));
-        file.ifPresent((f) -> {
-            applicationPathField.setText(f.getAbsolutePath());
-        });
-    }
-
-    public void setRestrictionsListController(RestrictionsListController restrictionsListController) {
-        this.restrictionsListController = restrictionsListController;
+        file.ifPresent((f) -> applicationPathField.setText(f.getAbsolutePath()));
     }
 
     @FXML
@@ -176,7 +174,7 @@ public class AddRestrictionController {
         Label toLabel = new Label("To");
         //Delete button
         Button deleteButton = new Button();
-        ImageView deleteImg = new ImageView("images/delete.png");
+        ImageView deleteImg = new ImageView(IMAGE_DELETE_PATH);
         deleteImg.setFitWidth(20);
         deleteImg.setFitHeight(20);
         deleteButton.setGraphic(deleteImg);
@@ -204,7 +202,7 @@ public class AddRestrictionController {
         }
     };
 
-    private MyTime getMyTime(TextField hours, TextField minutes) {
+    private MyTime getTimeFromTextFields(TextField hours, TextField minutes) {
         if (hours.getText().equals("") && minutes.getText().equals("")) {
             return null;
         }
@@ -257,8 +255,8 @@ public class AddRestrictionController {
 
     private ChangeListener<String> getTimeTextFieldChangeListener(List<TextField> textFields) {
         return (observable, oldValue, newValue) -> {
-            MyTime start = getMyTime(textFields.get(0), textFields.get(1));
-            MyTime end = getMyTime(textFields.get(2), textFields.get(3));
+            MyTime start = getTimeFromTextFields(textFields.get(0), textFields.get(1));
+            MyTime end = getTimeFromTextFields(textFields.get(2), textFields.get(3));
             TimePair newTime = (start != null && end != null && end.isAfter(start)) ? new TimePair(start, end) : null;
             Integer index = scrollBox.getChildren().size() - 2;
             if (newTime != null) rangeRestrictions.put(index, newTime);

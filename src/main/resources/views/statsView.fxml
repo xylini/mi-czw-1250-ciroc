@@ -1,23 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<?import javafx.scene.control.Label?>
-<BorderPane fx:id="statsPane" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="pl.edu.agh.timekeeper.controller.StatsController">
-    <left>
-        <Pane fx:id="listPane" prefHeight="370.0" prefWidth="150.0" BorderPane.alignment="CENTER">
-            <VBox>
-                <ListView fx:id="restrictionsListView" layoutY="27.0" prefHeight="343.0" prefWidth="150.0">
-                    <Label fx:id="overallLabel" text="Overall Stats"
-                           prefHeight="25"/>
-                    <Label fx:id="allTimeLabel" text="All Time Chart"
-                           prefHeight="25"/>
-                </ListView>
-            </VBox>
-        </Pane>
-    </left>
-</BorderPane>
+<HBox fx:id="statsBox" prefHeight="4000.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.edu.agh.timekeeper.controller.StatsController">
+    <VBox>
+        <ListView fx:id="restrictionsListView" layoutY="27.0" prefHeight="343.0" prefWidth="150.0">
+            <Label fx:id="overallLabel" prefHeight="25" text="Overall Stats" />
+            <Label fx:id="allTimeLabel" prefHeight="25" text="All Time Chart" />
+        </ListView>
+    </VBox>
+</HBox>

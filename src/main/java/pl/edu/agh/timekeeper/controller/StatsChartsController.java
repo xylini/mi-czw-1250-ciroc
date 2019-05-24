@@ -9,8 +9,8 @@ import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import pl.edu.agh.timekeeper.db.dao.LogApplicationDao;
 import pl.edu.agh.timekeeper.model.Application;
 
@@ -26,16 +26,13 @@ import java.util.stream.IntStream;
 public class StatsChartsController {
 
     @FXML
-    private Pane chartsPane;
+    private BorderPane chartsPane;
 
     @FXML
     private Button todayButton;
 
     @FXML
     private Button lastMonthButton;
-
-    @FXML
-    private Button allTimeButton;
 
     @FXML
     private BarChart<String, Number> chart;
@@ -53,20 +50,24 @@ public class StatsChartsController {
 
     private Application application;
 
-    private StatsController statsController;
-
     @FXML
     private void initialize() {
         logDao = new LogApplicationDao();
         xAxis.setTickLabelRotation(-45);
         chart.setAnimated(false);
+        chart.prefWidthProperty().bind(chartsPane.widthProperty());
+        chart.prefHeightProperty().bind(chartsPane.heightProperty().subtract(bottomButtonsBox.getHeight()));
     }
 
     public void setApplication(Application app) {
         this.application = app;
     }
 
-    public void showChart(){
+    public BorderPane getChartsPane() {
+        return this.chartsPane;
+    }
+
+    public void showChart() {
         showToday();
     }
 
@@ -83,8 +84,8 @@ public class StatsChartsController {
                 "Usage in minutes");
 
         Date todayAtMidnightDate = Date.from(todayAtMidnight.toInstant());
-        Optional<LinkedHashMap<Date, Long>>  hsOpt = logDao.getHourlyUsageInSecs(application, todayAtMidnightDate);
-        if(hsOpt.isEmpty()) return;
+        Optional<LinkedHashMap<Date, Long>> hsOpt = logDao.getHourlyUsageInSecs(application, todayAtMidnightDate);
+        if (hsOpt.isEmpty()) return;
         LinkedHashMap<Date, Long> hourlySecs = hsOpt.get();
 
         XYChart.Series series = getSeries(
@@ -145,18 +146,6 @@ public class StatsChartsController {
         setAxisData(series, FXCollections.observableList(totalUsage.get().keySet().stream()
                 .map(Application::getName)
                 .collect(Collectors.toList())));
-    }
-
-    public void setStatsController(StatsController statsController) {
-        this.statsController = statsController;
-    }
-
-    public void setBindings() {
-        chartsPane.prefHeightProperty().bind(statsController.getStatsPane().heightProperty());
-        chartsPane.prefWidthProperty().bind(statsController.getStatsPane().widthProperty()
-                .subtract(statsController.getRestrictionsListView().widthProperty()));
-        chart.prefWidthProperty().bind(chartsPane.widthProperty());
-        chart.prefHeightProperty().bind(chartsPane.heightProperty().subtract(bottomButtonsBox.getHeight()));
     }
 
     private String formatDate(Date date, String pattern) {

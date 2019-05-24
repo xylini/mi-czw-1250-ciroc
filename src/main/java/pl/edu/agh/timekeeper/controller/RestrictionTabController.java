@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class RestrictionTabController {
+
     @FXML
     private ScrollPane restrictionScrollPane;
 
@@ -30,17 +31,17 @@ public class RestrictionTabController {
     private void initialize() {
     }
 
-    public void setRestriction(Restriction restriction) {
-        this.restriction = restriction;
-        refreshView();
-    }
-
     public ScrollPane getRestrictionScrollPane() {
         return restrictionScrollPane;
     }
 
     public void setRestrictionScrollPane(ScrollPane restrictionScrollPane) {
         this.restrictionScrollPane = restrictionScrollPane;
+    }
+
+    public void setRestriction(Restriction restriction) {
+        this.restriction = restriction;
+        refreshView();
     }
 
     private void refreshView() {
