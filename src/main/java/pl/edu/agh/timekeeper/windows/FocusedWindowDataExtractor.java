@@ -11,38 +11,60 @@ import com.sun.jna.platform.win32.WinDef;
 import com.sun.jna.ptr.PointerByReference;
 import pl.edu.agh.timekeeper.timer.Timer;
 
-public class FocusedWindowDataExtractor implements Runnable {
+public class FocusedWindowDataExtractor {
     private static final int MAX_LENGTH = 1024;
+    private PointerByReference pointer;
+    private WinDef.RECT foregroundWindowRect;
 
-    public void run() {
-        byte[] processPathBuffer = new byte[MAX_LENGTH];
-        PointerByReference pointer = new PointerByReference();
-        Timer timer = Timer.getInstance();
-        WinDef.RECT foregroundWindowRect = new WinDef.RECT();
-        boolean isViewerStarted = false;
-
-        while (true) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            GetWindowThreadProcessId(GetForegroundWindow(), pointer);
-            User32.INSTANCE.GetWindowRect(GetForegroundWindow(), foregroundWindowRect);
-            if(!isViewerStarted){
-                isViewerStarted = true;
-                timer.StartTimerView(foregroundWindowRect);
-            }
-            Pointer process = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, pointer.getValue());
-            GetModuleFileNameExA(process, null, processPathBuffer, MAX_LENGTH);
-            String focusedWindowProcessPath = Native.toString(processPathBuffer);
-            timer.setApplicationPath(focusedWindowProcessPath, foregroundWindowRect);
-
-            System.out.print(focusedWindowProcessPath + "    ");
-            System.out.println(timer.getCurrentProgramSeconds());
-            System.out.println(timer.getCurrentWindowUsageTime());
-        }
+    public FocusedWindowDataExtractor(){
+        this.pointer = new PointerByReference();
+        this.foregroundWindowRect = new WinDef.RECT();
     }
 
 
+    public String getForegroundWindowPath(){
+        byte[] processPathBuffer = new byte[MAX_LENGTH];
+
+        GetWindowThreadProcessId(GetForegroundWindow(), this.pointer);
+        Pointer process = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, pointer.getValue());
+        GetModuleFileNameExA(process, null, processPathBuffer, MAX_LENGTH);
+
+        return Native.toString(processPathBuffer);
+    }
+
+    public WinDef.RECT getForegroundWindowRect(){
+        GetWindowThreadProcessId(GetForegroundWindow(), this.pointer);
+        User32.INSTANCE.GetWindowRect(GetForegroundWindow(), this.foregroundWindowRect);
+
+        return foregroundWindowRect;
+    }
+//    public void run() {
+//        byte[] processPathBuffer = new byte[MAX_LENGTH];
+//        PointerByReference pointer = new PointerByReference();
+//        Timer timer = Timer.getInstance();
+//        WinDef.RECT foregroundWindowRect = new WinDef.RECT();
+//        boolean isViewerStarted = false;
+//
+//        while (true) {
+//            try {
+//                Thread.sleep(1000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//            GetWindowThreadProcessId(GetForegroundWindow(), pointer);
+//            User32.INSTANCE.GetWindowRect(GetForegroundWindow(), foregroundWindowRect);
+//            if(!isViewerStarted){
+//                isViewerStarted = true;
+//                timer.StartTimerView(foregroundWindowRect);
+//            }
+//            Pointer process = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, pointer.getValue());
+//            GetModuleFileNameExA(process, null, processPathBuffer, MAX_LENGTH);
+//            String focusedWindowProcessPath = Native.toString(processPathBuffer);
+//            timer.setApplicationPath(focusedWindowProcessPath, foregroundWindowRect);
+//
+//            System.out.print(focusedWindowProcessPath + "    ");
+//            System.out.println(timer.getCurrentProgramSeconds());
+//            System.out.println(timer.getCurrentWindowUsageTime());
+//        }
+//    }
 }

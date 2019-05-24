@@ -3,11 +3,13 @@ package pl.edu.agh.timekeeper.timer;
 import com.sun.jna.platform.win32.WinDef;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.text.Text;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.w3c.dom.css.Rect;
@@ -51,9 +53,11 @@ public class Timer {
                         try{
                             while(true){
                                 Thread.sleep(1000);
+                                Rectangle2D screen = Screen.getPrimary().getBounds();
                                 text.setText(getInstance().getCurrentWindowUsageTime());
-                                primaryStage.setX((foregroundWindowRect.right-300)/1.25);
-                                primaryStage.setY((foregroundWindowRect.top+5)/1.25);
+                                Double timerLeftShift = (screen.getMaxX()-screen.getMinX())*0.165;
+                                primaryStage.setX(foregroundWindowRect.right/primaryStage.getOutputScaleX() - screen.getMaxX()*0.129*screen.getMaxX()/1080*primaryStage.getOutputScaleX()); // ok
+                                primaryStage.setY(foregroundWindowRect.top/primaryStage.getOutputScaleY() + (screen.getMaxY()*0.0035)*primaryStage.getOutputScaleY()); // ok
                             }
                         } catch (InterruptedException e) {
                             //asd
