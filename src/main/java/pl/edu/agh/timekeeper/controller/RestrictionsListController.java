@@ -13,6 +13,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import pl.edu.agh.timekeeper.db.dao.RestrictionDao;
+import pl.edu.agh.timekeeper.model.Restriction;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -89,6 +90,16 @@ public class RestrictionsListController {
         return restrictionsSplitPane;
     }
 
+    public void refreshTab(Restriction restriction) {
+        Optional<Tab> tabToClose = Optional.empty();
+        for (Tab tab : restrictionTabPane.getTabs())
+            if (tab.getText().equals(restriction.getName())) {
+                tabToClose = Optional.of(tab);
+            }
+        tabToClose.ifPresent(tab -> restrictionTabPane.getTabs().remove(tab));
+        openTab(restriction.getName());
+    }
+
     private void setOnRestrictionListClicked() {
         restrictionListView.setOnMouseClicked(mouseEvent -> {
             if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
@@ -100,31 +111,38 @@ public class RestrictionsListController {
                             isOpen = true;
                             restrictionTabPane.getSelectionModel().select(tab);
                         }
-                    if (!isOpen) {
-                        initRestrictionTabController();
-                        restrictionTabController.setRestriction(restrictionDao.getByName(item).get());
-                        Tab tab = new Tab();
-                        tab.setContent(restrictionTabController.getRestrictionScrollPane());
-                        tab.setText(item);
-                        this.restrictionTabPane.getTabs().add(0, tab);
-                        restrictionTabPane.getSelectionModel().select(0);
-                    }
+                    if (!isOpen)
+                        openTab(item);
                 });
             }
         });
+    }
+
+    private void openTab(String restrictionName) {
+        initRestrictionTabController();
+        restrictionTabController.setRestriction(restrictionDao.getByName(restrictionName).get());
+        Tab tab = new Tab();
+        tab.setContent(restrictionTabController.getRestrictionScrollPane());
+        tab.setText(restrictionName);
+        this.restrictionTabPane.getTabs().add(0, tab);
+        restrictionTabPane.getSelectionModel().select(0);
     }
 
     @FXML
     private void addButtonClicked() {
         FXMLLoader loader = new FXMLLoader(this.getClass().getResource(ADD_RESTRICTION_VIEW_PATH));
         openWindow(loader, "Add restriction");
-        ((AddRestrictionController) loader.getController()).setRestrictionsListController(this);
+        ((AddOrEditRestrictionController) loader.getController()).setRestrictionsListController(this);
     }
 
     @FXML
     private void editButtonClicked() {
-        openWindow(new FXMLLoader(this.getClass().getResource(ADD_RESTRICTION_VIEW_PATH)), "Edit restriction");
-        //:TODO should not allow to change name/group of restriction
+        FXMLLoader loader = new FXMLLoader(this.getClass().getResource(ADD_RESTRICTION_VIEW_PATH));
+        openWindow(loader, "Edit restriction");
+        AddOrEditRestrictionController editRestrictionController = loader.getController();
+        editRestrictionController.setRestrictionsListController(this);
+        Optional<Restriction> restriction = restrictionDao.getByName(restrictionListView.getSelectionModel().getSelectedItem());
+        restriction.ifPresent(editRestrictionController::prepareEditScreen);
     }
 
     @FXML

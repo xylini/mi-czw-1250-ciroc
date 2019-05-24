@@ -1,6 +1,8 @@
 package pl.edu.agh.timekeeper.controller;
 
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
@@ -25,7 +27,7 @@ import java.io.File;
 import java.util.*;
 import java.util.stream.IntStream;
 
-public class AddRestrictionController {
+public class AddOrEditRestrictionController {
 
     @FXML
     private Pane mainPane;
@@ -73,6 +75,8 @@ public class AddRestrictionController {
 
     private ObservableMap<Integer, TimePair> rangeRestrictions = FXCollections.observableHashMap();
 
+    private BooleanProperty isEditedProperty = new SimpleBooleanProperty(false);
+
     private void makeBrowseButton() {
         this.browseButton = new Button("Browse");
         browseButton.setOnAction(this::browseClicked);
@@ -89,6 +93,15 @@ public class AddRestrictionController {
             restrictionHBox.getChildren().addAll(applicationPathField, browseButton);
         }
         addRadioButtonsListener();
+        isEditedProperty.addListener((observable, oldValue, newValue) -> {
+            restrictionNameField.setDisable(newValue);
+            applicationPathField.setDisable(newValue);
+            browseButton.setDisable(newValue);
+            if (newValue)
+                okButton.setText("Save restriction");
+            else
+                okButton.setText("Add restriction");
+        });
     }
 
     public void setRestrictionsListController(RestrictionsListController restrictionsListController) {
@@ -126,23 +139,35 @@ public class AddRestrictionController {
         Optional<Application> appOpt = applicationDao.getByPath(applicationPath);
         Application app = appOpt.orElseGet(() -> new Application(applicationPath, applicationPath));
 
-        if (app.getRestriction() != null) {
-            System.out.println("Restriction for this application already exists");
-            return;
-        }
-
-        if (restrictionsListController.getRestrictionListView().getItems().contains(restrictionName)) {
-            System.out.println("Restriction with given name already exists");
-            return;
+        if (!isEditedProperty.get()) {
+            if (app.getRestriction() != null) {
+                // TODO: show message "Restriction for this application already exists"
+                System.out.println("Restriction for this application already exists");
+                return;
+            }
+            if (restrictionsListController.getRestrictionListView().getItems().contains(restrictionName)) {
+                // TODO: show message "Restriction with given name already exists"
+                System.out.println("Restriction with given name already exists");
+                return;
+            }
         }
 
         MyTime dailyLimit = getTimeFromTextFields(hoursDailyField, minutesDailyField);
-
-        Restriction restriction = buildRestriction(app, rangeRestrictions.values(), dailyLimit);
-        if (appOpt.isEmpty())
-            applicationDao.create(app);
-        restrictionDao.create(restriction);
-        restrictionsListController.getRestrictionListView().getItems().add(restrictionName);
+        if (!isEditedProperty.get()) {
+            Restriction restriction = buildRestriction(app, rangeRestrictions.values(), dailyLimit);
+            if (appOpt.isEmpty())
+                applicationDao.create(app);
+            restrictionDao.create(restriction);
+            restrictionsListController.getRestrictionListView().getItems().add(restrictionName);
+        } else {
+            //TODO fix ranges not appearing in view
+            Restriction restriction = restrictionDao.getByName(restrictionName).get();
+            restriction.setLimit(dailyLimit);
+            restriction.setBlockedHours(new ArrayList<>(rangeRestrictions.values()));
+            restrictionDao.update(restriction);
+            restrictionsListController.refreshTab(restriction);
+            isEditedProperty.setValue(false);
+        }
         ((Stage) okButton.getScene().getWindow()).close();
     }
 
@@ -156,11 +181,24 @@ public class AddRestrictionController {
 
     @FXML
     private void addButtonClicked(ActionEvent actionEvent) {
-        int indexHBox = scrollBox.getChildren().size() - 1;
-        HBox box = new HBox();
-        box.setSpacing(5);
-        box.setPadding(new Insets(5));
-        box.setAlignment(Pos.CENTER_LEFT);
+        List<TextField> textFields = getCleanRangeTextFields();
+        createHourRangeFieldsList(textFields);
+    }
+
+    public void prepareEditScreen(Restriction restriction) {
+        this.isEditedProperty.setValue(true);
+        restrictionNameField.setText(restriction.getName());
+        applicationPathField.setText(restriction.getApplication().getPath());
+        List<List<TextField>> textFields = getRangeTextFieldsWithData(restriction.getBlockedHours());
+        textFields.forEach(this::createHourRangeFieldsList);
+        Optional<MyTime> dailyLimit = Optional.ofNullable(restriction.getLimit());
+        dailyLimit.ifPresent(limit -> {
+            hoursDailyField.setText(String.valueOf(limit.getHour()));
+            minutesDailyField.setText(String.valueOf(limit.getMinute()));
+        });
+    }
+
+    private List<TextField> getCleanRangeTextFields() {
         List<TextField> textFields = new ArrayList<>(Arrays.asList(
                 getHourTextField(), getMinuteTextField(), getHourTextField(), getMinuteTextField()));
         for (int index = 0; index < textFields.size(); index++) {
@@ -171,6 +209,30 @@ public class AddRestrictionController {
                 textFields.get(index).setPromptText("MM");
             }
         }
+        return textFields;
+    }
+
+    private List<List<TextField>> getRangeTextFieldsWithData(Collection<TimePair> blockedHours) {
+        List<List<TextField>> textFields = new ArrayList<>();
+        blockedHours.forEach(pair -> {
+            List<TextField> fields = new ArrayList<>(Arrays.asList(
+                    getHourTextField(), getMinuteTextField(), getHourTextField(), getMinuteTextField()));
+            fields.forEach(field -> field.setPrefSize(36, 25));
+            fields.get(0).setText(String.valueOf(pair.getStart().getHour()));
+            fields.get(1).setText(String.valueOf(pair.getStart().getMinute()));
+            fields.get(2).setText(String.valueOf(pair.getEnd().getHour()));
+            fields.get(3).setText(String.valueOf(pair.getEnd().getMinute()));
+            textFields.add(fields);
+        });
+        return textFields;
+    }
+
+    private void createHourRangeFieldsList(List<TextField> textFields) {
+        int boxIndex = scrollBox.getChildren().size() - 1;
+        HBox box = new HBox();
+        box.setSpacing(5);
+        box.setPadding(new Insets(5));
+        box.setAlignment(Pos.CENTER_LEFT);
         Label toLabel = new Label("To");
         //Delete button
         Button deleteButton = new Button();
@@ -179,15 +241,16 @@ public class AddRestrictionController {
         deleteImg.setFitHeight(20);
         deleteButton.setGraphic(deleteImg);
         deleteButton.setOnMouseClicked(deleteEvent);
-        //
+
         toLabel.setPadding(new Insets(0, 0, 0, 20));
         box.getChildren().addAll(
                 new Label("From"), textFields.get(0), new Label(":"), textFields.get(1),
                 toLabel, textFields.get(2), new Label(":"), textFields.get(3), deleteButton);
         IntStream.range(0, 4).forEach(i -> textFields.get(i).textProperty()
                 .addListener(getTimeTextFieldChangeListener(textFields)));
-        scrollBox.getChildren().add(indexHBox, box);
+        scrollBox.getChildren().add(boxIndex, box);
     }
+
 
     private EventHandler<MouseEvent> deleteEvent = new EventHandler<>() {
         @Override
