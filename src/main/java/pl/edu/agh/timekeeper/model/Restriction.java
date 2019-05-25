@@ -24,7 +24,7 @@ public class Restriction implements Serializable {
     @AttributeOverride(name = "minute", column = @Column(name = "LIMIT_MINUTE"))
     private MyTime limit;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "restriction")
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "restriction", orphanRemoval = true)
     private List<TimePair> blockedHours = new ArrayList<>();
 
     @OneToOne(mappedBy = "restriction")
@@ -82,7 +82,8 @@ public class Restriction implements Serializable {
     }
 
     public void setBlockedHours(List<TimePair> blockedHours) {
-        this.blockedHours = blockedHours;
+        this.blockedHours.clear();
+        this.blockedHours.addAll(blockedHours);
         this.blockedHours.forEach(pair -> pair.setRestriction(this));
     }
 

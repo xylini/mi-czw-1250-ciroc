@@ -75,10 +75,8 @@ public class TimePair implements Serializable {
             return false;
         else if (obj == this)
             return true;
-        else return this.start.getHour() == ((TimePair) obj).start.getHour()
-                    && this.start.getMinute() == ((TimePair) obj).start.getMinute()
-                    && this.end.getHour() == ((TimePair) obj).end.getHour()
-                    && this.end.getMinute() == ((TimePair) obj).end.getMinute();
+        else return this.start.equals(((TimePair) obj).start)
+                    && this.end.equals(((TimePair) obj).end);
     }
 
     @Override

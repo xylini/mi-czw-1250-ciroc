@@ -96,7 +96,9 @@ public class AddOrEditRestrictionController {
         isEditedProperty.addListener((observable, oldValue, newValue) -> {
             restrictionNameField.setDisable(newValue);
             applicationPathField.setDisable(newValue);
-            browseButton.setDisable(newValue);
+            browseButton.setVisible(!newValue);
+            appRadioButton.setVisible(!newValue);
+            groupRadioButton.setVisible(!newValue);
             if (newValue)
                 okButton.setText("Save restriction");
             else
@@ -160,7 +162,6 @@ public class AddOrEditRestrictionController {
             restrictionDao.create(restriction);
             restrictionsListController.getRestrictionListView().getItems().add(restrictionName);
         } else {
-            //TODO fix ranges not appearing in view
             Restriction restriction = restrictionDao.getByName(restrictionName).get();
             restriction.setLimit(dailyLimit);
             restriction.setBlockedHours(new ArrayList<>(rangeRestrictions.values()));
@@ -182,52 +183,10 @@ public class AddOrEditRestrictionController {
     @FXML
     private void addButtonClicked(ActionEvent actionEvent) {
         List<TextField> textFields = getCleanRangeTextFields();
-        createHourRangeFieldsList(textFields);
+        createCleanHourRangeFieldsList(textFields);
     }
 
-    public void prepareEditScreen(Restriction restriction) {
-        this.isEditedProperty.setValue(true);
-        restrictionNameField.setText(restriction.getName());
-        applicationPathField.setText(restriction.getApplication().getPath());
-        List<List<TextField>> textFields = getRangeTextFieldsWithData(restriction.getBlockedHours());
-        textFields.forEach(this::createHourRangeFieldsList);
-        Optional<MyTime> dailyLimit = Optional.ofNullable(restriction.getLimit());
-        dailyLimit.ifPresent(limit -> {
-            hoursDailyField.setText(String.valueOf(limit.getHour()));
-            minutesDailyField.setText(String.valueOf(limit.getMinute()));
-        });
-    }
-
-    private List<TextField> getCleanRangeTextFields() {
-        List<TextField> textFields = new ArrayList<>(Arrays.asList(
-                getHourTextField(), getMinuteTextField(), getHourTextField(), getMinuteTextField()));
-        for (int index = 0; index < textFields.size(); index++) {
-            textFields.get(index).setPrefSize(36, 25);
-            if (index % 2 == 0) {
-                textFields.get(index).setPromptText("HH");
-            } else {
-                textFields.get(index).setPromptText("MM");
-            }
-        }
-        return textFields;
-    }
-
-    private List<List<TextField>> getRangeTextFieldsWithData(Collection<TimePair> blockedHours) {
-        List<List<TextField>> textFields = new ArrayList<>();
-        blockedHours.forEach(pair -> {
-            List<TextField> fields = new ArrayList<>(Arrays.asList(
-                    getHourTextField(), getMinuteTextField(), getHourTextField(), getMinuteTextField()));
-            fields.forEach(field -> field.setPrefSize(36, 25));
-            fields.get(0).setText(String.valueOf(pair.getStart().getHour()));
-            fields.get(1).setText(String.valueOf(pair.getStart().getMinute()));
-            fields.get(2).setText(String.valueOf(pair.getEnd().getHour()));
-            fields.get(3).setText(String.valueOf(pair.getEnd().getMinute()));
-            textFields.add(fields);
-        });
-        return textFields;
-    }
-
-    private void createHourRangeFieldsList(List<TextField> textFields) {
+    private void createCleanHourRangeFieldsList(List<TextField> textFields) {
         int boxIndex = scrollBox.getChildren().size() - 1;
         HBox box = new HBox();
         box.setSpacing(5);
@@ -251,6 +210,44 @@ public class AddOrEditRestrictionController {
         scrollBox.getChildren().add(boxIndex, box);
     }
 
+    private List<TextField> getCleanRangeTextFields() {
+        List<TextField> textFields = new ArrayList<>(Arrays.asList(
+                getHourTextField(), getMinuteTextField(), getHourTextField(), getMinuteTextField()));
+        for (int index = 0; index < textFields.size(); index++) {
+            textFields.get(index).setPrefSize(36, 25);
+            if (index % 2 == 0) {
+                textFields.get(index).setPromptText("HH");
+            } else {
+                textFields.get(index).setPromptText("MM");
+            }
+        }
+        return textFields;
+    }
+
+    public void prepareEditScreen(Restriction restriction) {
+        this.isEditedProperty.setValue(true);
+        restrictionNameField.setText(restriction.getName());
+        applicationPathField.setText(restriction.getApplication().getPath());
+        createRangeTextFieldsWithData(restriction.getBlockedHours());
+        Optional<MyTime> dailyLimit = Optional.ofNullable(restriction.getLimit());
+        dailyLimit.ifPresent(limit -> {
+            hoursDailyField.setText(String.valueOf(limit.getHour()));
+            minutesDailyField.setText(String.valueOf(limit.getMinute()));
+        });
+    }
+
+    private void createRangeTextFieldsWithData(Collection<TimePair> blockedHours) {
+        blockedHours.forEach(pair -> {
+            List<TextField> fields = new ArrayList<>(Arrays.asList(
+                    getHourTextField(), getMinuteTextField(), getHourTextField(), getMinuteTextField()));
+            createCleanHourRangeFieldsList(fields);
+            fields.forEach(field -> field.setPrefSize(36, 25));
+            fields.get(0).setText(String.valueOf(pair.getStart().getHour()));
+            fields.get(1).setText(String.valueOf(pair.getStart().getMinute()));
+            fields.get(2).setText(String.valueOf(pair.getEnd().getHour()));
+            fields.get(3).setText(String.valueOf(pair.getEnd().getMinute()));
+        });
+    }
 
     private EventHandler<MouseEvent> deleteEvent = new EventHandler<>() {
         @Override
@@ -259,6 +256,8 @@ public class AddOrEditRestrictionController {
             if (button instanceof Button) {
                 HBox parent = (HBox) ((Button) button).getParent();
                 int index = scrollBox.getChildren().indexOf(parent);
+                while (!rangeRestrictions.containsKey(index))
+                    index++;
                 scrollBox.getChildren().remove(parent);
                 rangeRestrictions.remove(index);
             }
