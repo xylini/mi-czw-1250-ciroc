@@ -11,6 +11,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -25,6 +26,7 @@ import pl.edu.agh.timekeeper.model.*;
 
 import java.io.File;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class AddOrEditRestrictionController {
@@ -162,6 +164,7 @@ public class AddOrEditRestrictionController {
             restrictionDao.create(restriction);
             restrictionsListController.getRestrictionListView().getItems().add(restrictionName);
         } else {
+            //TODO fix editing wrong fields
             Restriction restriction = restrictionDao.getByName(restrictionName).get();
             restriction.setLimit(dailyLimit);
             restriction.setBlockedHours(new ArrayList<>(rangeRestrictions.values()));
@@ -183,10 +186,10 @@ public class AddOrEditRestrictionController {
     @FXML
     private void addButtonClicked(ActionEvent actionEvent) {
         List<TextField> textFields = getCleanRangeTextFields();
-        createCleanHourRangeFieldsList(textFields);
+        createCleanHourRangeBox(textFields);
     }
 
-    private void createCleanHourRangeFieldsList(List<TextField> textFields) {
+    private void createCleanHourRangeBox(List<TextField> textFields) {
         int boxIndex = scrollBox.getChildren().size() - 1;
         HBox box = new HBox();
         box.setSpacing(5);
@@ -228,7 +231,7 @@ public class AddOrEditRestrictionController {
         this.isEditedProperty.setValue(true);
         restrictionNameField.setText(restriction.getName());
         applicationPathField.setText(restriction.getApplication().getPath());
-        createRangeTextFieldsWithData(restriction.getBlockedHours());
+        createRangeBoxesWithData(restriction.getBlockedHours());
         Optional<MyTime> dailyLimit = Optional.ofNullable(restriction.getLimit());
         dailyLimit.ifPresent(limit -> {
             hoursDailyField.setText(String.valueOf(limit.getHour()));
@@ -236,11 +239,11 @@ public class AddOrEditRestrictionController {
         });
     }
 
-    private void createRangeTextFieldsWithData(Collection<TimePair> blockedHours) {
+    private void createRangeBoxesWithData(Collection<TimePair> blockedHours) {
         blockedHours.forEach(pair -> {
             List<TextField> fields = new ArrayList<>(Arrays.asList(
                     getHourTextField(), getMinuteTextField(), getHourTextField(), getMinuteTextField()));
-            createCleanHourRangeFieldsList(fields);
+            createCleanHourRangeBox(fields);
             fields.forEach(field -> field.setPrefSize(36, 25));
             fields.get(0).setText(String.valueOf(pair.getStart().getHour()));
             fields.get(1).setText(String.valueOf(pair.getStart().getMinute()));
@@ -320,9 +323,14 @@ public class AddOrEditRestrictionController {
             MyTime start = getTimeFromTextFields(textFields.get(0), textFields.get(1));
             MyTime end = getTimeFromTextFields(textFields.get(2), textFields.get(3));
             TimePair newTime = (start != null && end != null && end.isAfter(start)) ? new TimePair(start, end) : null;
-            Integer index = scrollBox.getChildren().size() - 2;
-            if (newTime != null) rangeRestrictions.put(index, newTime);
-            else rangeRestrictions.remove(index);
+            HBox box = (HBox) textFields.get(0).getParent();
+            for (int i = 0; i < scrollBox.getChildren().size(); i++) {
+                if (scrollBox.getChildren().get(i).equals(box)) {
+                    if (newTime != null) rangeRestrictions.put(i, newTime);
+                    else rangeRestrictions.remove(i);
+                    break;
+                }
+            }
         };
     }
 }
