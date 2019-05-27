@@ -37,8 +37,6 @@ public class StatsTableController {
     @FXML
     private TableColumn<UsageStatistics, Duration> overallTimeSpentColumn;
 
-    private StatsController statsController;
-
     private ObservableList<String> restrictions = FXCollections.observableArrayList();
 
     private ApplicationDao applicationDao = new ApplicationDao();
@@ -64,7 +62,7 @@ public class StatsTableController {
     }
 
     @FXML
-    public void initialize() {
+    private void initialize() {
         restrictionName.setCellValueFactory(new PropertyValueFactory<>("restrictionName"));
         dailyLimitColumn.setCellValueFactory(new PropertyValueFactory<>("limit"));
         timeSpentTodayColumn.setCellValueFactory(new PropertyValueFactory<>("todayUsage"));
@@ -73,6 +71,11 @@ public class StatsTableController {
         dailyLimitColumn.setCellFactory(column -> getDurationTableCell());
         timeSpentTodayColumn.setCellFactory(column -> getDurationTableCell());
         overallTimeSpentColumn.setCellFactory(column -> getDurationTableCell());
+
+        restrictionName.prefWidthProperty().bind(statsTable.widthProperty().divide(4.0));
+        dailyLimitColumn.prefWidthProperty().bind(statsTable.widthProperty().divide(4.0));
+        timeSpentTodayColumn.prefWidthProperty().bind(statsTable.widthProperty().divide(4.0));
+        overallTimeSpentColumn.prefWidthProperty().bind(statsTable.widthProperty().divide(4.0));
 
         restrictions.addListener((ListChangeListener<String>) c -> {
             while (c.next()) {
@@ -83,6 +86,10 @@ public class StatsTableController {
                 }
             }
         });
+    }
+
+    public TableView<UsageStatistics> getStatsTable() {
+        return statsTable;
     }
 
     public void setRestrictions(ObservableList<String> restrictions) {
@@ -120,19 +127,6 @@ public class StatsTableController {
                 }
             }
         };
-    }
-
-    public void setStatsController(StatsController statsController) {
-        this.statsController = statsController;
-    }
-
-    public void setBindings() {
-        statsTable.prefHeightProperty().bind(statsController.getStatsPane().heightProperty());
-        statsTable.prefWidthProperty().bind(statsController.getStatsPane().widthProperty()
-                .subtract(statsController.getRestrictionsListView().widthProperty()));
-        dailyLimitColumn.prefWidthProperty().bind(statsTable.widthProperty().divide(3.0));
-        timeSpentTodayColumn.prefWidthProperty().bind(statsTable.widthProperty().divide(3.0));
-        overallTimeSpentColumn.prefWidthProperty().bind(statsTable.widthProperty().divide(3.0));
     }
 
     public void setTableContent() {

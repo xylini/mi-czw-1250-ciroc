@@ -4,25 +4,14 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.control.TableView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.HBox;
 import pl.edu.agh.timekeeper.db.dao.ApplicationDao;
-import pl.edu.agh.timekeeper.db.dao.RestrictionDao;
-import pl.edu.agh.timekeeper.model.Restriction;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
 
 public class StatsController {
-
-    private static final String TABLE_VIEW_PATH = "/views/statsTableView.fxml";
-
-    private static final String CHART_VIEW_PATH = "/views/statsChartsView.fxml";
 
     @FXML
     private Label overallLabel;
@@ -31,10 +20,7 @@ public class StatsController {
     private Label allTimeLabel;
 
     @FXML
-    private Pane listPane;
-
-    @FXML
-    private BorderPane statsPane;
+    private HBox statsBox;
 
     @FXML
     private ListView restrictionsListView;
@@ -45,39 +31,36 @@ public class StatsController {
 
     private ObservableList<String> restrictionsNames = FXCollections.observableArrayList();
 
+    private static final String TABLE_VIEW_PATH = "/views/statsTableView.fxml";
+
+    private static final String CHART_VIEW_PATH = "/views/statsChartsView.fxml";
+
     @FXML
     private void initialize() {
-        //restrictionsListView.getItems().addAll(restrictionsNamesList);
-
         // TODO: remove this (test) block ---------------
         restrictionsNames.add("app1");
         restrictionsNames.add("app2");
         restrictionsListView.getItems().addAll(restrictionsNames);
         // TODO: ---------------------------------
 
-        setCenterTable();
+        displayTable();
+        restrictionsListView.prefHeightProperty().bind(statsBox.heightProperty());
         setupListeners();
     }
 
-    public BorderPane getStatsPane() {
-        return statsPane;
-    }
-
-    public ListView getRestrictionsListView() {
-        return restrictionsListView;
+    public HBox getStatsBox() {
+        return statsBox;
     }
 
     private void setupListeners() {
         restrictionsListView.getSelectionModel().selectedItemProperty().addListener((list, oldValue, newValue) -> {
             if (newValue == overallLabel) {
-                setCenterTable();
+                displayTable();
             } else if (newValue == allTimeLabel) {
-                setCenterChart();
+                displayChart();
                 statsChartsController.showAllTime();
             } else {
-                setCenterChart();
-                //Restriction restriction = new RestrictionDao().getByName((String) newValue);
-                //Application app = restriction.getApplication();
+                displayChart();
                 new ApplicationDao().getByName((String) newValue).ifPresent(app -> {
                     statsChartsController.setApplication(app);
                     statsChartsController.showChart();
@@ -86,32 +69,30 @@ public class StatsController {
         });
     }
 
-    private void setCenterTable() {
+    private void displayTable() {
         FXMLLoader loader = new FXMLLoader(this.getClass().getResource(TABLE_VIEW_PATH));
-        TableView tableView;
-        try {
-            tableView = loader.load();
-            statsPane.setCenter(tableView);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        reloadContent(loader);
         statsTableController = loader.getController();
-        statsTableController.setStatsController(this);
         statsTableController.setRestrictions(restrictionsNames);
-        statsTableController.setBindings();
+        statsTableController.getStatsTable().prefHeightProperty().bind(statsBox.heightProperty());
+        statsTableController.getStatsTable().prefWidthProperty().bind(statsBox.widthProperty().subtract(restrictionsListView.widthProperty()));
     }
 
-    private void setCenterChart() {
+    private void displayChart() {
         FXMLLoader loader = new FXMLLoader(this.getClass().getResource(CHART_VIEW_PATH));
-        Pane pane;
+        reloadContent(loader);
+        statsChartsController = loader.getController();
+        statsChartsController.getChartsPane().prefHeightProperty().bind(statsBox.heightProperty());
+        statsChartsController.getChartsPane().prefWidthProperty().bind(statsBox.widthProperty().subtract(restrictionsListView.widthProperty()));
+    }
+
+    private void reloadContent(FXMLLoader loader) {
         try {
-            pane = loader.load();
-            statsPane.setCenter(pane);
+            if (statsBox.getChildren().size() > 1)
+                statsBox.getChildren().remove(1);
+            statsBox.getChildren().add(loader.load());
         } catch (IOException e) {
             e.printStackTrace();
         }
-        statsChartsController = loader.getController();
-        statsChartsController.setStatsController(this);
-        statsChartsController.setBindings();
     }
 }

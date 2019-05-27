@@ -2,11 +2,10 @@
 
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.control.ToggleGroup?>
-<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox fx:id="mainVBox" prefWidth="800.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.edu.agh.timekeeper.controller.MainScreenController">
+<VBox fx:id="mainVBox" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.edu.agh.timekeeper.controller.MainScreenController">
     <children>
           <HBox fx:id="menuButtonHBox">
               <children>
@@ -20,7 +19,5 @@
               <ToggleButton fx:id="helpButton" mnemonicParsing="false" onAction="#helpButtonClicked" prefHeight="30.0" prefWidth="200" text="Help" toggleGroup="$menuButtons" />
               </children>
           </HBox>
-        <BorderPane fx:id="mainBorderPane" prefHeight="570.0" prefWidth="800.0">
-        </BorderPane>
     </children>
 </VBox>

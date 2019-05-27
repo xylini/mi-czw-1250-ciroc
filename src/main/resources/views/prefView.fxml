@@ -1,18 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.ListView?>
-<?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.HBox?>
 
-
 <HBox fx:id="prefHBox" prefHeight="570.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
-   <children>
-      <SplitPane fx:id="prefSplitPane" dividerPositions="0.29797979797979796" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="570.0" prefWidth="800.0" >
-        <items>
-            <ListView fx:id="prefListView" prefHeight="450.0" prefWidth="300.0" />
-            <TextField fx:id="prefTextField" />
-        </items>
-      </SplitPane>
-   </children>
+    <children>
+        <TextArea fx:id="helpTextArea" prefHeight="570.0" prefWidth="800.0" editable="false" text="Nothing here yet.&#10;" />
+    </children>
 </HBox>
