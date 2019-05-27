@@ -25,7 +25,7 @@ public class Main extends Application {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                timercontroller = new TimerController();
+                new TimerController();
             }
         };
 
