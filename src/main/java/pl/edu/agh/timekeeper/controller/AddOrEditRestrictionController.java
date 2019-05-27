@@ -5,15 +5,15 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -21,12 +21,12 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import pl.edu.agh.timekeeper.db.dao.ApplicationDao;
+import pl.edu.agh.timekeeper.db.dao.GroupDao;
 import pl.edu.agh.timekeeper.db.dao.RestrictionDao;
 import pl.edu.agh.timekeeper.model.*;
 
 import java.io.File;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class AddOrEditRestrictionController {
@@ -63,6 +63,10 @@ public class AddOrEditRestrictionController {
 
     private static final String IMAGE_DELETE_PATH = "images/delete.png";
 
+    private static final String IMAGE_ADD_PATH = "images/plus.png";
+
+    private static final String ADD_GROUP_VIEW_PATH = "/views/addGroupView.fxml";
+
     private TextField applicationPathField = new TextField();
 
     private Button browseButton;
@@ -75,9 +79,15 @@ public class AddOrEditRestrictionController {
 
     private final RestrictionDao restrictionDao = new RestrictionDao();
 
+    private final GroupDao groupDao = new GroupDao();
+
+    private ObservableList groupList = FXCollections.observableArrayList();
+
     private ObservableMap<Integer, TimePair> rangeRestrictions = FXCollections.observableHashMap();
 
     private BooleanProperty isEditedProperty = new SimpleBooleanProperty(false);
+
+    private ControllerUtils controllerUtils = new ControllerUtils();
 
     private void makeBrowseButton() {
         this.browseButton = new Button("Browse");
@@ -92,8 +102,12 @@ public class AddOrEditRestrictionController {
         if (appRadioButton.isSelected()) {
             restrictionHBox.getChildren().clear();
             applicationPathField.setPrefSize(250, 26);
+            groupComboBox.setPrefSize(250, 26);
             restrictionHBox.getChildren().addAll(applicationPathField, browseButton);
         }
+
+        groupDao.getAll().get().forEach(g -> this.groupList.add(g.getName()));
+
         addRadioButtonsListener();
         isEditedProperty.addListener((observable, oldValue, newValue) -> {
             restrictionNameField.setDisable(newValue);
@@ -118,7 +132,9 @@ public class AddOrEditRestrictionController {
             if (appRadioButton.equals(newValue)) {
                 restrictionHBox.getChildren().addAll(applicationPathField, browseButton);
             } else if (groupRadioButton.equals(newValue)) {
-                restrictionHBox.getChildren().add(groupComboBox);
+                groupComboBox.setItems(groupList);
+                Button addGroupButton = controllerUtils.createButton(IMAGE_ADD_PATH, addGroupEvent);
+                restrictionHBox.getChildren().addAll(groupComboBox, addGroupButton);
             }
         });
 
@@ -197,12 +213,7 @@ public class AddOrEditRestrictionController {
         box.setAlignment(Pos.CENTER_LEFT);
         Label toLabel = new Label("To");
         //Delete button
-        Button deleteButton = new Button();
-        ImageView deleteImg = new ImageView(IMAGE_DELETE_PATH);
-        deleteImg.setFitWidth(20);
-        deleteImg.setFitHeight(20);
-        deleteButton.setGraphic(deleteImg);
-        deleteButton.setOnMouseClicked(deleteEvent);
+        Button deleteButton = controllerUtils.createButton(IMAGE_DELETE_PATH, deleteEvent);
 
         toLabel.setPadding(new Insets(0, 0, 0, 20));
         box.getChildren().addAll(
@@ -263,6 +274,17 @@ public class AddOrEditRestrictionController {
                     index++;
                 scrollBox.getChildren().remove(parent);
                 rangeRestrictions.remove(index);
+            }
+        }
+    };
+
+    private EventHandler<MouseEvent> addGroupEvent = new EventHandler<>() {
+        @Override
+        public void handle(final MouseEvent ME) {
+            Object button = ME.getSource();
+            if (button instanceof Button) {
+                FXMLLoader loader = new FXMLLoader(this.getClass().getResource(ADD_GROUP_VIEW_PATH));
+                controllerUtils.openWindow(loader, "Add new group");
             }
         }
     };

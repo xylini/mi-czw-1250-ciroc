@@ -5,13 +5,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.VBox;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import pl.edu.agh.timekeeper.db.dao.RestrictionDao;
 import pl.edu.agh.timekeeper.model.Restriction;
 
@@ -44,6 +40,7 @@ public class RestrictionsListController {
     private Button removeButton;
 
     private static final String RESTRICTION_VIEW_PATH = "/views/restrictionView.fxml";
+
     private static final String ADD_RESTRICTION_VIEW_PATH = "/views/addRestrictionView.fxml";
 
     private RestrictionTabController restrictionTabController;
@@ -51,6 +48,8 @@ public class RestrictionsListController {
     private ObservableList<String> restrictionNames = FXCollections.observableArrayList();
 
     private RestrictionDao restrictionDao = new RestrictionDao();
+
+    private ControllerUtils controllerUtils = new ControllerUtils();
 
     @FXML
     private void initialize() {
@@ -131,14 +130,14 @@ public class RestrictionsListController {
     @FXML
     private void addButtonClicked() {
         FXMLLoader loader = new FXMLLoader(this.getClass().getResource(ADD_RESTRICTION_VIEW_PATH));
-        openWindow(loader, "Add restriction");
+        controllerUtils.openWindow(loader, "Add restriction");
         ((AddOrEditRestrictionController) loader.getController()).setRestrictionsListController(this);
     }
 
     @FXML
     private void editButtonClicked() {
         FXMLLoader loader = new FXMLLoader(this.getClass().getResource(ADD_RESTRICTION_VIEW_PATH));
-        openWindow(loader, "Edit restriction");
+        controllerUtils.openWindow(loader, "Edit restriction");
         AddOrEditRestrictionController editRestrictionController = loader.getController();
         editRestrictionController.setRestrictionsListController(this);
         Optional<Restriction> restriction = restrictionDao.getByName(restrictionListView.getSelectionModel().getSelectedItem());
@@ -163,21 +162,6 @@ public class RestrictionsListController {
             restrictionListView.getItems().remove(restrictionName);
             restrictionDao.deleteByName(restrictionName);
 
-        }
-    }
-
-    private void openWindow(FXMLLoader loader, String title) {
-        try {
-            Stage stage = new Stage();
-            stage.setTitle(title);
-            stage.setScene(new Scene(loader.load(), 335, 480));
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setAlwaysOnTop(true);
-            stage.setResizable(false);
-            stage.initStyle(StageStyle.UTILITY);
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 }
