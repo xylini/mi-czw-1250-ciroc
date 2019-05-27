@@ -81,7 +81,7 @@ public class AddOrEditRestrictionController {
 
     private final GroupDao groupDao = new GroupDao();
 
-    private ObservableList groupList = FXCollections.observableArrayList();
+    private ObservableList<String> groupList = FXCollections.observableArrayList();
 
     private ObservableMap<Integer, TimePair> rangeRestrictions = FXCollections.observableHashMap();
 

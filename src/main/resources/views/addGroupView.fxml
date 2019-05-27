@@ -8,6 +8,7 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 
+<?import javafx.scene.control.ScrollPane?>
 <Pane fx:id="mainPane" maxWidth="335" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.edu.agh.timekeeper.controller.AddGroupController">
     <children>
         <VBox fx:id="groupVBox" spacing="10.0">
@@ -16,6 +17,11 @@
                 <HBox spacing="15.0">
                     <Label text="List of applications:"/>
                 </HBox>
+                <ScrollPane fitToWidth="true">
+                    <content>
+                        <VBox fx:id="listAppVBox" prefHeight="300.0" prefWidth="320.0" spacing="10.0" style="-fx-background-color: transparent;"/>
+                    </content>
+                </ScrollPane>
                 <Button fx:id="okButton" mnemonicParsing="false" onAction="#okClicked" prefHeight="25.0" prefWidth="150.0" text="Add group"/>
             </children>
             <padding>
