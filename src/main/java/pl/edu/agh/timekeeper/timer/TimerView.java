@@ -8,15 +8,24 @@ import javafx.stage.StageStyle;
 import pl.edu.agh.timekeeper.model.Application;
 
 public class TimerView extends Application {
+    private Stage utilityStage;
     private Stage timerStage;// = new Stage();
     private Text text;// = new Text("0:00");
     private BorderPane borderPane;// = new BorderPane();
 
     public TimerView(String startText, Integer width, Integer height, Double initial_x, Double initial_y){
+        this.utilityStage = new Stage();
+        this.utilityStage.initStyle(StageStyle.UTILITY);
+        this.utilityStage.setOpacity(0);
+        this.utilityStage.setHeight(0);
+        this.utilityStage.setWidth(0);
+        this.utilityStage.show();
+
         this.text = new Text(startText);
         this.borderPane = new BorderPane(this.text);
         this.borderPane.setCenter(text);
         this.timerStage = new Stage();
+        this.timerStage.initOwner(this.utilityStage);
         this.timerStage.initStyle(StageStyle.UNDECORATED);
         this.timerStage.setAlwaysOnTop(true);
         this.timerStage.setScene(new Scene(borderPane, width, height));
