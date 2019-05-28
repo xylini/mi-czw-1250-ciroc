@@ -83,6 +83,8 @@ public class AddOrEditRestrictionController {
 
     private ObservableList<String> groupList = FXCollections.observableArrayList();
 
+    private AddGroupController addGroupController;
+
     private ObservableMap<Integer, TimePair> rangeRestrictions = FXCollections.observableHashMap();
 
     private BooleanProperty isEditedProperty = new SimpleBooleanProperty(false);
@@ -285,6 +287,8 @@ public class AddOrEditRestrictionController {
             if (button instanceof Button) {
                 FXMLLoader loader = new FXMLLoader(this.getClass().getResource(ADD_GROUP_VIEW_PATH));
                 controllerUtils.openWindow(loader, "Add new group");
+                addGroupController = loader.getController();
+                addGroupController.setGroupsList(groupList);
             }
         }
     };
