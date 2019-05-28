@@ -108,7 +108,7 @@ public class AddOrEditRestrictionController {
             restrictionHBox.getChildren().addAll(applicationPathField, browseButton);
         }
 
-        groupDao.getAll().get().forEach(g -> this.groupList.add(g.getName()));
+        groupDao.getAll().forEach(g -> this.groupList.add(g.getName()));
 
         addRadioButtonsListener();
         isEditedProperty.addListener((observable, oldValue, newValue) -> {

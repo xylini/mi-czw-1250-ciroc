@@ -59,11 +59,10 @@ public class LogApplicationDao extends LogDaoBase<LogApplication, Application> {
     }
 
     public Optional<LinkedHashMap<Application, Long>> getTotalUsageForAllEntities() {
-        Optional<List<LogApplication>> l = getAll();
+        List<LogApplication> l = getAll();
         if (l.isEmpty()) return Optional.empty();
         LinkedHashMap<Application, Long> stats = new LinkedHashMap<>();
-        List<LogApplication> appLogs = l.get()
-                .stream()
+        List<LogApplication> appLogs = l.stream()
                 .filter(logApp -> logApp.getApplication() != null)
                 .collect(Collectors.toList());
 
@@ -110,9 +109,9 @@ public class LogApplicationDao extends LogDaoBase<LogApplication, Application> {
             Date logStartInStatUnit,
             Date logEndInStatUnit,
             Function<Date, Boolean> hasProperStartTime,
-            Function<Date, Date> getNextStatDate){
+            Function<Date, Date> getNextStatDate) {
         Date nextStatDate = getNextStatDate.apply(logStartInStatUnit);
-        if(logStartInStatUnit.equals(logEndInStatUnit) || logEnd.equals(nextStatDate)) {
+        if (logStartInStatUnit.equals(logEndInStatUnit) || logEnd.equals(nextStatDate)) {
             Long usage = (logEnd.getTime() - logStart.getTime()) / 1000;
             if (!stats.keySet().contains(logStartInStatUnit)) {
                 stats.put(logStartInStatUnit, usage);
@@ -120,11 +119,11 @@ public class LogApplicationDao extends LogDaoBase<LogApplication, Application> {
                 stats.replace(logStartInStatUnit, stats.get(logStartInStatUnit) + usage);
             }
         } else {
-            if(hasProperStartTime.apply(logStartInStatUnit)){
+            if (hasProperStartTime.apply(logStartInStatUnit)) {
                 insertStat(stats, logStart, nextStatDate, logStartInStatUnit, nextStatDate,
                         hasProperStartTime, getNextStatDate);
             }
-            if(hasProperStartTime.apply(nextStatDate)){
+            if (hasProperStartTime.apply(nextStatDate)) {
                 insertStat(stats, nextStatDate, logEnd, nextStatDate, logEndInStatUnit,
                         hasProperStartTime, getNextStatDate);
             }
@@ -154,27 +153,27 @@ public class LogApplicationDao extends LogDaoBase<LogApplication, Application> {
         return calendar.getTime();
     }
 
-    private Boolean isLogOfDay(Date logStart, Date logEnd, Date day){
+    private Boolean isLogOfDay(Date logStart, Date logEnd, Date day) {
         return day.equals(getDayFrom(logStart))
                 || day.equals(getDayFrom(logEnd))
                 || (day.after(logStart) && day.before(logEnd));
     }
 
-    private Boolean isLogOfMonth(Date logStart, Date logEnd, Date month){
+    private Boolean isLogOfMonth(Date logStart, Date logEnd, Date month) {
         return month.equals(getMonthFrom(logStart))
                 || month.equals(getMonthFrom(logEnd))
                 || (month.after(logStart) && month.before(logEnd));
     }
 
-    private Boolean isDateBetween(Date date, Date start, Date end){
+    private Boolean isDateBetween(Date date, Date start, Date end) {
         return !(date.before(start) && date.after(end));
     }
 
-    private Date nextHour(Date d){
+    private Date nextHour(Date d) {
         return Date.from(d.toInstant().plusSeconds(3600));
     }
 
-    private Date nextDay(Date d){
+    private Date nextDay(Date d) {
         return Date.from(d.toInstant().plusSeconds(3600 * 24));
     }
 }

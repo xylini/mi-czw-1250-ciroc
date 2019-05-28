@@ -53,7 +53,7 @@ public class AddGroupController {
 
     private GroupDao groupDao = new GroupDao();
 
-    private Optional<List<Group>> groupInDB = groupDao.getAll();
+    private List<Group> allGroups = groupDao.getAll();
 
     private ObservableList<String> groups;
 
@@ -66,24 +66,25 @@ public class AddGroupController {
     private void initialize() {
         makeBrowseButton();
         listAppVBox.getChildren().add(browseButton);
-        groupNameField.textProperty().addListener(getNameGroupListener());
-        
+        groupNameField.textProperty().addListener(getGroupNameListener());
+        okButton.setDisable(true);
     }
 
-    private ChangeListener<String> getNameGroupListener() {
+    private ChangeListener<String> getGroupNameListener() {
         return (observable, oldValue, newValue) -> {
-            if(groupInDB.isPresent() && (!groupInDB.get().isEmpty()))
-                for (Group g : groupInDB.get())
-                    if (newValue.equals(g.getName()) || newValue.equals("")){
-                        groupNameField.setStyle("-fx-background-color: #ff5464; -fx-tooltip-visible: true;");
-                        groupNameField.setTooltip(new Tooltip("Name is already used or empty"));
-                        okButton.setDisable(true);
-                        break;
-                    } else {
-                        groupNameField.setTooltip(new Tooltip("Name is valid"));
-                        groupNameField.setStyle("");
-                        okButton.setDisable(false);
-                    }
+            if (allGroups.stream().anyMatch(g -> newValue.equals(g.getName()))) {
+                groupNameField.setStyle("-fx-background-color: #ff5464; -fx-tooltip-visible: true;");
+                groupNameField.setTooltip(new Tooltip("Name is already used"));
+                okButton.setDisable(true);
+            } else if (newValue.isEmpty()) {
+                groupNameField.setStyle("-fx-background-color: #ff5464; -fx-tooltip-visible: true;");
+                groupNameField.setTooltip(new Tooltip("Name cannot be empty"));
+                okButton.setDisable(true);
+            } else {
+                groupNameField.setStyle("");
+                groupNameField.setTooltip(new Tooltip("Name is valid"));
+                okButton.setDisable(false);
+            }
         };
     }
 
@@ -91,38 +92,37 @@ public class AddGroupController {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select file to impose a restriction");
         Stage stage = (Stage) mainPane.getScene().getWindow();
-        List<File> list = fileChooser.showOpenMultipleDialog(stage);
-        if (list != null)
-            for (File file : list) {
-                listAppVBox.getChildren().add(makeHBox(file.getAbsolutePath()));
-            }
+        Optional<List<File>> list = Optional.ofNullable(fileChooser.showOpenMultipleDialog(stage));
+        list.ifPresent(files -> files.forEach(
+                file -> listAppVBox.getChildren().add(makeHBox(file.getAbsolutePath()))
+        ));
     }
 
     public void okClicked(ActionEvent actionEvent) {
-            for (Object child : listAppVBox.getChildren()) {
-                if (child instanceof HBox)
-                    for (Object grandchild : ((HBox) child).getChildren())
-                        if (grandchild instanceof TextField) {
-                            String path = ((TextField) grandchild).getText();
-                            File file = new File(path);
-                            String name = file.getName();
-                            name = name.substring(0, name.lastIndexOf("."));
-                            appDict.put(path, name);
-                        }
-            }
-            for (Map.Entry entry : appDict.entrySet()) {
-                Optional<Application> app = applicationDao.getByPath((String) entry.getKey());
-                if (app.isEmpty()) {
-                    Application application = new Application((String) entry.getValue(), (String) entry.getKey());
-                    applicationDao.create(application);
-                    applicationsSet.add(application);
-                } else
-                    applicationsSet.add(app.get());
-            }
-            Group group = new Group(groupNameField.getText(), applicationsSet);
-            groupDao.create(group);
-            groups.add(group.getName());
-            ((Stage) okButton.getScene().getWindow()).close();
+        for (Object child : listAppVBox.getChildren()) {
+            if (child instanceof HBox)
+                for (Object grandchild : ((HBox) child).getChildren())
+                    if (grandchild instanceof TextField) {
+                        String path = ((TextField) grandchild).getText();
+                        File file = new File(path);
+                        String name = file.getName();
+                        name = name.substring(0, name.lastIndexOf("."));
+                        appDict.put(path, name);
+                    }
+        }
+        for (Map.Entry entry : appDict.entrySet()) {
+            Optional<Application> app = applicationDao.getByPath((String) entry.getKey());
+            if (app.isEmpty()) {
+                Application application = new Application((String) entry.getValue(), (String) entry.getKey());
+                applicationDao.create(application);
+                applicationsSet.add(application);
+            } else
+                applicationsSet.add(app.get());
+        }
+        Group group = new Group(groupNameField.getText(), applicationsSet);
+        groupDao.create(group);
+        groups.add(group.getName());
+        ((Stage) okButton.getScene().getWindow()).close();
     }
 
     private HBox makeHBox(String path) {
@@ -147,7 +147,7 @@ public class AddGroupController {
         }
     };
 
-    public void setGroupsList (ObservableList<String> groupsList) {
+    public void setGroupsList(ObservableList<String> groupsList) {
         this.groups = groupsList;
     }
 }

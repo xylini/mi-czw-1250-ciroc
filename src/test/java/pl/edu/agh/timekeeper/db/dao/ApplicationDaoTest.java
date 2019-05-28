@@ -118,7 +118,7 @@ public class ApplicationDaoTest extends DaoTestBase<ApplicationDao, Application>
         Assertions.assertEquals(restriction2, application.getRestriction());
         Assertions.assertEquals(application, restriction2.getApplication());
         Assertions.assertFalse(applicationDao.addRestriction(application, restriction));
-        Assertions.assertEquals(1, restrictionDao.getAll().get().size());
+        Assertions.assertEquals(1, restrictionDao.getAll().size());
     }
 
     @Test
@@ -139,7 +139,7 @@ public class ApplicationDaoTest extends DaoTestBase<ApplicationDao, Application>
         Assertions.assertTrue(result);
         Assertions.assertNull(applicationDao.getById(application1.getId()).get().getRestriction());
         Assertions.assertTrue(restrictionDao.getById(restriction.getId()).isEmpty());
-        Assertions.assertTrue(restrictionDao.getAll().get().isEmpty());
+        Assertions.assertTrue(restrictionDao.getAll().isEmpty());
     }
 
     @Test
@@ -171,9 +171,9 @@ public class ApplicationDaoTest extends DaoTestBase<ApplicationDao, Application>
         application.addLogApplication(log);
         // then
         Assertions.assertTrue(application.getLogApplications().contains(log));
-        Optional<List<LogApplication>> logApps = logAppDao.getAll();
-        Assertions.assertTrue(logApps.isPresent());
-        Assertions.assertTrue(logApps.get().contains(log));
+        List<LogApplication> logApps = logAppDao.getAll();
+        Assertions.assertFalse(logApps.isEmpty());
+        Assertions.assertTrue(logApps.contains(log));
     }
 
     @Test

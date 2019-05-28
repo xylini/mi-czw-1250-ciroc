@@ -53,7 +53,7 @@ public class RestrictionsListController {
 
     @FXML
     private void initialize() {
-        restrictionDao.getAll().get().forEach(r -> this.restrictionNames.add(r.getName()));
+        restrictionDao.getAll().forEach(r -> this.restrictionNames.add(r.getName()));
         restrictionListView.setItems(this.restrictionNames);
         this.restrictionTabPane.tabDragPolicyProperty().setValue(TabPane.TabDragPolicy.REORDER);
         setOnRestrictionListClicked();

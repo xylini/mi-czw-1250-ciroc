@@ -5,6 +5,7 @@ import org.hibernate.Transaction;
 import pl.edu.agh.timekeeper.db.SessionService;
 
 import javax.persistence.PersistenceException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,14 +30,13 @@ public abstract class DaoBase<T> {
     }
 
     @SuppressWarnings("unchecked")
-    public Optional<List<T>> getAll() throws PersistenceException {
+    public List<T> getAll() throws PersistenceException {
         try {
-            List<T> l = SessionService.getCurrentSession().createQuery("from " + tableName).list();
-            return Optional.of(l);
+            return SessionService.getCurrentSession().createQuery("from " + tableName).list();
         } catch (PersistenceException e) {
             e.printStackTrace();
         }
-        return Optional.empty();
+        return new ArrayList<>();
     }
 
     public Optional<T> create(T entity) {
