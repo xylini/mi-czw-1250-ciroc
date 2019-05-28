@@ -28,6 +28,7 @@ class GroupTest {
         configuration.addAnnotatedClass(LogApplication.class);
         configuration.addAnnotatedClass(LogGroup.class);
         configuration.addAnnotatedClass(Restriction.class);
+        configuration.addAnnotatedClass(TimePair.class);
     }
 
     @BeforeEach
@@ -45,8 +46,13 @@ class GroupTest {
     void addTest() {
         session.beginTransaction();
 
-        Restriction myRestriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
-        Group myGroup = new Group("*.mp3", myRestriction);
+        Group myGroup = new Group("*.mp3");
+        Restriction myRestriction = Restriction.getRestrictionBuilder()
+                .setLimit(new MyTime(2, 2))
+                .addBlockedHours(new TimePair(new MyTime(3, 3), new MyTime(4, 4)))
+                .setGroup(myGroup)
+                .build();
+
 
         session.save(myRestriction);
         session.save(myGroup);
@@ -72,11 +78,19 @@ class GroupTest {
     void removeTest() {
         session.beginTransaction();
 
-        Restriction myRestriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
-        Group myGroup = new Group("*.mp3", myRestriction);
+        Group myGroup = new Group("*.mp3");
+        Restriction myRestriction = Restriction.getRestrictionBuilder()
+                .setLimit(new MyTime(2, 2))
+                .addBlockedHours(new TimePair(new MyTime(3, 3), new MyTime(4, 4)))
+                .setGroup(myGroup)
+                .build();
 
-        Restriction myRestriction_2 = new Restriction(new MyTime(6, 40), new MyTime(3, 3), new MyTime(4, 4));
-        Group myGroup_2 = new Group("*.wav", myRestriction_2);
+        Group myGroup_2 = new Group("*.wav");
+        Restriction myRestriction_2 = Restriction.getRestrictionBuilder()
+                .setLimit(new MyTime(6, 40))
+                .addBlockedHours(new TimePair(new MyTime(3, 3), new MyTime(4, 4)))
+                .setGroup(myGroup_2)
+                .build();
 
         session.save(myRestriction);
         session.save(myGroup);
@@ -114,11 +128,19 @@ class GroupTest {
     void updateTest() {
         session.beginTransaction();
 
-        Restriction myRestriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
-        Group myGroup = new Group("*.mp3", myRestriction);
+        Group myGroup = new Group("*.mp3");
+        Restriction myRestriction = Restriction.getRestrictionBuilder()
+                .setLimit(new MyTime(2, 2))
+                .addBlockedHours(new TimePair(new MyTime(3, 3), new MyTime(4, 4)))
+                .setGroup(myGroup)
+                .build();
 
-        Restriction myRestriction_2 = new Restriction(new MyTime(10, 2), new MyTime(3, 3), new MyTime(4, 4));
-        Group myGroup_2 = new Group("*.wav", myRestriction_2);
+        Group myGroup_2 = new Group("*.wav");
+        Restriction myRestriction_2 = Restriction.getRestrictionBuilder()
+                .setLimit(new MyTime(10, 2))
+                .addBlockedHours(new TimePair(new MyTime(3, 3), new MyTime(4, 4)))
+                .setGroup(myGroup_2)
+                .build();
 
         session.save(myRestriction);
         session.save(myGroup);

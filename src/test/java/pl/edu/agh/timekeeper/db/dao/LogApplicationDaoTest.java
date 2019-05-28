@@ -32,8 +32,9 @@ public class LogApplicationDaoTest extends DaoTestBase<LogApplicationDao, LogApp
     @Test
     void getDailyUsageInSecsTest() {
         // given
-        Application a1 = new Application("app1");
-        Application a2 = new Application("app2");
+        String path = "/byleco"; //Krystian: pozwolilem sobie chwilowo dodac taka opcje, najwyzej sobie to pozniej zmienisz :)
+        Application a1 = new Application("app1", path);
+        Application a2 = new Application("app2", path+"2");
         LogApplication log1 = new LogApplication(a1);
         LogApplication log2 = new LogApplication(a1);
         LogApplication log3 = new LogApplication(a1);
@@ -71,9 +72,11 @@ public class LogApplicationDaoTest extends DaoTestBase<LogApplicationDao, LogApp
         Date keyDate1 = Date.from(keyZDT.toInstant());
         Date keyDate2 = Date.from(keyZDT.plusDays(1).toInstant());
 
+        Date monthDate = Date.from(keyZDT.withDayOfMonth(1).toInstant());
+
         // when
-        Optional<LinkedHashMap<Date, Long>> stats1 = logAppDao.getDailyUsageInSecs(a1);
-        Optional<LinkedHashMap<Date, Long>> stats2 = logAppDao.getDailyUsageInSecs(a2);
+        Optional<LinkedHashMap<Date, Long>> stats1 = logAppDao.getDailyUsageInSecs(a1, monthDate);
+        Optional<LinkedHashMap<Date, Long>> stats2 = logAppDao.getDailyUsageInSecs(a2, monthDate);
         // then
         // a1
         Assertions.assertTrue(stats1.isPresent());

@@ -9,6 +9,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import pl.edu.agh.timekeeper.timer.TimerController;
+import org.hibernate.cfg.Configuration;
+import pl.edu.agh.timekeeper.db.SessionService;
 
 public class Main extends Application {
     public static void main(String[] args) {
@@ -17,6 +19,10 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        SessionService.openSession(new Configuration()
+                .configure("hibernate.cfg.xml")
+                .buildSessionFactory());
+
         FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/views/mainView.fxml"));
         BorderPane pane = new BorderPane(loader.load());
         Scene scene = new Scene(pane);
@@ -31,15 +37,13 @@ public class Main extends Application {
 
         Platform.runLater(runnable);
 
+        primaryStage.setTitle("Time Keeper");
         primaryStage.setScene(scene);
-        primaryStage.show();
-
-
-        primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-            @Override
-            public void handle(final WindowEvent event) {
-                Platform.exit();
-            }
+        primaryStage.setOnCloseRequest(event -> {
+            System.out.println("Closing session");
+            SessionService.closeCurrentSession();
         });
+        primaryStage.show();
+        primaryStage.setOnCloseRequest(val -> SessionService.closeCurrentSession());
     }
 }

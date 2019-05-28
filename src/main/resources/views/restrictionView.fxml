@@ -3,42 +3,27 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-
-<ScrollPane fx:id="restrictionScrollPane" prefHeight="540.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
-   <content>
-      <VBox prefHeight="400.0" prefWidth="296.0">
-         <children>
-            <HBox alignment="CENTER_LEFT" prefHeight="47.0" prefWidth="296.0">
-               <children>
-                  <Label text="Daily limit:" />
-                  <TextField text="How many hours" />
-               </children>
-            </HBox>
-            <VBox prefHeight="219.0" prefWidth="296.0">
-               <children>
-                  <HBox alignment="CENTER_LEFT" prefHeight="32.0" prefWidth="296.0">
-                     <children>
-                        <Label text="Hours allowed" />
-                     </children>
-                  </HBox>
-                  <HBox alignment="CENTER_LEFT" prefHeight="47.0" prefWidth="296.0">
-                     <children>
-                        <Label text="From:" />
-                        <TextField prefHeight="26.0" prefWidth="65.0" text="XX:XX" />
-                        <Label text="To:" />
-                        <TextField prefHeight="26.0" prefWidth="58.0" text="XX:XX" />
-                     </children>
-                  </HBox>
-               </children>
-            </VBox>
-         </children>
+<ScrollPane fx:id="restrictionScrollPane" prefHeight="540.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.edu.agh.timekeeper.controller.RestrictionTabController">
+    <content>
+        <VBox fx:id="restrictionTabBox" prefHeight="510.0" prefWidth="490.0" spacing="10.0">
          <padding>
-            <Insets left="30.0" top="30.0" />
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
          </padding>
-      </VBox>
-   </content>
+         <children>
+            <Label fx:id="restrictionNameLabel" prefHeight="18.0" prefWidth="470.0" textAlignment="CENTER">
+               <font>
+                  <Font size="28.0" />
+               </font>
+            </Label>
+            <Label fx:id="restrictionItemLabel" layoutX="20.0" layoutY="20.0" prefHeight="90.0" prefWidth="470.0" textAlignment="CENTER">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+         </children>
+        </VBox>
+    </content>
 </ScrollPane>

@@ -7,10 +7,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import pl.edu.agh.timekeeper.model.Application;
-import pl.edu.agh.timekeeper.model.Group;
-import pl.edu.agh.timekeeper.model.Restriction;
-import pl.edu.agh.timekeeper.model.MyTime;
+import pl.edu.agh.timekeeper.model.*;
 
 import java.util.Date;
 import java.util.List;
@@ -31,6 +28,7 @@ class LogApplicationTest {
         configuration.addAnnotatedClass(LogApplication.class);
         configuration.addAnnotatedClass(LogGroup.class);
         configuration.addAnnotatedClass(Restriction.class);
+        configuration.addAnnotatedClass(TimePair.class);
     }
 
     @BeforeEach
@@ -48,9 +46,16 @@ class LogApplicationTest {
     void addTest() {
         session.beginTransaction();
 
-        Restriction myRestriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
-        Group myGroup = new Group("*.mp3", myRestriction);
-        Application myApplication = new Application("cos.mp3", myRestriction, myGroup);
+        String path = "/byleco";
+        Group myGroup = new Group("*.mp3");
+        Application myApplication = new Application("cos.mp3", path, myGroup);
+        Restriction myRestriction = Restriction.getRestrictionBuilder()
+                .setLimit(new MyTime(2, 2))
+                .addBlockedHours(new TimePair(new MyTime(3, 3), new MyTime(4, 4)))
+                .setGroup(myGroup)
+                .setApplication(myApplication)
+                .build();
+
         LogApplication myLogApplication = new LogApplication(myApplication);
         LogApplication myLogApplication_2 = new LogApplication(myApplication);
 
@@ -78,9 +83,15 @@ class LogApplicationTest {
     void removeTest() {
         session.beginTransaction();
 
-        Restriction myRestriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
-        Group myGroup = new Group("*.mp3", myRestriction);
-        Application myApplication = new Application("cos.mp3", myRestriction, myGroup);
+        String path = "/byleco";
+        Group myGroup = new Group("*.mp3");
+        Application myApplication = new Application("cos.mp3", path, myGroup);
+        Restriction myRestriction = Restriction.getRestrictionBuilder()
+                .setLimit(new MyTime(2, 2))
+                .addBlockedHours(new TimePair(new MyTime(3, 3), new MyTime(4, 4)))
+                .setGroup(myGroup)
+                .setApplication(myApplication)
+                .build();
         LogApplication myLogApplication = new LogApplication(myApplication);
         LogApplication myLogApplication_2 = new LogApplication(myApplication);
 
@@ -113,9 +124,15 @@ class LogApplicationTest {
     void updateTest() {
         session.beginTransaction();
 
-        Restriction myRestriction = new Restriction(new MyTime(2, 2), new MyTime(3, 3), new MyTime(4, 4));
-        Group myGroup = new Group("*.mp3", myRestriction);
-        Application myApplication = new Application("cos.mp3", myRestriction, myGroup);
+        String path = "/byleco";
+        Group myGroup = new Group("*.mp3");
+        Application myApplication = new Application("cos.mp3", path, myGroup);
+        Restriction myRestriction = Restriction.getRestrictionBuilder()
+                .setLimit(new MyTime(2, 2))
+                .addBlockedHours(new TimePair(new MyTime(3, 3), new MyTime(4, 4)))
+                .setGroup(myGroup)
+                .setApplication(myApplication)
+                .build();
         LogApplication myLogApplication = new LogApplication(myApplication);
         LogApplication myLogApplication_2 = new LogApplication(myApplication);
 

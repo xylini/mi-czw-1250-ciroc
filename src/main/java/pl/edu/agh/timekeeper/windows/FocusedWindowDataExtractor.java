@@ -24,12 +24,30 @@ public class FocusedWindowDataExtractor {
 
     public String getForegroundWindowPath(){
         byte[] processPathBuffer = new byte[MAX_LENGTH];
+<<<<<<< HEAD
 
         GetWindowThreadProcessId(GetForegroundWindow(), this.pointer);
         Pointer process = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, pointer.getValue());
         GetModuleFileNameExA(process, null, processPathBuffer, MAX_LENGTH);
 
         return Native.toString(processPathBuffer);
+=======
+        PointerByReference pointer = new PointerByReference();
+        Timer timer = Timer.getInstance();
+        timer.setApplicationPath("");
+        while (true) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            GetWindowThreadProcessId(GetForegroundWindow(), pointer);
+            Pointer process = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, pointer.getValue());
+            GetModuleFileNameExA(process, null, processPathBuffer, MAX_LENGTH);
+            String focusedWindowProcessPath = Native.toString(processPathBuffer);
+            timer.setApplicationPath(focusedWindowProcessPath);
+        }
+>>>>>>> ae81a0718b11816ab69f8931d7d4db0a4060aeeb
     }
 
     public WinDef.RECT getForegroundWindowRect(){

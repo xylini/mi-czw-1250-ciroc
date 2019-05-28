@@ -2,15 +2,17 @@ package pl.edu.agh.timekeeper.timer;
 
 import javafx.geometry.Rectangle2D;
 import javafx.stage.Screen;
+import pl.edu.agh.timekeeper.model.Application;
 import pl.edu.agh.timekeeper.windows.FocusedWindowDataExtractor;
 
 public class TimerController {
     private TimerView timerView;
     private final FocusedWindowDataExtractor fwde;
 
+
     public TimerController(){
         this.fwde = new FocusedWindowDataExtractor();
-        this.timerView = new TimerView("00:00", 100, 25, -50.0, -50.0);
+        this.timerView = new TimerView("00:00:00", 100, 25, -50.0, -50.0);
         updateTimerViewCoordsWorker(this.timerView);
 //        updateTimerViewTimeWorker(this.timerView);
     }
@@ -76,6 +78,8 @@ public class TimerController {
         t.setDaemon(true);
         t.start();
     }
+
+//    private boolean checkForegroundWindowTime
 
 
 }
