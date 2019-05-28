@@ -12,6 +12,8 @@ import pl.edu.agh.timekeeper.timer.TimerController;
 import org.hibernate.cfg.Configuration;
 import pl.edu.agh.timekeeper.db.SessionService;
 
+import java.time.LocalDate;
+
 public class Main extends Application {
     public static void main(String[] args) {
         launch(args);
@@ -42,8 +44,8 @@ public class Main extends Application {
         primaryStage.setOnCloseRequest(event -> {
             System.out.println("Closing session");
             SessionService.closeCurrentSession();
+            Platform.exit();
         });
         primaryStage.show();
-        primaryStage.setOnCloseRequest(val -> SessionService.closeCurrentSession());
     }
 }

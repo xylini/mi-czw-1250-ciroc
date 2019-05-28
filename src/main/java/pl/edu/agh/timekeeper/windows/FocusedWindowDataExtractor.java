@@ -24,65 +24,17 @@ public class FocusedWindowDataExtractor {
 
     public String getForegroundWindowPath(){
         byte[] processPathBuffer = new byte[MAX_LENGTH];
-<<<<<<< HEAD
-
         GetWindowThreadProcessId(GetForegroundWindow(), this.pointer);
         Pointer process = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, pointer.getValue());
         GetModuleFileNameExA(process, null, processPathBuffer, MAX_LENGTH);
 
         return Native.toString(processPathBuffer);
-=======
-        PointerByReference pointer = new PointerByReference();
-        Timer timer = Timer.getInstance();
-        timer.setApplicationPath("");
-        while (true) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            GetWindowThreadProcessId(GetForegroundWindow(), pointer);
-            Pointer process = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, pointer.getValue());
-            GetModuleFileNameExA(process, null, processPathBuffer, MAX_LENGTH);
-            String focusedWindowProcessPath = Native.toString(processPathBuffer);
-            timer.setApplicationPath(focusedWindowProcessPath);
-        }
->>>>>>> ae81a0718b11816ab69f8931d7d4db0a4060aeeb
     }
 
     public WinDef.RECT getForegroundWindowRect(){
         GetWindowThreadProcessId(GetForegroundWindow(), this.pointer);
         User32.INSTANCE.GetWindowRect(GetForegroundWindow(), this.foregroundWindowRect);
 
-        return foregroundWindowRect;
+        return this.foregroundWindowRect;
     }
-//    public void run() {
-//        byte[] processPathBuffer = new byte[MAX_LENGTH];
-//        PointerByReference pointer = new PointerByReference();
-//        Timer timer = Timer.getInstance();
-//        WinDef.RECT foregroundWindowRect = new WinDef.RECT();
-//        boolean isViewerStarted = false;
-//
-//        while (true) {
-//            try {
-//                Thread.sleep(1000);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//            GetWindowThreadProcessId(GetForegroundWindow(), pointer);
-//            User32.INSTANCE.GetWindowRect(GetForegroundWindow(), foregroundWindowRect);
-//            if(!isViewerStarted){
-//                isViewerStarted = true;
-//                timer.StartTimerView(foregroundWindowRect);
-//            }
-//            Pointer process = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, pointer.getValue());
-//            GetModuleFileNameExA(process, null, processPathBuffer, MAX_LENGTH);
-//            String focusedWindowProcessPath = Native.toString(processPathBuffer);
-//            timer.setApplicationPath(focusedWindowProcessPath, foregroundWindowRect);
-//
-//            System.out.print(focusedWindowProcessPath + "    ");
-//            System.out.println(timer.getCurrentProgramSeconds());
-//            System.out.println(timer.getCurrentWindowUsageTime());
-//        }
-//    }
 }

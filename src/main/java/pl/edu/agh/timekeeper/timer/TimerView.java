@@ -42,4 +42,8 @@ public class TimerView extends Application {
         this.timerStage.setX(x);
         this.timerStage.setY(y);
     }
+
+    public boolean isVisible(){
+        return this.timerStage.isShowing();
+    }
 }
