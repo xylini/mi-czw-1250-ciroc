@@ -182,7 +182,6 @@ public class AddOrEditRestrictionController {
             restrictionDao.create(restriction);
             restrictionsListController.getRestrictionListView().getItems().add(restrictionName);
         } else {
-            //TODO fix editing wrong fields
             Restriction restriction = restrictionDao.getByName(restrictionName).get();
             restriction.setLimit(dailyLimit);
             restriction.setBlockedHours(new ArrayList<>(rangeRestrictions.values()));
