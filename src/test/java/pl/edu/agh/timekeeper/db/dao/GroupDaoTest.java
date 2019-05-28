@@ -116,7 +116,7 @@ public class GroupDaoTest extends DaoTestBase<GroupDao, Group> {
         Assertions.assertEquals(restriction2, group.getRestriction());
         Assertions.assertEquals(group, restriction2.getGroup());
         Assertions.assertFalse(groupDao.addRestriction(group, restriction));
-        Assertions.assertEquals(1, restrictionDao.getAll().get().size());
+        Assertions.assertEquals(1, restrictionDao.getAll().size());
     }
 
     @Test
@@ -135,7 +135,7 @@ public class GroupDaoTest extends DaoTestBase<GroupDao, Group> {
         // then
         Assertions.assertTrue(result);
         Assertions.assertNull(group.getRestriction());
-        Assertions.assertTrue(restrictionDao.getAll().get().isEmpty());
+        Assertions.assertTrue(restrictionDao.getAll().isEmpty());
     }
 
     @Test
@@ -167,8 +167,8 @@ public class GroupDaoTest extends DaoTestBase<GroupDao, Group> {
         group.addLogGroup(log);
         // then
         Assertions.assertTrue(group.getLogGroups().contains(log));
-        Optional<List<LogGroup>> logGroups = logGroupDao.getAll();
-        Assertions.assertTrue(logGroups.isPresent());
-        Assertions.assertTrue(logGroups.get().contains(log));
+        List<LogGroup> logGroups = logGroupDao.getAll();
+        Assertions.assertFalse(logGroups.isEmpty());
+        Assertions.assertTrue(logGroups.contains(log));
     }
 }
