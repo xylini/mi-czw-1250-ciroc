@@ -8,6 +8,7 @@ import pl.edu.agh.timekeeper.model.Application;
 import pl.edu.agh.timekeeper.model.Restriction;
 import pl.edu.agh.timekeeper.windows.FocusedWindowDataExtractor;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.Optional;
 
@@ -128,9 +129,8 @@ public class TimerController {
                         Thread.sleep(500);
                         if(isCurrentWindowRestricted){
                             // restricted application must be already in database so it is safe
-                            // Application application =  applicationDao.getByPath(currentWindowPath).get();
-                            // long todayTillNowInMs = getAppUsageInMs(application)
-                            long todayTillNowInMs = 60000; // Today usage in milisecs, i.e. long getAppUsageInMs(Application app)
+                            Application app =  applicationDao.getByPath(currentWindowPath).get();
+                            long todayTillNowInMs = logApplicationDaoBase.getUsageInMillisOn(LocalDate.now(), app);
                             String currentTimeUsage = formUsageFromMilis(todayTillNowInMs, timeStart.getTime(), timeStop.getTime());
                             timerView.setText(currentTimeUsage);
                         }

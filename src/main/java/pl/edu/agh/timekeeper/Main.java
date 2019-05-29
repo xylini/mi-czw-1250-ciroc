@@ -2,17 +2,13 @@ package pl.edu.agh.timekeeper;
 
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
-import pl.edu.agh.timekeeper.timer.TimerController;
 import org.hibernate.cfg.Configuration;
 import pl.edu.agh.timekeeper.db.SessionService;
-
-import java.time.LocalDate;
+import pl.edu.agh.timekeeper.timer.TimerController;
 
 public class Main extends Application {
     public static void main(String[] args) {
