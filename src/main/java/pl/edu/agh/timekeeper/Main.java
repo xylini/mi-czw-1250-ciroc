@@ -17,6 +17,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        Platform.setImplicitExit(false);
         SessionService.openSession(new Configuration()
                 .configure("hibernate.cfg.xml")
                 .buildSessionFactory());
@@ -25,22 +26,14 @@ public class Main extends Application {
         BorderPane pane = new BorderPane(loader.load());
         Scene scene = new Scene(pane);
 
-
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                new TimerController();
-            }
-        };
-
-        Platform.runLater(runnable);
+        Platform.runLater(() -> new TimerController());
 
         primaryStage.setTitle("Time Keeper");
         primaryStage.setScene(scene);
         primaryStage.setOnCloseRequest(event -> {
+            Platform.exit();
             System.out.println("Closing session");
             SessionService.closeCurrentSession();
-            Platform.exit();
         });
         primaryStage.show();
     }

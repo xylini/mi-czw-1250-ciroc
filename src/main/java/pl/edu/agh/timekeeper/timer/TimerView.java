@@ -9,9 +9,9 @@ import pl.edu.agh.timekeeper.model.Application;
 
 public class TimerView extends Application {
     private Stage utilityStage;
-    private Stage timerStage;// = new Stage();
-    private Text text;// = new Text("0:00");
-    private BorderPane borderPane;// = new BorderPane();
+    private Stage timerStage;
+    private Text text;
+    private BorderPane borderPane;
 
     public TimerView(String startText, Integer width, Integer height, Double initial_x, Double initial_y){
         this.utilityStage = new Stage();
@@ -41,9 +41,5 @@ public class TimerView extends Application {
     public void setCoordinates(Double x, Double y){
         this.timerStage.setX(x);
         this.timerStage.setY(y);
-    }
-
-    public boolean isVisible(){
-        return this.timerStage.isShowing();
     }
 }

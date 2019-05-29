@@ -52,9 +52,7 @@ public class TimerController {
     }
 
     private void mainLoop(TimerView timerView){
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
+        Thread t = new Thread(() -> {
                 try {
                     while(true){
                         Thread.sleep(16);
@@ -84,7 +82,6 @@ public class TimerController {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-            }
         });
         t.setDaemon(true);
         t.start();
@@ -104,10 +101,10 @@ public class TimerController {
         double scaledWindowTop = fwde.getForegroundWindowRect().top / Screen.getPrimary().getOutputScaleY();
 
         double xShiftFactor = 248.5 / originalResolutionX;
-        double yShiftFactor = 3.8 / originalResolutionY; // 0.0034 * 1080 in fhd
+        double yShiftFactor = 3.8 / originalResolutionY;
 
-        double scaledRightLeftShift = -scaledMaxX * xShiftFactor * Screen.getPrimary().getOutputScaleX();
-        double scaledTopDownShift = scaledMaxY * yShiftFactor * Screen.getPrimary().getOutputScaleY();
+        double scaledRightLeftShift = -scaledMaxX * xShiftFactor * xScale;
+        double scaledTopDownShift = scaledMaxY * yShiftFactor * yScale;
 
         double resultX = scaledWindowRight + scaledRightLeftShift;
         double resultY = scaledWindowTop + scaledTopDownShift;
@@ -121,14 +118,11 @@ public class TimerController {
     }
 
     private void updateTimerViewTimeWorker(TimerView timerView){
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
+        Thread t = new Thread(() -> {
                 try {
                     while(true){
                         Thread.sleep(500);
                         if(isCurrentWindowRestricted){
-                            // restricted application must be already in database so it is safe
                             Application app =  applicationDao.getByPath(currentWindowPath).get();
                             long todayTillNowInMs = logApplicationDaoBase.getUsageInMillisOn(LocalDate.now(), app);
                             String currentTimeUsage = formUsageFromMilis(todayTillNowInMs, timeStart.getTime(), timeStop.getTime());
@@ -138,7 +132,6 @@ public class TimerController {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-            }
         });
 
         t.setDaemon(true);
@@ -148,20 +141,22 @@ public class TimerController {
 
     private boolean isForegroundWindowRestricted(){
         boolean isRestricted = false;
-
-        String foregroundWindowPath = this.fwde.getForegroundWindowPath();
-        Optional<Application> application = applicationDao.getByPath(foregroundWindowPath);
-        if(application.isPresent()){
-            Restriction restriction = application.get().getRestriction();
-            if(restriction != null)
-                isRestricted = true;
-        }
+        try {
+            String foregroundWindowPath = this.fwde.getForegroundWindowPath();
+            Optional<Application> application = applicationDao.getByPath(foregroundWindowPath);
+            if (application.isPresent()) {
+                Restriction restriction = application.get().getRestriction();
+                if (restriction != null)
+                    isRestricted = true;
+            }
+        } catch (IllegalStateException ex) {}
         return isRestricted;
     }
 
     private boolean hasForegroundWindowChanged(){
         String foregroundWindowPath = this.fwde.getForegroundWindowPath();
         boolean hasChanged = !foregroundWindowPath.equals(currentWindowPath);
+
         return hasChanged;
     }
 
@@ -175,7 +170,6 @@ public class TimerController {
 
     private void logIfPrevWindowRestricted(String path, boolean isPrevWindowRestricted, Date prevStartTime, Date prevStopTime){
         if(isPrevWindowRestricted){
-
             Application application = applicationDao.getByPath(path).get();
             logApplicationTime(prevStartTime, prevStopTime, application);
         }

@@ -9,7 +9,6 @@ import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinDef;
 import com.sun.jna.ptr.PointerByReference;
-import pl.edu.agh.timekeeper.timer.Timer;
 
 public class FocusedWindowDataExtractor {
     private static final int MAX_LENGTH = 1024;
