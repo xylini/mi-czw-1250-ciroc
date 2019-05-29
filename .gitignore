@@ -5,10 +5,7 @@ out/
 /bin/
 *.iml
 /project/
-mytestdb.db
-mytestdb.mv.db
-mydb.db
-mydb.mv.db
+*.db
 local.properties
 *.ipr
 *.iws

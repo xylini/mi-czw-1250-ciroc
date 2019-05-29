@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import pl.edu.agh.timekeeper.db.dao.ApplicationDao;
 
 import java.io.*;
 
@@ -36,6 +37,8 @@ public class MainScreenController {
     private static final String HELP_VIEW_PATH = "/views/helpView.fxml";
 
     private FXMLLoader loader;
+
+    private ApplicationDao applicationDao = new ApplicationDao();
 
     @FXML
     private void initialize() {
@@ -99,6 +102,7 @@ public class MainScreenController {
 
     private void prepareStatsView() {
         StatsController statsController = loader.getController();
+        statsController.setApplications(applicationDao.getAll());
         statsController.getStatsBox().prefHeightProperty().bind(mainVBox.heightProperty().subtract(menuButtonHBox.heightProperty()));
         statsController.getStatsBox().prefWidthProperty().bind(mainVBox.widthProperty());
     }

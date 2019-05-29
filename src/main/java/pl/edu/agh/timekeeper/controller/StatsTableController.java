@@ -10,15 +10,19 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import pl.edu.agh.timekeeper.db.dao.ApplicationDao;
 import pl.edu.agh.timekeeper.db.dao.LogApplicationDao;
+import pl.edu.agh.timekeeper.db.dao.RestrictionDao;
 import pl.edu.agh.timekeeper.model.Application;
+import pl.edu.agh.timekeeper.model.Restriction;
 
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class StatsTableController {
 
@@ -37,9 +41,11 @@ public class StatsTableController {
     @FXML
     private TableColumn<UsageStatistics, Duration> overallTimeSpentColumn;
 
-    private ObservableList<String> restrictions = FXCollections.observableArrayList();
+    private ObservableList<Application> applications = FXCollections.observableArrayList();
 
-    private ApplicationDao applicationDao = new ApplicationDao();
+    private ObservableList<String> restrictionNames = FXCollections.observableArrayList();
+
+    private RestrictionDao restrictionDao = new RestrictionDao();
 
     private LogApplicationDao logApplicationDao = new LogApplicationDao();
 
@@ -77,11 +83,11 @@ public class StatsTableController {
         timeSpentTodayColumn.prefWidthProperty().bind(statsTable.widthProperty().divide(4.0));
         overallTimeSpentColumn.prefWidthProperty().bind(statsTable.widthProperty().divide(4.0));
 
-        restrictions.addListener((ListChangeListener<String>) c -> {
+        restrictionNames.addListener((ListChangeListener<String>) c -> {
             while (c.next()) {
                 if (c.wasAdded()) {
-                    for (String appName : c.getAddedSubList()) {
-                        applicationDao.getByName(appName).ifPresent(this::setTableContent);
+                    for (String name : c.getAddedSubList()) {
+                        restrictionDao.getByName(name).ifPresent(this::setTableContent);
                     }
                 }
             }
@@ -92,17 +98,22 @@ public class StatsTableController {
         return statsTable;
     }
 
-    public void setRestrictions(ObservableList<String> restrictions) {
-        this.restrictions.addAll(restrictions);
+    public void setApplications(Collection<Application> applications) {
+        this.applications.setAll(applications);
+        this.restrictionNames.setAll(applications.stream()
+                .map(Application::getRestriction)
+                .map(Restriction::getName)
+                .collect(Collectors.toList()));
     }
 
-    private void setTableContent(Application app) {
+    private void setTableContent(Restriction restriction) {
+        Application app = restriction.getApplication();
         LinkedHashMap<Date, Long> dailyUsage = new LinkedHashMap<>();
         Optional<LinkedHashMap<Date, Long>> usage = logApplicationDao.getDailyUsageInSecs(app, thisMonth);
         if (usage.isPresent()) dailyUsage = usage.get();
         Long todayUsage = dailyUsage.getOrDefault(today, 0L);
         Long totalUsage = totalUsageForAllApplications.getOrDefault(app, 0L);
-        Duration limit = Duration.ofHours(app.getRestriction().getLimit().getHour()).plusMinutes(app.getRestriction().getLimit().getMinute());
+        Duration limit = Duration.ofHours(restriction.getLimit().getHour()).plusMinutes(restriction.getLimit().getMinute());
         UsageStatistics stat = new UsageStatistics(app.getName(), limit, secondsToLocalTime(todayUsage), secondsToLocalTime(totalUsage));
         statsTable.getItems().add(stat);
     }
