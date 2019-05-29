@@ -17,8 +17,7 @@ public class RestrictionDao extends DaoBase<Restriction> {
     public Optional<Restriction> getByName(String name){
         try {
             return Optional.of(SessionService.getCurrentSession()
-                    .createQuery(String.format("SELECT r FROM %s r WHERE r.name = :name", TABLE_NAME),
-                            Restriction.class)
+                    .createQuery(String.format("SELECT r FROM %s r WHERE r.name = :name", TABLE_NAME), Restriction.class)
                     .setParameter("name", name)
                     .uniqueResult());
         } catch (PersistenceException e) {
