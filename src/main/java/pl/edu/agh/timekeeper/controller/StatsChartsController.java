@@ -75,8 +75,7 @@ public class StatsChartsController {
     private void showToday() {
         lastMonthButton.setVisible(true);
         todayButton.setVisible(true);
-        //TODO replace next line (test) with this: ZonedDateTime todayAtMidnight = LocalDate.now().atStartOfDay().atZone(ZoneOffset.systemDefault());
-        ZonedDateTime todayAtMidnight = LocalDate.of(2019, 5, 10).atStartOfDay().atZone(ZoneOffset.systemDefault());
+        ZonedDateTime todayAtMidnight = LocalDate.now().atStartOfDay().atZone(ZoneOffset.systemDefault());
         String dateStr = todayAtMidnight.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
         setDescription(
                 String.format("Usage of %s on %s", application.getName(), dateStr),
@@ -103,8 +102,7 @@ public class StatsChartsController {
     private void showLastMonth(ActionEvent actionEvent) {
         lastMonthButton.setVisible(true);
         todayButton.setVisible(true);
-        //TODO replace next line (test) with this: ZonedDateTime firstDayOfMonth = LocalDate.now().withDayOfMonth(1).atStartOfDay().atZone(ZoneOffset.systemDefault());
-        ZonedDateTime firstDayOfMonth = LocalDate.of(2019, 5, 11).withDayOfMonth(1).atStartOfDay().atZone(ZoneOffset.systemDefault());
+        ZonedDateTime firstDayOfMonth = LocalDate.now().withDayOfMonth(1).atStartOfDay().atZone(ZoneOffset.systemDefault());
         String dateStr = firstDayOfMonth.getMonth().name().toLowerCase();
         setDescription(
                 String.format("Usage of %s in %s %d", application.getName(), dateStr, firstDayOfMonth.getYear()),
@@ -143,9 +141,10 @@ public class StatsChartsController {
             data.add(new XYChart.Data<String, Number>(app.getName(), totalUsage.get().get(app) / 3600F));
         }));
 
-        setAxisData(series, FXCollections.observableList(totalUsage.get().keySet().stream()
-                .map(Application::getName)
-                .collect(Collectors.toList())));
+        totalUsage.ifPresent(usages ->
+                setAxisData(series, FXCollections.observableList(usages.keySet().stream()
+                        .map(Application::getName)
+                        .collect(Collectors.toList()))));
     }
 
     private String formatDate(Date date, String pattern) {

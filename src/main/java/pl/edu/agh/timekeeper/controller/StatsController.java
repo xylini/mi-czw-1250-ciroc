@@ -37,12 +37,6 @@ public class StatsController {
 
     @FXML
     private void initialize() {
-        // TODO: remove this (test) block ---------------
-        restrictionsNames.add("app1");
-        restrictionsNames.add("app2");
-        restrictionsListView.getItems().addAll(restrictionsNames);
-        // TODO: ---------------------------------
-
         displayTable();
         restrictionsListView.prefHeightProperty().bind(statsBox.heightProperty());
         setupListeners();
