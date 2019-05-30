@@ -1,10 +1,12 @@
 package pl.edu.agh.timekeeper.db.dao;
 
-import pl.edu.agh.timekeeper.model.Application;
-import pl.edu.agh.timekeeper.log.LogApplication;
 import pl.edu.agh.timekeeper.db.SessionService;
+import pl.edu.agh.timekeeper.log.LogApplication;
+import pl.edu.agh.timekeeper.model.Application;
 
 import javax.persistence.PersistenceException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -33,6 +35,26 @@ public class LogApplicationDao extends LogDaoBase<LogApplication, Application> {
             e.printStackTrace();
         }
         return Optional.empty();
+    }
+
+    public long getUsageInMillisOn(LocalDate day, Application app){
+        LocalDateTime start = day.atStartOfDay();
+        LocalDateTime end = day.plusDays(1).atStartOfDay();
+        Long res = SessionService.getCurrentSession()
+                .createQuery(
+                        "SELECT SUM(DATEDIFF(MILLISECOND, GREATEST(l.timeStart, :start_t), LEAST(l.timeEnd, :end_t))) " +
+                                "FROM " + TABLE_NAME + " l " +
+                                "WHERE l.application = :app " +
+                                "AND (l.timeStart BETWEEN :start_t AND :end_t " +
+                                "OR l.timeEnd BETWEEN :start_t AND :end_t " +
+                                "OR (l.timeStart < :start_t AND l.timeEnd > :end_t))",
+                        Long.class)
+                .setParameter("app", app)
+                .setParameter("start_t", Date.from(start.atZone(ZoneId.systemDefault()).toInstant()))
+                .setParameter("end_t", Date.from(end.atZone(ZoneId.systemDefault()).toInstant()))
+                .getSingleResult();
+        if(res == null) return 0L;
+        return res;
     }
 
     @Override
