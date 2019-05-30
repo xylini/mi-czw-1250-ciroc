@@ -13,39 +13,38 @@ import java.util.Date;
 import java.util.Optional;
 
 public class TimerController {
+    private TimerView timerView;
     private LogApplicationDao logApplicationDaoBase;
     ApplicationDao applicationDao;
-
-    private TimerView timerView;
     private final FocusedWindowDataExtractor fwde;
 
     private Date timeStart;
     private Date timeStop;
+    private String currentWindowPath;
+    private boolean isCurrentWindowRestricted;
+    private long currentRestrictedAppTillNow;
 
     private Date prevTimeStart;
     private Date prevTimeStop;
-
-    private boolean isCurrentWindowRestricted;
+    private String prevWindowPath;
     private boolean isPrevWindowRestricted;
 
-    private String prevWindowPath;
-    private String currentWindowPath;
-
-
     public TimerController(){
+        this.timerView = new TimerView("00:00:00", 100, 25, -50.0, -50.0);
         this.logApplicationDaoBase = new LogApplicationDao();
         this.applicationDao = new ApplicationDao();
+        this.fwde = new FocusedWindowDataExtractor();
+
         this.timeStart = new Date(System.currentTimeMillis());
         this.timeStop = new Date(System.currentTimeMillis());
+        this.currentWindowPath = fwde.getForegroundWindowPath();
+        this.isCurrentWindowRestricted = isForegroundWindowRestricted();
+        this.currentRestrictedAppTillNow = setCurrApplicationUsageTimeIfRestricted(this.isCurrentWindowRestricted, this.currentWindowPath);
+
         this.prevTimeStart = null;
         this.prevTimeStop = null;
-        this.fwde = new FocusedWindowDataExtractor();
-        this.timerView = new TimerView("00:00:00", 100, 25, -50.0, -50.0);
-        this.isPrevWindowRestricted = false;
-        this.isCurrentWindowRestricted = isForegroundWindowRestricted();
-
         this.prevWindowPath = null;
-        this.currentWindowPath = fwde.getForegroundWindowPath();
+        this.isPrevWindowRestricted = false;
 
         mainLoop(this.timerView);
         updateTimerViewTimeWorker(this.timerView);
@@ -72,7 +71,7 @@ public class TimerController {
                             timeStop = new Date(System.currentTimeMillis());
                             isCurrentWindowRestricted = isForegroundWindowRestricted();
                             currentWindowPath = fwde.getForegroundWindowPath();
-
+                            currentRestrictedAppTillNow = setCurrApplicationUsageTimeIfRestricted(isCurrentWindowRestricted, currentWindowPath);
                             logIfPrevWindowRestricted(prevWindowPath, isPrevWindowRestricted, prevTimeStart, prevTimeStop);
                         }
                         timeStop.setTime(System.currentTimeMillis());
@@ -123,9 +122,7 @@ public class TimerController {
                     while(true){
                         Thread.sleep(500);
                         if(isCurrentWindowRestricted){
-                            Application app =  applicationDao.getByPath(currentWindowPath).get();
-                            long todayTillNowInMs = logApplicationDaoBase.getUsageInMillisOn(LocalDate.now(), app);
-                            String currentTimeUsage = formUsageFromMilis(todayTillNowInMs, timeStart.getTime(), timeStop.getTime());
+                            String currentTimeUsage = formUsageFromMilis(currentRestrictedAppTillNow, timeStart.getTime(), timeStop.getTime());
                             timerView.setText(currentTimeUsage);
                         }
                     }
@@ -173,6 +170,15 @@ public class TimerController {
             Application application = applicationDao.getByPath(path).get();
             logApplicationTime(prevStartTime, prevStopTime, application);
         }
+    }
+
+    private long setCurrApplicationUsageTimeIfRestricted(boolean isCurrentWindowRestricted, String currentWindowPath){
+        long timeUsage = 0;
+        if(isCurrentWindowRestricted){
+            Application app =  applicationDao.getByPath(currentWindowPath).get();
+            timeUsage = logApplicationDaoBase.getUsageInMillisOn(LocalDate.now(), app);
+        }
+        return timeUsage;
     }
 
     private String formUsageFromMilis(long untilNow, long timeStart, long timeStop){
