@@ -37,8 +37,11 @@ public class StatsController {
 
     private ObservableList<Application> applications = FXCollections.observableArrayList();
 
-    private static final String TABLE_VIEW_PATH = "/views/statsTableView.fxml";
+    private final ApplicationDao applicationDao = new ApplicationDao();
 
+    private final RestrictionDao restrictionDao = new RestrictionDao();
+
+    private static final String TABLE_VIEW_PATH = "/views/statsTableView.fxml";
     private static final String CHART_VIEW_PATH = "/views/statsChartsView.fxml";
 
     @FXML
@@ -61,9 +64,9 @@ public class StatsController {
                 statsChartsController.showAllTime();
             } else {
                 displayChart();
-                Optional<Restriction> restriction = new RestrictionDao().getByName((String) newValue);
+                Optional<Restriction> restriction = restrictionDao.getByName((String) newValue);
                 String path = restriction.get().getApplication().getPath();
-                new ApplicationDao().getByPath(path).ifPresent(app -> {
+                applicationDao.getByPath(path).ifPresent(app -> {
                     statsChartsController.setApplication(app);
                     statsChartsController.showChart();
                 });
@@ -73,7 +76,7 @@ public class StatsController {
 
     public void setApplications(List<Application> applications) {
         this.applications.setAll(applications);
-        statsTableController.setApplications(applications);
+        this.statsTableController.setApplications(applications);
         ObservableList list = restrictionsListView.getItems();
         list.addAll(applications.stream()
                 .map(Application::getRestriction)

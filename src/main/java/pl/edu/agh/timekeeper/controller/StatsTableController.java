@@ -42,15 +42,15 @@ public class StatsTableController {
 
     private ObservableList<String> restrictionNames = FXCollections.observableArrayList();
 
-    private RestrictionDao restrictionDao = new RestrictionDao();
-
-    private LogApplicationDao logApplicationDao = new LogApplicationDao();
-
     private LinkedHashMap<Application, Long> totalUsageForAllApplications = new LinkedHashMap<>();
 
     private Date thisMonth;
 
     private Date today;
+
+    private RestrictionDao restrictionDao = new RestrictionDao();
+
+    private LogApplicationDao logApplicationDao = new LogApplicationDao();
 
     public StatsTableController() {
         ZonedDateTime monthZonedDateTime = LocalDate
@@ -114,7 +114,7 @@ public class StatsTableController {
             Duration limit = Duration.ofHours(restriction.getLimit().getHour()).plusMinutes(restriction.getLimit().getMinute());
             UsageStatistics stat = new UsageStatistics(app.getName(), limit, secondsToLocalTime(todayUsage), secondsToLocalTime(totalUsage));
             statsTable.getItems().add(stat);
-        } catch (NullPointerException e){
+        } catch (NullPointerException e) {
         }
     }
 
@@ -138,9 +138,5 @@ public class StatsTableController {
                 }
             }
         };
-    }
-
-    public void setTableContent() {
-        //TODO
     }
 }

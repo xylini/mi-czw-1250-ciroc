@@ -47,13 +47,12 @@ public class StatsChartsController {
     @FXML
     private NumberAxis yAxis;
 
-    private LogApplicationDao logDao;
+    private final LogApplicationDao logDao = new LogApplicationDao();
 
     private Application application;
 
     @FXML
     private void initialize() {
-        logDao = new LogApplicationDao();
         xAxis.setTickLabelRotation(-45);
         chart.setAnimated(false);
         chart.prefWidthProperty().bind(chartsPane.widthProperty());

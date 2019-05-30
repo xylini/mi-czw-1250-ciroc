@@ -49,13 +49,13 @@ public class AddGroupController {
 
     private Set<Application> applicationsSet = new HashSet<>();
 
-    private ApplicationDao applicationDao = new ApplicationDao();
-
     private GroupDao groupDao = new GroupDao();
 
     private List<Group> allGroups = groupDao.getAll();
 
     private ObservableList<String> groups;
+
+    private final ApplicationDao applicationDao = new ApplicationDao();
 
     private void makeBrowseButton() {
         this.browseButton = new Button("Add application");

@@ -75,10 +75,6 @@ public class AddOrEditRestrictionController {
 
     private final ToggleGroup groupRadioButtons = new ToggleGroup();
 
-    private final ApplicationDao applicationDao = new ApplicationDao();
-
-    private final RestrictionDao restrictionDao = new RestrictionDao();
-
     private final GroupDao groupDao = new GroupDao();
 
     private ObservableList<String> groupList = FXCollections.observableArrayList();
@@ -90,6 +86,12 @@ public class AddOrEditRestrictionController {
     private BooleanProperty isEditedProperty = new SimpleBooleanProperty(false);
 
     private ControllerUtils controllerUtils = new ControllerUtils();
+
+    private final ApplicationDao applicationDao = new ApplicationDao();
+
+    private final RestrictionDao restrictionDao = new RestrictionDao();
+
+    private String selectedApplicationName;
 
     private void makeBrowseButton() {
         this.browseButton = new Button("Browse");
@@ -159,17 +161,19 @@ public class AddOrEditRestrictionController {
         String restrictionName = restrictionNameField.getText();
 
         Optional<Application> appOpt = applicationDao.getByPath(applicationPath);
-        Application app = appOpt.orElseGet(() -> new Application(applicationPath, applicationPath));
+        Application app = appOpt.orElseGet(() -> new Application(this.selectedApplicationName, applicationPath));
 
         if (!isEditedProperty.get()) {
             if (app.getRestriction() != null) {
-                // TODO: show message "Restriction for this application already exists"
-                System.out.println("Restriction for this application already exists");
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setHeaderText("Restriction for this application already exists");
+                alert.show();
                 return;
             }
             if (restrictionsListController.getRestrictionListView().getItems().contains(restrictionName)) {
-                // TODO: show message "Restriction with given name already exists"
-                System.out.println("Restriction with given name already exists");
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setHeaderText("Restriction with given name already exists");
+                alert.show();
                 return;
             }
         }
@@ -197,7 +201,10 @@ public class AddOrEditRestrictionController {
         fileChooser.setTitle("Select file to impose a restriction");
         Stage stage = (Stage) mainPane.getScene().getWindow();
         Optional<File> file = Optional.ofNullable(fileChooser.showOpenDialog(stage));
-        file.ifPresent((f) -> applicationPathField.setText(f.getAbsolutePath()));
+        file.ifPresent((f) -> {
+            this.selectedApplicationName = f.getName();
+            applicationPathField.setText(f.getAbsolutePath());
+        });
     }
 
     @FXML

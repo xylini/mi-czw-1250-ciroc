@@ -31,14 +31,14 @@ public class MainScreenController {
     @FXML
     private ToggleGroup menuButtons;
 
+    private FXMLLoader loader;
+
+    private final ApplicationDao applicationDao = new ApplicationDao();
+
     private static final String RESTRICTIONS_LIST_VIEW_PATH = "/views/restrictionsListView.fxml";
     private static final String STATS_VIEW_PATH = "/views/statsView.fxml";
     private static final String PREF_VIEW_PATH = "/views/prefView.fxml";
     private static final String HELP_VIEW_PATH = "/views/helpView.fxml";
-
-    private FXMLLoader loader;
-
-    private ApplicationDao applicationDao = new ApplicationDao();
 
     @FXML
     private void initialize() {

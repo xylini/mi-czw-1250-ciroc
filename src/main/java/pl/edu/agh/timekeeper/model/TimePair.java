@@ -40,24 +40,12 @@ public class TimePair implements Serializable {
         return id;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
     public MyTime getStart() {
         return start;
     }
 
-    public void setStart(MyTime start) {
-        this.start = start;
-    }
-
     public MyTime getEnd() {
         return end;
-    }
-
-    public void setEnd(MyTime end) {
-        this.end = end;
     }
 
     public Restriction getRestriction() {

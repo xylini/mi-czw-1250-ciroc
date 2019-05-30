@@ -150,6 +150,7 @@ public class TimerController {
                     isRestricted = true;
             }
         } catch (IllegalStateException ex) {}
+
         return isRestricted;
     }
 
