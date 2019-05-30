@@ -127,10 +127,10 @@ public class AddGroupController {
 
     private HBox makeHBox(String path) {
         HBox hBox = new HBox();
-        TextField nameApp = new TextField(path);
-        nameApp.setPrefWidth(250);
+        TextField appPath = new TextField(path);
+        appPath.setPrefWidth(250);
         hBox.getChildren().addAll(
-                nameApp,
+                appPath,
                 controllerUtils.createButton(IMAGE_DELETE_PATH, deleteEvent)
         );
         return hBox;

@@ -14,10 +14,7 @@ import pl.edu.agh.timekeeper.db.dao.RestrictionDao;
 import pl.edu.agh.timekeeper.model.Application;
 import pl.edu.agh.timekeeper.model.Restriction;
 
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -62,8 +59,8 @@ public class StatsTableController {
                 .atZone(ZoneId.systemDefault())
                 .withDayOfMonth(1);
         this.thisMonth = Date.from(monthZonedDateTime.withDayOfMonth(1).toInstant());
-        //TODO replace next line with this: this.today = Date.from(monthZonedDateTime.toInstant());
-        this.today = Date.from(monthZonedDateTime.withDayOfMonth(10).toInstant());
+        ZonedDateTime todayAtMidnight = LocalDate.now().atStartOfDay().atZone(ZoneOffset.systemDefault());
+        this.today = Date.from(todayAtMidnight.toInstant());
         logApplicationDao.getTotalUsageForAllEntities().ifPresent(usage -> totalUsageForAllApplications = usage);
     }
 
@@ -113,9 +110,12 @@ public class StatsTableController {
         if (usage.isPresent()) dailyUsage = usage.get();
         Long todayUsage = dailyUsage.getOrDefault(today, 0L);
         Long totalUsage = totalUsageForAllApplications.getOrDefault(app, 0L);
-        Duration limit = Duration.ofHours(restriction.getLimit().getHour()).plusMinutes(restriction.getLimit().getMinute());
-        UsageStatistics stat = new UsageStatistics(app.getName(), limit, secondsToLocalTime(todayUsage), secondsToLocalTime(totalUsage));
-        statsTable.getItems().add(stat);
+        try {
+            Duration limit = Duration.ofHours(restriction.getLimit().getHour()).plusMinutes(restriction.getLimit().getMinute());
+            UsageStatistics stat = new UsageStatistics(app.getName(), limit, secondsToLocalTime(todayUsage), secondsToLocalTime(totalUsage));
+            statsTable.getItems().add(stat);
+        } catch (NullPointerException e){
+        }
     }
 
     private Duration secondsToLocalTime(Long secs) {
