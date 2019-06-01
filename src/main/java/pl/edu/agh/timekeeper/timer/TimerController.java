@@ -1,15 +1,20 @@
 package pl.edu.agh.timekeeper.timer;
 
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
 import javafx.stage.Screen;
 import pl.edu.agh.timekeeper.db.dao.ApplicationDao;
 import pl.edu.agh.timekeeper.db.dao.LogApplicationDao;
 import pl.edu.agh.timekeeper.log.LogApplication;
-import pl.edu.agh.timekeeper.model.Application;
-import pl.edu.agh.timekeeper.model.Restriction;
+import pl.edu.agh.timekeeper.model.*;
 import pl.edu.agh.timekeeper.windows.FocusedWindowDataExtractor;
 
+import javax.swing.*;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 public class TimerController {
@@ -29,12 +34,15 @@ public class TimerController {
     private String prevWindowPath;
     private boolean isPrevWindowRestricted;
 
+    private Date sleepWindowDialog;
+
     public TimerController(){
         this.timerView = new TimerView("00:00:00", 100, 25, -50.0, -50.0);
         this.logApplicationDaoBase = new LogApplicationDao();
         this.applicationDao = new ApplicationDao();
         this.fwde = new FocusedWindowDataExtractor();
 
+        this.sleepWindowDialog = new Date(System.currentTimeMillis());
         this.timeStart = new Date(System.currentTimeMillis());
         this.timeStop = new Date(System.currentTimeMillis());
         this.currentWindowPath = fwde.getForegroundWindowPath();
@@ -73,6 +81,30 @@ public class TimerController {
                             currentWindowPath = fwde.getForegroundWindowPath();
                             currentRestrictedAppTillNow = setCurrApplicationUsageTimeIfRestricted(isCurrentWindowRestricted, currentWindowPath);
                             logIfPrevWindowRestricted(prevWindowPath, isPrevWindowRestricted, prevTimeStart, prevTimeStop);
+                        }
+                        if(sleepWindowDialog.before(timeStop) && hasTimeExceeded()){
+                            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                            alert.setTitle("Time exceeded");
+                            alert.setHeaderText("Your time has exceeded");
+                            alert.setContentText("Turn off the application or suspend for");
+
+                            ButtonType buttonTypeOne = new ButtonType("15 min");
+                            ButtonType buttonTypeTwo = new ButtonType("30 min");
+                            ButtonType buttonTypeThree = new ButtonType("1 hour");
+                            ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+                            alert.getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo, buttonTypeThree, buttonTypeCancel);
+
+                            Optional<ButtonType> result = alert.showAndWait();
+                            if (result.isPresent() && result.get() == buttonTypeOne){
+                                sleepWindowDialog = new Date(System.currentTimeMillis() + 1000*60*15); // 15 minutes
+                            } else if (result.isPresent() && result.get() == buttonTypeTwo) {
+                                sleepWindowDialog = new Date(System.currentTimeMillis() + 1000*60*30); // 30 minutes
+                            } else if (result.isPresent() && result.get() == buttonTypeThree) {
+                                sleepWindowDialog = new Date(System.currentTimeMillis() + 1000*60*60); // 1 hour
+                            } else {
+                                sleepWindowDialog = new Date(System.currentTimeMillis() + 1000*60*5); // 5 minutes
+                            }
                         }
                         timeStop.setTime(System.currentTimeMillis());
                     }
@@ -155,6 +187,63 @@ public class TimerController {
         boolean hasChanged = !foregroundWindowPath.equals(currentWindowPath);
 
         return hasChanged;
+    }
+
+    private boolean hasTimeExceeded(){
+        String foregroundWindowPath = this.fwde.getForegroundWindowPath();
+        Optional<Application> application = applicationDao.getByPath(foregroundWindowPath);
+        if (application.isPresent()) {
+            Restriction restriction = application.get().getRestriction();
+            boolean hasExceeded = hasRestrictionTimeExceeded(restriction);
+
+            Group group = application.get().getGroup();
+            if(group != null){
+                Restriction groupRestriction = group.getRestriction();
+                return hasExceeded || hasRestrictionTimeExceeded(groupRestriction);
+            }
+
+            return hasExceeded;
+        }
+
+        return false;
+    }
+
+    private boolean hasRestrictionTimeExceeded(Restriction restriction){
+        if (restriction != null){
+            List<TimePair> blockedHours = restriction.getBlockedHours();
+            MyTime limits = restriction.getLimit();
+
+            for(TimePair blockedHour : blockedHours){
+                if(blockedTime(blockedHour)){
+                    return true;
+                }
+            }
+
+            if(limits != null){
+                return 60 * 60 * 1000 * limits.getHour() + 60 * 1000 * limits.getMinute() > currentRestrictedAppTillNow + (timeStop.getTime() - timeStart.getTime());
+            }
+        }
+
+        return false;
+    }
+
+    private boolean blockedTime(TimePair blockedHour){
+        int hourStart = blockedHour.getStart().getHour();
+        int minuteStart = blockedHour.getStart().getMinute();
+
+        int hourEnd = blockedHour.getEnd().getHour();
+        int minuteEnd = blockedHour.getEnd().getMinute();
+
+        LocalTime localTime = LocalTime.now();
+        int hourLocal = localTime.getHour();
+        int minuteLocal = localTime.getMinute();
+
+        if(60*hourStart+minuteStart <= 60*hourEnd+minuteEnd){
+            return 60 * hourStart + minuteStart <= 60 * hourLocal + minuteLocal && 60 * hourLocal + minuteLocal <= 60 * hourEnd + minuteEnd;
+        }
+        else{
+            return !(60 * hourEnd + minuteEnd < 60 * hourLocal + minuteLocal && 60 * hourLocal + minuteLocal < 60 * hourStart + minuteStart);
+        }
     }
 
     private void logApplicationTime(Date timeStart, Date timeStop, Application application){
