@@ -16,6 +16,7 @@ import java.time.LocalTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.TimeZone;
 
 public class TimerController {
     private TimerView timerView;
@@ -35,6 +36,7 @@ public class TimerController {
     private boolean isPrevWindowRestricted;
 
     private Date sleepWindowDialog;
+    private int timeExceededLoop = 0;
 
     public TimerController(){
         this.timerView = new TimerView("00:00:00", 100, 25, -50.0, -50.0);
@@ -82,30 +84,36 @@ public class TimerController {
                             currentRestrictedAppTillNow = setCurrApplicationUsageTimeIfRestricted(isCurrentWindowRestricted, currentWindowPath);
                             logIfPrevWindowRestricted(prevWindowPath, isPrevWindowRestricted, prevTimeStart, prevTimeStop);
                         }
-                        if(sleepWindowDialog.before(timeStop) && hasTimeExceeded()){
-                            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                            alert.setTitle("Time exceeded");
-                            alert.setHeaderText("Your time has exceeded");
-                            alert.setContentText("Turn off the application or suspend for");
-
-                            ButtonType buttonTypeOne = new ButtonType("15 min");
-                            ButtonType buttonTypeTwo = new ButtonType("30 min");
-                            ButtonType buttonTypeThree = new ButtonType("1 hour");
-                            ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
-
-                            alert.getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo, buttonTypeThree, buttonTypeCancel);
-
-                            Optional<ButtonType> result = alert.showAndWait();
-                            if (result.isPresent() && result.get() == buttonTypeOne){
-                                sleepWindowDialog = new Date(System.currentTimeMillis() + 1000*60*15); // 15 minutes
-                            } else if (result.isPresent() && result.get() == buttonTypeTwo) {
-                                sleepWindowDialog = new Date(System.currentTimeMillis() + 1000*60*30); // 30 minutes
-                            } else if (result.isPresent() && result.get() == buttonTypeThree) {
-                                sleepWindowDialog = new Date(System.currentTimeMillis() + 1000*60*60); // 1 hour
-                            } else {
-                                sleepWindowDialog = new Date(System.currentTimeMillis() + 1000*60*5); // 5 minutes
+                        if(sleepWindowDialog.before(timeStop) && timeExceededLoop==0 && hasTimeExceeded()){
+                            Object[] options = {"1 min", "15 min", "30 min", "1 hour"};
+                            Object out = JOptionPane.showInputDialog(null, "Your time has exceeded. Turn off the application or suspend for",
+                                    "Time exceeded", JOptionPane.WARNING_MESSAGE, null, options, options[0]);
+                            if(out != null){
+                                String outString = (String) out;
+                                switch(outString){
+                                    case "1 min":
+                                        sleepWindowDialog = new Date(System.currentTimeMillis() + 1000*60);
+                                        break;
+                                    case "15 min":
+                                        sleepWindowDialog = new Date(System.currentTimeMillis() + 1000*60*15);
+                                        break;
+                                    case "30 min":
+                                        sleepWindowDialog = new Date(System.currentTimeMillis() + 1000*60*30);
+                                        break;
+                                    case "1 hour":
+                                        sleepWindowDialog = new Date(System.currentTimeMillis() + 1000*60*60);
+                                        break;
+                                    default:
+                                        sleepWindowDialog = new Date(System.currentTimeMillis() + 1000*60*5);
+                                        break;
+                                }
+                            }
+                            else{
+                                sleepWindowDialog = new Date(System.currentTimeMillis() + 1000*60*5);
                             }
                         }
+                        timeExceededLoop += 1;
+                        timeExceededLoop %= 100;
                         timeStop.setTime(System.currentTimeMillis());
                     }
 
@@ -190,20 +198,22 @@ public class TimerController {
     }
 
     private boolean hasTimeExceeded(){
-        String foregroundWindowPath = this.fwde.getForegroundWindowPath();
-        Optional<Application> application = applicationDao.getByPath(foregroundWindowPath);
-        if (application.isPresent()) {
-            Restriction restriction = application.get().getRestriction();
-            boolean hasExceeded = hasRestrictionTimeExceeded(restriction);
+        try {
+            String foregroundWindowPath = this.fwde.getForegroundWindowPath();
+            Optional<Application> application = applicationDao.getByPath(foregroundWindowPath);
+            if (application.isPresent()) {
+                Restriction restriction = application.get().getRestriction();
+                boolean hasExceeded = hasRestrictionTimeExceeded(restriction);
 
-            Group group = application.get().getGroup();
-            if(group != null){
-                Restriction groupRestriction = group.getRestriction();
-                return hasExceeded || hasRestrictionTimeExceeded(groupRestriction);
+                Group group = application.get().getGroup();
+                if(group != null){
+                    Restriction groupRestriction = group.getRestriction();
+                    return hasExceeded || hasRestrictionTimeExceeded(groupRestriction);
+                }
+
+                return hasExceeded;
             }
-
-            return hasExceeded;
-        }
+        } catch (IllegalStateException ex) {}
 
         return false;
     }
@@ -220,7 +230,7 @@ public class TimerController {
             }
 
             if(limits != null){
-                return 60 * 60 * 1000 * limits.getHour() + 60 * 1000 * limits.getMinute() > currentRestrictedAppTillNow + (timeStop.getTime() - timeStart.getTime());
+                return 60 * 60 * 1000 * limits.getHour() + 60 * 1000 * limits.getMinute() < currentRestrictedAppTillNow + (timeStop.getTime() - timeStart.getTime());
             }
         }
 
@@ -234,15 +244,15 @@ public class TimerController {
         int hourEnd = blockedHour.getEnd().getHour();
         int minuteEnd = blockedHour.getEnd().getMinute();
 
-        LocalTime localTime = LocalTime.now();
-        int hourLocal = localTime.getHour();
-        int minuteLocal = localTime.getMinute();
+        TimeZone tz = TimeZone.getDefault();
+        int minuteLocal = (int) (timeStop.getTime() / (60 * 1000) % 60);
+        int hourLocal = (int) ((timeStop.getTime() + tz.getOffset(timeStop.getTime())) / (60 * 60 * 1000) % 24);
 
         if(60*hourStart+minuteStart <= 60*hourEnd+minuteEnd){
-            return 60 * hourStart + minuteStart <= 60 * hourLocal + minuteLocal && 60 * hourLocal + minuteLocal <= 60 * hourEnd + minuteEnd;
+            return 60 * hourStart + minuteStart <= 60 * hourLocal + minuteLocal && 60 * hourLocal + minuteLocal < 60 * hourEnd + minuteEnd;
         }
         else{
-            return !(60 * hourEnd + minuteEnd < 60 * hourLocal + minuteLocal && 60 * hourLocal + minuteLocal < 60 * hourStart + minuteStart);
+            return !(60 * hourEnd + minuteEnd <= 60 * hourLocal + minuteLocal && 60 * hourLocal + minuteLocal < 60 * hourStart + minuteStart);
         }
     }
 
