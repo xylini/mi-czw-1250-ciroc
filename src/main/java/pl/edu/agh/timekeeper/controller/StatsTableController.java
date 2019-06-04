@@ -8,7 +8,6 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import pl.edu.agh.timekeeper.db.dao.ApplicationDao;
 import pl.edu.agh.timekeeper.db.dao.LogApplicationDao;
 import pl.edu.agh.timekeeper.db.dao.RestrictionDao;
 import pl.edu.agh.timekeeper.model.Application;
@@ -112,7 +111,7 @@ public class StatsTableController {
         Long totalUsage = totalUsageForAllApplications.getOrDefault(app, 0L);
         try {
             Duration limit = Duration.ofHours(restriction.getLimit().getHour()).plusMinutes(restriction.getLimit().getMinute());
-            UsageStatistics stat = new UsageStatistics(app.getName(), limit, secondsToLocalTime(todayUsage), secondsToLocalTime(totalUsage));
+            UsageStatistics stat = new UsageStatistics(restriction.getName(), limit, secondsToLocalTime(todayUsage), secondsToLocalTime(totalUsage));
             statsTable.getItems().add(stat);
         } catch (NullPointerException e) {
         }

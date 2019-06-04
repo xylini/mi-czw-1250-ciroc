@@ -5,7 +5,7 @@
 
 <TableView fx:id="statsTable" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.edu.agh.timekeeper.controller.StatsTableController">
    <columns>
-      <TableColumn fx:id="restrictionName" prefWidth="100.0" text="Application name" />
+      <TableColumn fx:id="restrictionName" prefWidth="100.0" text="Restriction name" />
       <TableColumn fx:id="dailyLimitColumn" prefWidth="100.0" text="Daily limit" />
       <TableColumn fx:id="timeSpentTodayColumn" prefWidth="100.0" text="Time spent today" />
       <TableColumn fx:id="overallTimeSpentColumn" prefWidth="100.0" text="Overall time spent" />
