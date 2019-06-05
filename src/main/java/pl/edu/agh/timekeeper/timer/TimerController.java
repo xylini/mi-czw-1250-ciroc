@@ -143,15 +143,15 @@ public class TimerController {
     }
 
     private void closeApplication(String path){
-        String command = "(Get-WmiObject Win32_Process | Where-Object { $_.Path.StartsWith('"+path+"') }).Terminate()";
+        String command = "wmic process where ExecutablePath='"+path.replace("\\", "\\\\")+"' delete";
         Process powerShellProcess = null;
         try {
             powerShellProcess = Runtime.getRuntime().exec(command);
             powerShellProcess.getOutputStream().close();
+            sleepWindowDialog.remove(path);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        sleepWindowDialog.remove(path);
     }
 
     private void updateTimerViewCoords(TimerView timerView){
