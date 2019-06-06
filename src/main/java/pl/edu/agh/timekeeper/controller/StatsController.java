@@ -8,8 +8,14 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.HBox;
 import pl.edu.agh.timekeeper.db.dao.ApplicationDao;
+import pl.edu.agh.timekeeper.db.dao.RestrictionDao;
+import pl.edu.agh.timekeeper.model.Application;
+import pl.edu.agh.timekeeper.model.Restriction;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class StatsController {
 
@@ -29,10 +35,13 @@ public class StatsController {
 
     private StatsTableController statsTableController;
 
-    private ObservableList<String> restrictionsNames = FXCollections.observableArrayList();
+    private ObservableList<Application> applications = FXCollections.observableArrayList();
+
+    private final ApplicationDao applicationDao = new ApplicationDao();
+
+    private final RestrictionDao restrictionDao = new RestrictionDao();
 
     private static final String TABLE_VIEW_PATH = "/views/statsTableView.fxml";
-
     private static final String CHART_VIEW_PATH = "/views/statsChartsView.fxml";
 
     @FXML
@@ -55,7 +64,9 @@ public class StatsController {
                 statsChartsController.showAllTime();
             } else {
                 displayChart();
-                new ApplicationDao().getByName((String) newValue).ifPresent(app -> {
+                Optional<Restriction> restriction = restrictionDao.getByName((String) newValue);
+                String path = restriction.get().getApplication().getPath();
+                applicationDao.getByPath(path).ifPresent(app -> {
                     statsChartsController.setApplication(app);
                     statsChartsController.showChart();
                 });
@@ -63,11 +74,22 @@ public class StatsController {
         });
     }
 
+    public void setApplications(List<Application> applications) {
+        this.applications.setAll(applications);
+        this.statsTableController.setApplications(applications);
+        ObservableList list = restrictionsListView.getItems();
+        list.addAll(applications.stream()
+                .map(Application::getRestriction)
+                .map(Restriction::getName)
+                .collect(Collectors.toList()));
+        restrictionsListView.setItems(list);
+    }
+
     private void displayTable() {
         FXMLLoader loader = new FXMLLoader(this.getClass().getResource(TABLE_VIEW_PATH));
         reloadContent(loader);
         statsTableController = loader.getController();
-        statsTableController.setRestrictions(restrictionsNames);
+        statsTableController.setApplications(applications);
         statsTableController.getStatsTable().prefHeightProperty().bind(statsBox.heightProperty());
         statsTableController.getStatsTable().prefWidthProperty().bind(statsBox.widthProperty().subtract(restrictionsListView.widthProperty()));
     }

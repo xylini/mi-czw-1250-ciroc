@@ -38,21 +38,17 @@ public class Group implements Serializable {
         this.name = name;
     }
 
-    public Group(String name, Set<Application> applications){
+    public Group(String name, Set<Application> applications) {
         this.name = name;
         this.applications = applications;
 
-        for(Application newApplications: applications){
+        for (Application newApplications : applications) {
             newApplications.setGroup(this);
         }
     }
 
     public int getId() {
         return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getName() {
@@ -65,10 +61,6 @@ public class Group implements Serializable {
 
     public Set<LogGroup> getLogGroups() {
         return logGroups;
-    }
-
-    public void setLogGroups(Set<LogGroup> logGroups) {
-        this.logGroups = logGroups;
     }
 
     public Restriction getRestriction() {

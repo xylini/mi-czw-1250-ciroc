@@ -17,7 +17,7 @@ public class Application implements Serializable {
     @Column(name = "ID", updatable = false)
     private int id;
 
-    @Column(name = "NAME", unique = true)
+    @Column(name = "NAME")
     private String name;
 
     @NotNull
@@ -55,10 +55,6 @@ public class Application implements Serializable {
         return id;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public String getName() {
         return name;
     }
@@ -71,20 +67,16 @@ public class Application implements Serializable {
         return path;
     }
 
-    public void setPath(String path) {
-        this.path = path;
-    }
-  
     public Set<LogApplication> getLogApplications() {
         return logApplications;
     }
 
-    public void setLogApplications(Set<LogApplication> logApplications) {
-        this.logApplications = logApplications;
-    }
-
     public Restriction getRestriction() {
         return restriction;
+    }
+
+    public boolean isRestricted() {
+        return this.restriction != null || this.group != null;
     }
 
     public void setRestriction(Restriction restriction) {

@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import pl.edu.agh.timekeeper.db.dao.ApplicationDao;
 
 import java.io.*;
 
@@ -30,12 +31,14 @@ public class MainScreenController {
     @FXML
     private ToggleGroup menuButtons;
 
+    private FXMLLoader loader;
+
+    private final ApplicationDao applicationDao = new ApplicationDao();
+
     private static final String RESTRICTIONS_LIST_VIEW_PATH = "/views/restrictionsListView.fxml";
     private static final String STATS_VIEW_PATH = "/views/statsView.fxml";
     private static final String PREF_VIEW_PATH = "/views/prefView.fxml";
     private static final String HELP_VIEW_PATH = "/views/helpView.fxml";
-
-    private FXMLLoader loader;
 
     @FXML
     private void initialize() {
@@ -99,6 +102,7 @@ public class MainScreenController {
 
     private void prepareStatsView() {
         StatsController statsController = loader.getController();
+        statsController.setApplications(applicationDao.getAll());
         statsController.getStatsBox().prefHeightProperty().bind(mainVBox.heightProperty().subtract(menuButtonHBox.heightProperty()));
         statsController.getStatsBox().prefWidthProperty().bind(mainVBox.widthProperty());
     }

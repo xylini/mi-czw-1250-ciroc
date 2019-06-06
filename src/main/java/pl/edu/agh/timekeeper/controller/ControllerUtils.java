@@ -20,7 +20,6 @@ public class ControllerUtils {
             stage.setTitle(title);
             stage.setScene(new Scene(loader.load(), 335, 480));
             stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setAlwaysOnTop(true);
             stage.setResizable(false);
             stage.initStyle(StageStyle.UTILITY);
             stage.show();

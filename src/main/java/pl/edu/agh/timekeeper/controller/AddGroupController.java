@@ -49,13 +49,13 @@ public class AddGroupController {
 
     private Set<Application> applicationsSet = new HashSet<>();
 
-    private ApplicationDao applicationDao = new ApplicationDao();
-
     private GroupDao groupDao = new GroupDao();
 
     private List<Group> allGroups = groupDao.getAll();
 
     private ObservableList<String> groups;
+
+    private final ApplicationDao applicationDao = new ApplicationDao();
 
     private void makeBrowseButton() {
         this.browseButton = new Button("Add application");
@@ -127,10 +127,10 @@ public class AddGroupController {
 
     private HBox makeHBox(String path) {
         HBox hBox = new HBox();
-        TextField nameApp = new TextField(path);
-        nameApp.setPrefWidth(250);
+        TextField appPath = new TextField(path);
+        appPath.setPrefWidth(250);
         hBox.getChildren().addAll(
-                nameApp,
+                appPath,
                 controllerUtils.createButton(IMAGE_DELETE_PATH, deleteEvent)
         );
         return hBox;

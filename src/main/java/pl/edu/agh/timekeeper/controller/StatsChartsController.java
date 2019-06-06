@@ -13,6 +13,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import pl.edu.agh.timekeeper.db.dao.LogApplicationDao;
 import pl.edu.agh.timekeeper.model.Application;
+import pl.edu.agh.timekeeper.model.Restriction;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -46,13 +47,12 @@ public class StatsChartsController {
     @FXML
     private NumberAxis yAxis;
 
-    private LogApplicationDao logDao;
+    private final LogApplicationDao logDao = new LogApplicationDao();
 
     private Application application;
 
     @FXML
     private void initialize() {
-        logDao = new LogApplicationDao();
         xAxis.setTickLabelRotation(-45);
         chart.setAnimated(false);
         chart.prefWidthProperty().bind(chartsPane.widthProperty());
@@ -138,12 +138,13 @@ public class StatsChartsController {
         XYChart.Series series = new XYChart.Series();
         ObservableList data = series.getData();
         totalUsage.ifPresent(usage -> usage.keySet().forEach(app -> {
-            data.add(new XYChart.Data<String, Number>(app.getName(), totalUsage.get().get(app) / 3600F));
+            data.add(new XYChart.Data<String, Number>(app.getRestriction().getName(), totalUsage.get().get(app) / 3600F));
         }));
 
         totalUsage.ifPresent(usages ->
                 setAxisData(series, FXCollections.observableList(usages.keySet().stream()
-                        .map(Application::getName)
+                        .map(Application::getRestriction)
+                        .map(Restriction::getName)
                         .collect(Collectors.toList()))));
     }
 

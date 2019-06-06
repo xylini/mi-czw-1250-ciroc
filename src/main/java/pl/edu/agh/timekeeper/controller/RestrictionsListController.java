@@ -8,13 +8,17 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.VBox;
+import pl.edu.agh.timekeeper.db.dao.ApplicationDao;
 import pl.edu.agh.timekeeper.db.dao.RestrictionDao;
+import pl.edu.agh.timekeeper.model.Application;
+import pl.edu.agh.timekeeper.model.Group;
 import pl.edu.agh.timekeeper.model.Restriction;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class RestrictionsListController {
 
@@ -45,16 +49,22 @@ public class RestrictionsListController {
 
     private RestrictionTabController restrictionTabController;
 
-    private ObservableList<String> restrictionNames = FXCollections.observableArrayList();
-
-    private RestrictionDao restrictionDao = new RestrictionDao();
+    private ObservableList<Restriction> restrictions = FXCollections.observableArrayList();
 
     private ControllerUtils controllerUtils = new ControllerUtils();
 
+    private final RestrictionDao restrictionDao = new RestrictionDao();
+
+    private final ApplicationDao applicationDao = new ApplicationDao();
+
     @FXML
     private void initialize() {
-        restrictionDao.getAll().forEach(r -> this.restrictionNames.add(r.getName()));
-        restrictionListView.setItems(this.restrictionNames);
+        this.restrictions.setAll(restrictionDao.getAll());
+        ObservableList<String> restrictionNames = FXCollections.observableArrayList(
+                this.restrictions.stream()
+                        .map(Restriction::getName)
+                        .collect(Collectors.toList()));
+        restrictionListView.setItems(restrictionNames);
         this.restrictionTabPane.tabDragPolicyProperty().setValue(TabPane.TabDragPolicy.REORDER);
         setOnRestrictionListClicked();
         removeButton.disableProperty().bind(Bindings.isEmpty(restrictionListView.getSelectionModel().getSelectedItems()));
@@ -160,8 +170,10 @@ public class RestrictionsListController {
             String restrictionName = restrictionListView.getSelectionModel().getSelectedItem();
             restrictionTabPane.getTabs().removeAll(tabsToRemove);
             restrictionListView.getItems().remove(restrictionName);
+            Application application = restrictionDao.getByName(restrictionName).get().getApplication();
             restrictionDao.deleteByName(restrictionName);
-
+            if (!application.isRestricted())
+                applicationDao.delete(application);
         }
     }
 }
