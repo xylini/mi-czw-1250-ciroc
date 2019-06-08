@@ -39,6 +39,10 @@ public class TimerController {
     private Semaphore windowDialogShowed;
     private int timeExceededLoop = 0;
 
+    private final int MINUTES_BEFORE_NOTIFY = 2;
+    private Map<String, Boolean> isCloseTimeWindowDialogShowed;
+    private Semaphore windowCloseTimeDialogShowed;
+
     public TimerController(){
         this.timerView = new TimerView("00:00:00", 100, 25, -50.0, -50.0);
         this.logApplicationDaoBase = new LogApplicationDao();
@@ -48,6 +52,9 @@ public class TimerController {
         this.sleepWindowDialog = new HashMap<>();
         this.isWindowDialogShowed = new HashMap<>();
         this.windowDialogShowed = new Semaphore(1);
+        this.isCloseTimeWindowDialogShowed = new HashMap<>();
+        this.windowCloseTimeDialogShowed = new Semaphore(1);
+
         this.timeStart = new Date(System.currentTimeMillis());
         this.timeStop = new Date(System.currentTimeMillis());
         this.currentWindowPath = fwde.getForegroundWindowPath();
@@ -258,6 +265,9 @@ public class TimerController {
             }
 
             if(limits != null){
+                if(60 * 60 * 1000 * limits.getHour() + 60 * 1000 * limits.getMinute() < currentRestrictedAppTillNow + (timeStop.getTime() - timeStart.getTime() + 60 * 1000 * MINUTES_BEFORE_NOTIFY)){
+                    notifyCloseTimeExceed();
+                }
                 return 60 * 60 * 1000 * limits.getHour() + 60 * 1000 * limits.getMinute() < currentRestrictedAppTillNow + (timeStop.getTime() - timeStart.getTime());
             }
         }
@@ -276,7 +286,42 @@ public class TimerController {
         int minuteLocal = (int) (timeStop.getTime() / (60 * 1000) % 60);
         int hourLocal = (int) ((timeStop.getTime() + tz.getOffset(timeStop.getTime())) / (60 * 60 * 1000) % 24);
 
+        if(((60*hourLocal + minuteLocal + MINUTES_BEFORE_NOTIFY) % (60*24)) == 60*hourStart + minuteStart){
+            notifyCloseTimeExceed();
+        }
+
         return 60 * hourStart + minuteStart <= 60 * hourLocal + minuteLocal && 60 * hourLocal + minuteLocal < 60 * hourEnd + minuteEnd;
+    }
+
+    private void notifyCloseTimeExceed(){
+        if(!isCloseTimeWindowDialogShowed.containsKey(currentWindowPath)){
+            isCloseTimeWindowDialogShowed.put(currentWindowPath, true);
+            Thread t = new Thread(() -> {
+                String tDialogPath = currentWindowPath;
+                windowCloseTimeDialogShowed.release();
+                JOptionPane.showMessageDialog(null, "You have "+MINUTES_BEFORE_NOTIFY+" minutes left");
+                try {
+                    Thread.sleep(1000*60*MINUTES_BEFORE_NOTIFY);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } finally {
+                    isCloseTimeWindowDialogShowed.remove(tDialogPath);
+                }
+            });
+            try {
+                windowCloseTimeDialogShowed.acquire();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            t.setDaemon(true);
+            t.start();
+            try {
+                windowCloseTimeDialogShowed.acquire();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            windowCloseTimeDialogShowed.release();
+        }
     }
 
     private void logApplicationTime(Date timeStart, Date timeStop, Application application){
