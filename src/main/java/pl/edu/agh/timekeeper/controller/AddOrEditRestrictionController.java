@@ -14,19 +14,24 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import pl.edu.agh.timekeeper.db.dao.ApplicationDao;
 import pl.edu.agh.timekeeper.db.dao.GroupDao;
 import pl.edu.agh.timekeeper.db.dao.RestrictionDao;
 import pl.edu.agh.timekeeper.model.*;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class AddOrEditRestrictionController {
@@ -59,6 +64,8 @@ public class AddOrEditRestrictionController {
     private Button okButton;
 
     @FXML
+    private Label blockedHoursInfo;
+
     private RestrictionsListController restrictionsListController;
 
     private static final String IMAGE_DELETE_PATH = "images/delete.png";
@@ -91,8 +98,6 @@ public class AddOrEditRestrictionController {
 
     private final RestrictionDao restrictionDao = new RestrictionDao();
 
-    private String selectedApplicationName;
-
     private void makeBrowseButton() {
         this.browseButton = new Button("Browse");
         browseButton.setOnAction(this::browseClicked);
@@ -124,6 +129,11 @@ public class AddOrEditRestrictionController {
             else
                 okButton.setText("Add restriction");
         });
+
+        Tooltip tooltip = new Tooltip("NOTE: This restriction is not related to \"Daily limit\".\n" +
+                "These are hour ranges when you cannot launch the application");
+        tooltip.showDelayProperty().setValue(new Duration(0));
+        blockedHoursInfo.setTooltip(tooltip);
     }
 
     public void setRestrictionsListController(RestrictionsListController restrictionsListController) {
@@ -157,11 +167,19 @@ public class AddOrEditRestrictionController {
         RadioButton selectedRadioButton = (RadioButton) groupRadioButtons.getSelectedToggle();
         if (!selectedRadioButton.equals(appRadioButton)) return; //TODO handle group case
 
-        String applicationPath = applicationPathField.getText();
+        if (!Files.exists(Path.of(applicationPathField.getText()))) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setHeaderText("No application with given path");
+            alert.show();
+            return;
+        }
+
+        File file = new File(applicationPathField.getText());
+        String applicationPath = file.getAbsolutePath();
         String restrictionName = restrictionNameField.getText();
 
         Optional<Application> appOpt = applicationDao.getByPath(applicationPath);
-        Application app = appOpt.orElseGet(() -> new Application(this.selectedApplicationName, applicationPath));
+        Application app = appOpt.orElseGet(() -> new Application(file.getName(), applicationPath));
 
         if (!isEditedProperty.get()) {
             if (app.getRestriction() != null) {
@@ -177,10 +195,10 @@ public class AddOrEditRestrictionController {
                 return;
             }
         }
-
         MyTime dailyLimit = getTimeFromTextFields(hoursDailyField, minutesDailyField);
+        List<TimePair> validRangeRestrictions = getValidRangeRestrictions();
         if (!isEditedProperty.get()) {
-            Restriction restriction = buildRestriction(app, rangeRestrictions.values(), dailyLimit);
+            Restriction restriction = buildRestriction(app, validRangeRestrictions, dailyLimit);
             if (appOpt.isEmpty())
                 applicationDao.create(app);
             restrictionDao.create(restriction);
@@ -188,7 +206,7 @@ public class AddOrEditRestrictionController {
         } else {
             Restriction restriction = restrictionDao.getByName(restrictionName).get();
             restriction.setLimit(dailyLimit);
-            restriction.setBlockedHours(new ArrayList<>(rangeRestrictions.values()));
+            restriction.setBlockedHours(new ArrayList<>(validRangeRestrictions));
             restrictionDao.update(restriction);
             restrictionsListController.refreshTab(restriction);
             isEditedProperty.setValue(false);
@@ -196,21 +214,26 @@ public class AddOrEditRestrictionController {
         ((Stage) okButton.getScene().getWindow()).close();
     }
 
+    private List<TimePair> getValidRangeRestrictions() {
+        return rangeRestrictions.values().stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
     private void browseClicked(ActionEvent actionEvent) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select file to impose a restriction");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("executable files (*.exe)", "*.exe"));
         Stage stage = (Stage) mainPane.getScene().getWindow();
         Optional<File> file = Optional.ofNullable(fileChooser.showOpenDialog(stage));
-        file.ifPresent((f) -> {
-            this.selectedApplicationName = f.getName();
-            applicationPathField.setText(f.getAbsolutePath());
-        });
+        file.ifPresent((f) -> applicationPathField.setText(f.getAbsolutePath()));
     }
 
     @FXML
     private void addButtonClicked(ActionEvent actionEvent) {
         List<TextField> textFields = getCleanRangeTextFields();
         createCleanHourRangeBox(textFields);
+        rangeRestrictions.put(rangeRestrictions.size(), null);
     }
 
     private void createCleanHourRangeBox(List<TextField> textFields) {
@@ -300,7 +323,7 @@ public class AddOrEditRestrictionController {
     };
 
     private MyTime getTimeFromTextFields(TextField hours, TextField minutes) {
-        if (hours.getText().equals("") && minutes.getText().equals("")) {
+        if (hours.getText().equals("") || minutes.getText().equals("")) {
             return null;
         }
         int h = 0;

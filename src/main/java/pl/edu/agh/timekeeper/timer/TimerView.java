@@ -13,7 +13,7 @@ public class TimerView extends Application {
     private Text text;
     private BorderPane borderPane;
 
-    public TimerView(String startText, Integer width, Integer height, Double initial_x, Double initial_y){
+    public TimerView(String startText, Integer width, Integer height, Double initial_x, Double initial_y) {
         this.utilityStage = new Stage();
         this.utilityStage.initStyle(StageStyle.UTILITY);
         this.utilityStage.setOpacity(0);
@@ -34,12 +34,16 @@ public class TimerView extends Application {
         this.timerStage.show();
     }
 
-    public void setText(String text){
+    public void setText(String text) {
         this.text.setText(text);
     }
 
-    public void setCoordinates(Double x, Double y){
+    public void setCoordinates(Double x, Double y) {
         this.timerStage.setX(x);
         this.timerStage.setY(y);
+    }
+
+    public boolean isTimerStageFocused() {
+        return this.timerStage.isFocused() || this.utilityStage.isFocused();
     }
 }

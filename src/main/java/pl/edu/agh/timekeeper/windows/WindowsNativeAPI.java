@@ -3,6 +3,7 @@ package pl.edu.agh.timekeeper.windows;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.WinDef;
+import com.sun.jna.platform.win32.WinUser;
 import com.sun.jna.ptr.PointerByReference;
 
 public class WindowsNativeAPI {
@@ -37,5 +38,9 @@ public class WindowsNativeAPI {
         public static native WinDef.HWND GetForegroundWindow();
 
         public static native int GetWindowTextW(WinDef.HWND hWnd, char[] lpString, int nMaxCount);
+
+        public static native boolean EnumWindows(WinUser.WNDENUMPROC lpEnumFunc, Pointer arg);
+
+        public static native boolean SetForegroundWindow(WinDef.HWND hWnd);
     }
 }

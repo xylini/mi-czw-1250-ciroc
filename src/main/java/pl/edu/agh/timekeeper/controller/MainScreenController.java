@@ -50,8 +50,10 @@ public class MainScreenController {
         }));
         restrictionsButton.prefWidthProperty().bind(mainVBox.widthProperty());
         statsButton.prefWidthProperty().bind(mainVBox.widthProperty());
-        prefButton.prefWidthProperty().bind(mainVBox.widthProperty());
-        helpButton.prefWidthProperty().bind(mainVBox.widthProperty());
+        //to hide unused buttons
+        menuButtonHBox.getChildren().removeAll(prefButton, helpButton);
+//        prefButton.prefWidthProperty().bind(mainVBox.widthProperty());
+//        helpButton.prefWidthProperty().bind(mainVBox.widthProperty());
     }
 
     private void initRestrictionView() {

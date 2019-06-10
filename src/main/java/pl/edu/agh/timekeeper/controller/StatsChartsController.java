@@ -57,6 +57,8 @@ public class StatsChartsController {
         chart.setAnimated(false);
         chart.prefWidthProperty().bind(chartsPane.widthProperty());
         chart.prefHeightProperty().bind(chartsPane.heightProperty().subtract(bottomButtonsBox.getHeight()));
+        chart.setLegendVisible(false);
+//        chart.get
     }
 
     public void setApplication(Application app) {
@@ -132,7 +134,7 @@ public class StatsChartsController {
         Optional<LinkedHashMap<Application, Long>> totalUsage = logDao.getTotalUsageForAllEntities();
         setDescription(
                 "Total usage of all applications",
-                "Application",
+                "Restriction name",
                 "Usage in hours");
 
         XYChart.Series series = new XYChart.Series();
