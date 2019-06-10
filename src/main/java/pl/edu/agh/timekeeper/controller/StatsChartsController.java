@@ -58,7 +58,6 @@ public class StatsChartsController {
         chart.prefWidthProperty().bind(chartsPane.widthProperty());
         chart.prefHeightProperty().bind(chartsPane.heightProperty().subtract(bottomButtonsBox.getHeight()));
         chart.setLegendVisible(false);
-//        chart.get
     }
 
     public void setApplication(Application app) {
