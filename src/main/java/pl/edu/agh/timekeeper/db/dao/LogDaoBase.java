@@ -10,9 +10,9 @@ public abstract class LogDaoBase<T, E> extends DaoBase<T> {
         super(classParameter, tableName);
     }
 
-    public abstract Optional<LinkedHashMap<Date, Long>> getHourlyUsageInSecs(E entity, Date date);
+    public abstract LinkedHashMap<Date, Long> getHourlyUsageInMillis(E entity, Date date);
 
-    public abstract Optional<LinkedHashMap<Date, Long>> getDailyUsageInSecs(E entity, Date date);
+    public abstract LinkedHashMap<Date, Long> getDailyUsageInMillis(E entity, Date date);
 
-    public abstract Optional<LinkedHashMap<E, Long>> getTotalUsageForAllEntities();
+    public abstract LinkedHashMap<E, Long> getTotalUsageForAllEntities();
 }

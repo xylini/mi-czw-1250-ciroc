@@ -34,18 +34,33 @@
                 </HBox>
                 <HBox fx:id="restrictionHBox" spacing="15.0">
                 </HBox>
-                <Label text="Daily restriction" />
+                <Label text="Daily limit" />
                 <HBox>
                     <children>
                         <TextField fx:id="hoursDailyField" alignment="CENTER" prefHeight="25.0" prefWidth="60.0" promptText="Hours" />
                         <TextField fx:id="minutesDailyField" alignment="CENTER" prefHeight="25.0" prefWidth="60.0" promptText="Min" />
                     </children>
                 </HBox>
-                <Label text="Hours range">
-                    <VBox.margin>
-                        <Insets top="20.0" />
-                    </VBox.margin>
-                </Label>
+            <HBox prefHeight="20.0">
+               <children>
+                      <Label text="Blocked hours" />
+                  <Label fx:id="blockedHoursInfo">
+                     <graphic>
+                        <ImageView fitHeight="15.0" fitWidth="15.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../images/questionmark.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                     <HBox.margin>
+                        <Insets left="7.0" />
+                     </HBox.margin>
+                  </Label>
+               </children>
+               <VBox.margin>
+                  <Insets top="20.0" />
+               </VBox.margin>
+            </HBox>
                 <ScrollPane fitToWidth="true">
                     <content>
                         <VBox fx:id="scrollBox" prefHeight="183.0" prefWidth="320.0" spacing="10.0" style="-fx-background-color: transparent;">
