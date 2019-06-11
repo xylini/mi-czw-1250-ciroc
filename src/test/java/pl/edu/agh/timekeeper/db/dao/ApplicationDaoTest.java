@@ -15,7 +15,7 @@ public class ApplicationDaoTest extends DaoTestBase<ApplicationDao, Application>
 
     private static final RestrictionDao restrictionDao = new RestrictionDao();
 
-    private static final LogApplicationDao logAppDao = new LogApplicationDao();
+    private static final LogDao logAppDao = new LogDao();
 
     private static final GroupDao groupDao = new GroupDao();
 

@@ -1,11 +1,14 @@
 package pl.edu.agh.timekeeper.controller;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
@@ -57,6 +60,10 @@ public class AddGroupController {
 
     private final ApplicationDao applicationDao = new ApplicationDao();
 
+    private BooleanProperty isEditedProperty = new SimpleBooleanProperty(false);
+
+    private ComboBox groupComboBox;
+
     private void makeBrowseButton() {
         this.browseButton = new Button("Add application");
         browseButton.setOnAction(this::browseClicked);
@@ -68,11 +75,16 @@ public class AddGroupController {
         listAppVBox.getChildren().add(browseButton);
         groupNameField.textProperty().addListener(getGroupNameListener());
         okButton.setDisable(true);
+        isEditedProperty.addListener((observable, oldValue, newValue) -> groupNameField.setDisable(newValue));
     }
 
     private ChangeListener<String> getGroupNameListener() {
         return (observable, oldValue, newValue) -> {
-            if (allGroups.stream().anyMatch(g -> newValue.equals(g.getName()))) {
+            if(isEditedProperty.get()) {
+                groupNameField.setStyle("");
+                groupNameField.setTooltip(new Tooltip("Name is valid"));
+                okButton.setDisable(false);
+            } else if (allGroups.stream().anyMatch(g -> newValue.equals(g.getName()))) {
                 groupNameField.setStyle("-fx-background-color: #ff5464; -fx-tooltip-visible: true;");
                 groupNameField.setTooltip(new Tooltip("Name is already used"));
                 okButton.setDisable(true);
@@ -99,29 +111,49 @@ public class AddGroupController {
     }
 
     public void okClicked(ActionEvent actionEvent) {
-        for (Object child : listAppVBox.getChildren()) {
-            if (child instanceof HBox)
-                for (Object grandchild : ((HBox) child).getChildren())
-                    if (grandchild instanceof TextField) {
-                        String path = ((TextField) grandchild).getText();
-                        File file = new File(path);
-                        String name = file.getName();
-                        name = name.substring(0, name.lastIndexOf("."));
-                        appDict.put(path, name);
+        final boolean[] allAppsWithoutGroup = {true};
+        listAppVBox.getChildren().stream()
+                .filter(child -> child instanceof HBox)
+                .flatMap(child -> ((HBox) child).getChildren().stream())
+                .filter(grandchild -> grandchild instanceof TextField)
+                .forEach(grandchild -> {
+                    String path = ((TextField) grandchild).getText();
+                    File file = new File(path);
+                    String name = file.getName();
+                    name = name.substring(0, name.lastIndexOf("."));
+                    Optional<Application> app = applicationDao.getByPath(path);
+                    if (app.isEmpty()) {
+                        Application application = new Application(name, path);
+                        applicationDao.create(application);
+                        applicationsSet.add(application);
+                    } else {
+                        applicationsSet.add(app.get());
+                        if(app.get().getGroup() != null){
+                            grandchild.setStyle("-fx-background-color: #ff5464; -fx-tooltip-visible: true;");
+                            ((TextField) grandchild).setTooltip(new Tooltip("Application belongs to group '"
+                                    +app.get().getGroup().getName()+"'"));
+                            allAppsWithoutGroup[0] = false;
+                        }
                     }
+                });
+        if(!allAppsWithoutGroup[0]) return;
+
+        if(!isEditedProperty.get()) {
+            Group group = new Group(groupNameField.getText());
+            groupDao.create(group);
+            applicationsSet.forEach(app -> applicationDao.addToGroup(app, group));
+            groups.add(group.getName());
+            groupComboBox.getSelectionModel().select(group.getName());
+        } else {
+            Group group = groupDao.getByName(groupNameField.getText()).get();
+            List<Application> applicationsCopy = List.copyOf(group.getApplications());
+            applicationsCopy.forEach(app -> {
+                if(!applicationsSet.contains(app)) applicationDao.removeFromGroup(app, group);
+            });
+            applicationsSet.forEach(app -> {
+                if(!group.getApplications().contains(app)) applicationDao.addToGroup(app, group);
+            });
         }
-        for (Map.Entry entry : appDict.entrySet()) {
-            Optional<Application> app = applicationDao.getByPath((String) entry.getKey());
-            if (app.isEmpty()) {
-                Application application = new Application((String) entry.getValue(), (String) entry.getKey());
-                applicationDao.create(application);
-                applicationsSet.add(application);
-            } else
-                applicationsSet.add(app.get());
-        }
-        Group group = new Group(groupNameField.getText(), applicationsSet);
-        groupDao.create(group);
-        groups.add(group.getName());
         ((Stage) okButton.getScene().getWindow()).close();
     }
 
@@ -147,7 +179,18 @@ public class AddGroupController {
         }
     };
 
+    public void prepareEditScreen(Group group) {
+        this.isEditedProperty.setValue(true);
+        groupNameField.setText(group.getName());
+        group.getApplications().forEach(app -> listAppVBox.getChildren().add(makeHBox(app.getPath())));
+        okButton.setText("Save group");
+    }
+
     public void setGroupsList(ObservableList<String> groupsList) {
         this.groups = groupsList;
+    }
+
+    public void setGroupComboBox(ComboBox groupComboBox) {
+        this.groupComboBox = groupComboBox;
     }
 }

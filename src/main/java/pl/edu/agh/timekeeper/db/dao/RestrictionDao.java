@@ -31,7 +31,8 @@ public class RestrictionDao extends DaoBase<Restriction> {
             Optional<Restriction> opt = getByName(name);
             if(opt.isEmpty()) return false;
             Restriction r = opt.get();
-            r.getApplication().setRestriction(null);
+            if(r.getApplication() != null) r.getApplication().setRestriction(null);
+            if(r.getGroup() != null) r.getGroup().setRestriction(null);
             return delete(r);
         } catch (PersistenceException e) {
             e.printStackTrace();

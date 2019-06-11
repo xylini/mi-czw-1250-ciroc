@@ -18,8 +18,6 @@ public class GroupDaoTest extends DaoTestBase<GroupDao, Group> {
 
     private static final RestrictionDao restrictionDao = new RestrictionDao();
 
-    private static final LogGroupDao logGroupDao = new LogGroupDao();
-
     public GroupDaoTest() {
         super(groupDao);
     }
@@ -152,23 +150,5 @@ public class GroupDaoTest extends DaoTestBase<GroupDao, Group> {
         boolean result = groupDao.deleteRestriction(group);
         // then
         Assertions.assertFalse(result);
-    }
-
-    @Test
-    void addLogTest() {
-        // given
-        Group group = getEntity();
-        groupDao.create(group);
-        LogGroup log = new LogGroup(group);
-        log.setTimeStart(new Date());
-        log.setTimeEnd(new Date());
-        logGroupDao.create(log);
-        // when
-        group.addLogGroup(log);
-        // then
-        Assertions.assertTrue(group.getLogGroups().contains(log));
-        List<LogGroup> logGroups = logGroupDao.getAll();
-        Assertions.assertFalse(logGroups.isEmpty());
-        Assertions.assertTrue(logGroups.contains(log));
     }
 }

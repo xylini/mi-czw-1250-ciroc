@@ -1,8 +1,8 @@
 package pl.edu.agh.timekeeper.db.dao;
 
+import pl.edu.agh.timekeeper.db.SessionService;
 import pl.edu.agh.timekeeper.model.Group;
 import pl.edu.agh.timekeeper.model.Restriction;
-import pl.edu.agh.timekeeper.db.SessionService;
 
 import javax.persistence.PersistenceException;
 import java.util.Optional;
@@ -14,6 +14,8 @@ public class GroupDao extends DaoBase<Group> {
     public GroupDao() {
         super(Group.class, TABLE_NAME);
     }
+
+    private ApplicationDao applicationDao = new ApplicationDao();
 
     public Optional<Group> getByName(String name) {
         try {
@@ -48,5 +50,17 @@ public class GroupDao extends DaoBase<Group> {
         g.setRestriction(null);
         oldRestriction.setApplication(null);
         return update(g);
+    }
+
+    public boolean delete(Group g) {
+        if(g.getRestriction() != null) return false;
+        g.getApplications().forEach(app -> {
+            app.setGroup(null);
+            g.getApplications().remove(app);
+            if(app.getRestriction() == null) {
+                applicationDao.delete(app);
+            }
+        });
+        return super.delete(g);
     }
 }

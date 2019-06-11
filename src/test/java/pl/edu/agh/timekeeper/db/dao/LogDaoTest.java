@@ -13,13 +13,13 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Optional;
 
-public class LogApplicationDaoTest extends DaoTestBase<LogApplicationDao, LogApplication> {
+public class LogDaoTest extends DaoTestBase<LogDao, LogApplication> {
 
     private static final ApplicationDao applicationDao = new ApplicationDao();
 
-    private static final LogApplicationDao logAppDao = new LogApplicationDao();
+    private static final LogDao logAppDao = new LogDao();
 
-    public LogApplicationDaoTest() {
+    public LogDaoTest() {
         super(logAppDao);
     }
 
