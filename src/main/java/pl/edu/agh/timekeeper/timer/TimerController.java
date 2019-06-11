@@ -3,8 +3,10 @@ package pl.edu.agh.timekeeper.timer;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ChoiceDialog;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import pl.edu.agh.timekeeper.db.dao.ApplicationDao;
 import pl.edu.agh.timekeeper.db.dao.LogApplicationDao;
 import pl.edu.agh.timekeeper.log.LogApplication;
@@ -17,6 +19,7 @@ import pl.edu.agh.timekeeper.windows.FocusedWindowManager;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -39,6 +42,8 @@ public class TimerController {
     private String prevWindowText;
     private boolean isPrevWindowRestricted;
 
+    private boolean alertShown;
+
     public TimerController() {
         this.timerView = new TimerView("00:00:00", 100, 25, -50.0, -50.0);
         this.logApplicationDaoBase = new LogApplicationDao();
@@ -55,6 +60,8 @@ public class TimerController {
         this.prevTimeStop = null;
         this.prevWindowPath = null;
         this.isPrevWindowRestricted = false;
+
+        this.alertShown = false;
 
         mainLoop(this.timerView);
         updateTimerViewTimeWorker(this.timerView);
@@ -81,6 +88,7 @@ public class TimerController {
                         continue;
                     }
                     if (isCurrentWindowRestricted) {
+                        checkLimits();
                         updateTimerViewCoords(timerView);
                     } else {
                         setNotVisible(timerView);
@@ -98,41 +106,9 @@ public class TimerController {
                         currentWindowPath = fwm.getForegroundWindowPath();
                         currentRestrictedAppTillNow = setCurrApplicationUsageTimeIfRestricted(isCurrentWindowRestricted, currentWindowPath);
                         logIfPrevWindowRestricted(prevWindowPath, isPrevWindowRestricted, prevTimeStart, prevTimeStop);
-//TODO: Póki co mamy alert który ma przycisk close który ubija poprzednią apkę czyli ta na ktorej sie overtime zrobil
-//                       trzeba zrobic przycisk do override i w sumie jesli nie chce sie przedlozyc albo zostawic close
-//                        obrona przed zamknieciem (albo zrobic ze zamkniecie zamyka apke - to chyba drastyczne),
-//                        albo zablokowac go po prostu, nie ma logiki overrida tu ale chyba Krystian cos zrobil ?
-//                        nie jest skonczone sprawdzania hours range ale to w sumie mozna latwo zrobic
-                        if (isCurrentWindowRestricted) {
-                            Optional<Application> app = applicationDao.getByPath(currentWindowPath);
-                            long timeUsage = logApplicationDaoBase.getUsageInMillisOn(LocalDate.now(), app.get());
-                            if (getMillis(app.get().getRestriction().getLimit()) <= timeUsage ||
-                                    isNowBlocked(app.get(), app.get().getRestriction().getBlockedHours())) {
-                                Platform.runLater(() -> {
-                                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                                    alert.setHeaderText("Override");
-                                    alert.getDialogPane().setMinSize(800, 800);
-                                    alert.getDialogPane().toFront();
-                                    ButtonType closeApp = new ButtonType("Close");
-                                    alert.getButtonTypes().add(closeApp);
-                                    Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
-                                    stage.setAlwaysOnTop(true);
-                                    Optional<ButtonType> option = alert.showAndWait();
-
-                                    if (option.get() == null) {
-                                    } else if (option.get() == closeApp) {
-                                        closeApplication(prevWindowPath);
-                                    }
-                                });
-                            }
-                        }
-
-
                     }
                     timeStop.setTime(System.currentTimeMillis());
                 }
-
-
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -141,14 +117,67 @@ public class TimerController {
         t.start();
     }
 
-    private boolean isNowBlocked(Application application, List<TimePair> blockedHours) {
-        int hour = LocalTime.now().getHour();
-        int minute = LocalTime.now().getMinute();
-        for (TimePair timePair : blockedHours) {
-            if (timePair.getStart().getHour() <= hour && hour <= timePair.getEnd().getHour())
-                return true;
+    private void checkLimits() {
+        Application app = applicationDao.getByPath(currentWindowPath).get();
+        if (!alertShown && (isLimitExceeded(app) || isNowBlocked(app))) {
+            alertShown = true;
+            Platform.runLater(() -> {
+                System.out.println("B");
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Restriction exceeded");
+                if (isNowBlocked(app)) {
+                    closeApplication(fwm.getForegroundWindowPath());
+                    alert.setHeaderText("Application cannot be launched currently because of blocked hours range");
+                    alert.showAndWait();
+                    alertShown = false;
+                } else {
+                    alert.setHeaderText("Daily limit exceeded for " + currentWindowPath);
+                    alert.getDialogPane().setMinSize(Screen.getPrimary().getBounds().getWidth(), Screen.getPrimary().getBounds().getHeight());
+                    alert.getDialogPane().toFront();
+                    alert.getButtonTypes().clear();
+                    ButtonType closeApp = new ButtonType("Close application");
+                    ButtonType overwriteRestriction = new ButtonType("Get additional time");
+                    alert.getButtonTypes().addAll(closeApp, overwriteRestriction);
+                    Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+                    stage.setAlwaysOnTop(true);
+                    Optional<ButtonType> option = alert.showAndWait();
+                    option.ifPresent(opt -> {
+                        if (opt.equals(closeApp)) {
+                            closeApplication(prevWindowPath);
+                        } else if (opt.equals(overwriteRestriction)) {
+                            ChoiceDialog<String> dialog = new ChoiceDialog<>("", Arrays.asList("1 minute", "5 minutes", "10 minutes"));
+                            dialog.initStyle(StageStyle.UNDECORATED);
+                            dialog.setTitle("Overwrite restriction");
+                            dialog.setHeaderText("Get additional time for this application");
+                            ((Stage) dialog.getDialogPane().getScene().getWindow()).setAlwaysOnTop(true);
+                            Optional<String> chosenOverwrite = dialog.showAndWait();
+                            if (chosenOverwrite.isEmpty())
+                                closeApplication(prevWindowPath);
+                            else {
+                                //TODO handle overwrite
+                            }
+                        }
+                        alertShown = false;
+                    });
+                }
+            });
         }
-        return false;
+    }
+
+    private boolean isLimitExceeded(Application application) {
+        Optional<MyTime> dailyLimit = Optional.ofNullable(application.getRestriction().getLimit());
+        if (dailyLimit.isEmpty())
+            return false;
+        else {
+            return getMillis(dailyLimit.get()) <= currentRestrictedAppTillNow + (timeStop.getTime() - timeStart.getTime());
+        }
+    }
+
+    private boolean isNowBlocked(Application application) {
+        List<TimePair> blockedHours = application.getRestriction().getBlockedHours();
+        MyTime currentTime = new MyTime(LocalTime.now().getHour(), LocalTime.now().getMinute());
+        return blockedHours.stream()
+                .anyMatch(blocked -> currentTime.isAfter(blocked.getStart()) && blocked.getEnd().isAfter(currentTime));
     }
 
     private void updateTimerViewCoords(TimerView timerView) {
