@@ -12,6 +12,8 @@ import javafx.stage.StageStyle;
 
 import java.io.IOException;
 
+import static pl.edu.agh.timekeeper.Main.MAIN_STAGE;
+
 public class ControllerUtils {
 
     public void openWindow(FXMLLoader loader, String title) {
@@ -21,6 +23,7 @@ public class ControllerUtils {
             stage.setScene(new Scene(loader.load(), 335, 480));
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setResizable(false);
+            stage.initOwner(MAIN_STAGE);
             stage.initStyle(StageStyle.UTILITY);
             stage.show();
         } catch (IOException e) {

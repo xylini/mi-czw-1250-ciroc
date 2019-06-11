@@ -11,6 +11,8 @@ import pl.edu.agh.timekeeper.db.SessionService;
 import pl.edu.agh.timekeeper.timer.TimerController;
 
 public class Main extends Application {
+    public static Stage MAIN_STAGE;
+
     public static void main(String[] args) {
         launch(args);
     }
@@ -35,6 +37,7 @@ public class Main extends Application {
             System.out.println("Closing session");
             SessionService.closeCurrentSession();
         });
+        MAIN_STAGE = primaryStage;
         primaryStage.show();
     }
 }

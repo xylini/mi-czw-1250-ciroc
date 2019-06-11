@@ -265,14 +265,10 @@ public class AddOrEditRestrictionController {
     private List<TextField> getCleanRangeTextFields() {
         List<TextField> textFields = new ArrayList<>(Arrays.asList(
                 getHourTextField(), getMinuteTextField(), getHourTextField(), getMinuteTextField()));
-        for (int index = 0; index < textFields.size(); index++) {
-            textFields.get(index).setPrefSize(36, 25);
-            if (index % 2 == 0) {
-                textFields.get(index).setPromptText("HH");
-            } else {
-                textFields.get(index).setPromptText("MM");
-            }
-        }
+        textFields.forEach(textField -> {
+            textField.setPrefSize(36, 25);
+            textField.setPromptText("00");
+        });
         return textFields;
     }
 
@@ -332,7 +328,7 @@ public class AddOrEditRestrictionController {
     };
 
     private MyTime getTimeFromTextFields(TextField hours, TextField minutes) {
-        if (hours.getText().equals("") || minutes.getText().equals("")) {
+        if (hours.getText().equals("") && minutes.getText().equals("")) {
             return null;
         }
         int h = 0;

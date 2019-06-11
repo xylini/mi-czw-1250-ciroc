@@ -34,7 +34,7 @@ public class LogApplicationDaoTest extends DaoTestBase<LogApplicationDao, LogApp
         // given
         String path = "/byleco"; //Krystian: pozwolilem sobie chwilowo dodac taka opcje, najwyzej sobie to pozniej zmienisz :)
         Application a1 = new Application("app1", path);
-        Application a2 = new Application("app2", path+"2");
+        Application a2 = new Application("app2", path + "2");
         LogApplication log1 = new LogApplication(a1);
         LogApplication log2 = new LogApplication(a1);
         LogApplication log3 = new LogApplication(a1);
@@ -75,22 +75,22 @@ public class LogApplicationDaoTest extends DaoTestBase<LogApplicationDao, LogApp
         Date monthDate = Date.from(keyZDT.withDayOfMonth(1).toInstant());
 
         // when
-        Optional<LinkedHashMap<Date, Long>> stats1 = logAppDao.getDailyUsageInSecs(a1, monthDate);
-        Optional<LinkedHashMap<Date, Long>> stats2 = logAppDao.getDailyUsageInSecs(a2, monthDate);
+        LinkedHashMap<Date, Long> stats1 = logAppDao.getDailyUsageInMillis(a1, monthDate);
+        LinkedHashMap<Date, Long> stats2 = logAppDao.getDailyUsageInMillis(a2, monthDate);
         // then
         // a1
-        Assertions.assertTrue(stats1.isPresent());
-        Assertions.assertEquals(2, stats1.get().keySet().size());
-        for (Date key : stats1.get().keySet()) System.out.println(key);
+        Assertions.assertFalse(stats1.isEmpty());
+        Assertions.assertEquals(2, stats1.keySet().size());
+        for (Date key : stats1.keySet()) System.out.println(key);
         System.out.println("key: " + keyDate1);
-        Assertions.assertTrue(stats1.get().containsKey(keyDate1));
-        Assertions.assertTrue(stats1.get().containsKey(keyDate2));
-        Assertions.assertEquals(Long.valueOf(1800), stats1.get().get(keyDate1));
-        Assertions.assertEquals(Long.valueOf(600), stats1.get().get(keyDate2));
+        Assertions.assertTrue(stats1.containsKey(keyDate1));
+        Assertions.assertTrue(stats1.containsKey(keyDate2));
+        Assertions.assertEquals(Long.valueOf(1800), stats1.get(keyDate1));
+        Assertions.assertEquals(Long.valueOf(600), stats1.get(keyDate2));
         // a2
-        Assertions.assertTrue(stats2.isPresent());
-        Assertions.assertEquals(1, stats2.get().keySet().size());
-        Assertions.assertTrue(stats2.get().containsKey(keyDate1));
-        Assertions.assertEquals(Long.valueOf(300), stats2.get().get(keyDate1));
+        Assertions.assertFalse(stats2.isEmpty());
+        Assertions.assertEquals(1, stats2.keySet().size());
+        Assertions.assertTrue(stats2.containsKey(keyDate1));
+        Assertions.assertEquals(Long.valueOf(300), stats2.get(keyDate1));
     }
 }
