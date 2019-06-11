@@ -40,7 +40,7 @@ public class LogDao extends DaoBase<LogApplication> {
         return Optional.empty();
     }
 
-    public long getUsageInMillisOn(Application app, LocalDate day){
+    public long getUsageInMillisOn(Application app, LocalDate day) {
         LocalDateTime start = day.atStartOfDay();
         LocalDateTime end = day.plusDays(1).atStartOfDay();
         Long res = SessionService.getCurrentSession()
@@ -56,7 +56,7 @@ public class LogDao extends DaoBase<LogApplication> {
                 .setParameter("start_t", Date.from(start.atZone(ZoneId.systemDefault()).toInstant()))
                 .setParameter("end_t", Date.from(end.atZone(ZoneId.systemDefault()).toInstant()))
                 .getSingleResult();
-        if(res == null) return 0L;
+        if (res == null) return 0L;
         return res;
     }
 
@@ -80,7 +80,7 @@ public class LogDao extends DaoBase<LogApplication> {
         return res;
     }
 
-    public Optional<LinkedHashMap<Date, Long>> getHourlyUsageInSecs(Group group, LocalDate day){
+    public LinkedHashMap<Date, Long> getHourlyUsageInMillis(Group group, LocalDate day){
         LocalDateTime start = day.atStartOfDay();
         LocalDateTime end = day.plusDays(1).atStartOfDay();
         Date startDate = Date.from(start.atZone(ZoneId.systemDefault()).toInstant());
@@ -110,10 +110,10 @@ public class LogDao extends DaoBase<LogApplication> {
         getDateStream(start, end, ChronoUnit.HOURS).forEach(date -> {
             if(!result.containsKey(date)) result.put(date, 0L);
         });
-        return Optional.of(result);
+        return result;
     }
 
-    public Optional<LinkedHashMap<Date, Long>> getDailyUsageInSecs(Group group, LocalDate day){
+    public LinkedHashMap<Date, Long> getDailyUsageInMillis(Group group, LocalDate day){
         LocalDateTime start = day.atStartOfDay();
         LocalDateTime end = day.plusDays(1).atStartOfDay();
         Date startDate = Date.from(start.atZone(ZoneId.systemDefault()).toInstant());
@@ -142,7 +142,7 @@ public class LogDao extends DaoBase<LogApplication> {
         getDateStream(start, end, ChronoUnit.DAYS).forEach(date -> {
             if(!result.containsKey(date)) result.put(date, 0L);
         });
-        return Optional.of(result);
+        return result;
     }
 
     private LinkedHashMap<Date, Long> createResultMap(Date startDate, List<UsageStat> res) {
@@ -158,8 +158,8 @@ public class LogDao extends DaoBase<LogApplication> {
         return result;
     }
 
-    public Optional<LinkedHashMap<Date, Long>> getHourlyUsageInSecs(Application app, Date day) {
-        return getHourlyUsageInSecs(
+    public LinkedHashMap<Date, Long> getHourlyUsageInMillis(Application app, Date day) {
+        return getUsageInMillis(
                 app,
                 date -> isDateBetween(date, day, nextDay(day)),
                 this::getHourFrom,
@@ -167,12 +167,12 @@ public class LogDao extends DaoBase<LogApplication> {
                 this::nextHour);
     }
 
-    public Optional<LinkedHashMap<Date, Long>> getDailyUsageInSecs(Application app, Date month) {
+    public LinkedHashMap<Date, Long> getDailyUsageInMillis(Application app, Date month) {
         Date nextMonth = Date.from(ZonedDateTime
                 .ofInstant(month.toInstant(), ZoneId.systemDefault())
                 .plusMonths(1)
                 .toInstant());
-        return getHourlyUsageInSecs(
+        return getUsageInMillis(
                 app,
                 date -> isDateBetween(date, month, nextMonth),
                 this::getDayFrom,
@@ -180,10 +180,10 @@ public class LogDao extends DaoBase<LogApplication> {
                 this::nextDay);
     }
 
-    public Optional<LinkedHashMap<Application, Long>> getTotalUsageForAllEntities() {
+    public LinkedHashMap<Application, Long> getTotalUsageForAllEntities() {
         List<LogApplication> l = getAll();
-        if (l.isEmpty()) return Optional.empty();
         LinkedHashMap<Application, Long> stats = new LinkedHashMap<>();
+        if (l.isEmpty()) return stats;
         List<LogApplication> appLogs = l.stream()
                 .filter(logApp -> logApp.getApplication() != null)
                 .collect(Collectors.toList());
@@ -197,23 +197,23 @@ public class LogDao extends DaoBase<LogApplication> {
                 stats.put(app, usage);
             }
         }
-        return Optional.of(stats);
+        return stats;
     }
 
-    private Optional<LinkedHashMap<Date, Long>> getHourlyUsageInSecs(
+    private LinkedHashMap<Date, Long> getUsageInMillis(
             Application app,
             Function<Date, Boolean> hasProperStartTime,
             Function<Date, Date> getLogDateInStatUnit,
             BiFunction<Date, Date, Boolean> isLogOfSpecifiedPeriod,
             Function<Date, Date> getNextStatDate) {
         Optional<List<LogApplication>> logs = getAll(app);
-        if (logs.isEmpty()) return Optional.empty();
+        LinkedHashMap<Date, Long> stats = new LinkedHashMap<>();
+        if (logs.isEmpty()) return stats;
 
         List<LogApplication> l = logs.get()
                 .stream()
                 .filter(log -> isLogOfSpecifiedPeriod.apply(log.getTimeStart(), log.getTimeEnd()))
                 .collect(Collectors.toList());
-        LinkedHashMap<Date, Long> stats = new LinkedHashMap<>();
 
         for (LogApplication log : l) {
             Date logStartInStatUnit = getLogDateInStatUnit.apply(log.getTimeStart());
@@ -221,7 +221,7 @@ public class LogDao extends DaoBase<LogApplication> {
             insertStat(stats, log.getTimeStart(), log.getTimeEnd(), logStartInStatUnit, logEndInStatUnit,
                     hasProperStartTime, getNextStatDate);
         }
-        return Optional.of(stats);
+        return stats;
     }
 
     private void insertStat(
@@ -234,7 +234,7 @@ public class LogDao extends DaoBase<LogApplication> {
             Function<Date, Date> getNextStatDate) {
         Date nextStatDate = getNextStatDate.apply(logStartInStatUnit);
         if (logStartInStatUnit.equals(logEndInStatUnit) || logEnd.equals(nextStatDate)) {
-            Long usage = (logEnd.getTime() - logStart.getTime()) / 1000;
+            Long usage = (logEnd.getTime() - logStart.getTime());
             if (!stats.keySet().contains(logStartInStatUnit)) {
                 stats.put(logStartInStatUnit, usage);
             } else {

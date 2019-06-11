@@ -57,6 +57,7 @@ public class StatsChartsController {
         chart.setAnimated(false);
         chart.prefWidthProperty().bind(chartsPane.widthProperty());
         chart.prefHeightProperty().bind(chartsPane.heightProperty().subtract(bottomButtonsBox.getHeight()));
+        chart.setLegendVisible(false);
     }
 
     public void setApplication(Application app) {
@@ -83,9 +84,10 @@ public class StatsChartsController {
                 "Usage in minutes");
 
         Date todayAtMidnightDate = Date.from(todayAtMidnight.toInstant());
-        Optional<LinkedHashMap<Date, Long>> hsOpt = logDao.getHourlyUsageInSecs(application, todayAtMidnightDate);
-        if (hsOpt.isEmpty()) return;
-        LinkedHashMap<Date, Long> hourlySecs = hsOpt.get();
+        LinkedHashMap<Date, Long> hourlyMillis = logDao.getHourlyUsageInMillis(application, todayAtMidnightDate);
+        if (hourlyMillis.isEmpty()) return;
+        LinkedHashMap<Date, Double> hourlySecs = new LinkedHashMap<>();
+        hourlyMillis.forEach((date, value) -> hourlySecs.put(date, value / 1000.0));
 
         XYChart.Series series = getSeries(
                 24,
@@ -110,8 +112,10 @@ public class StatsChartsController {
                 "Usage in hours");
 
         Date firstDayOfMonthDate = Date.from(firstDayOfMonth.toInstant());
-        LinkedHashMap<Date, Long> dailySecs = logDao.getDailyUsageInSecs(application, firstDayOfMonthDate).get();
+        LinkedHashMap<Date, Long> dailyMillis = logDao.getDailyUsageInMillis(application, firstDayOfMonthDate);
         YearMonth yearMonth = YearMonth.of(firstDayOfMonth.getYear(), firstDayOfMonth.getMonth());
+        LinkedHashMap<Date, Double> dailySecs = new LinkedHashMap<>();
+        dailyMillis.forEach((date, value) -> dailySecs.put(date, value / 1000.0));
 
         XYChart.Series series = getSeries(
                 yearMonth.lengthOfMonth(),
@@ -129,23 +133,20 @@ public class StatsChartsController {
     public void showAllTime() {
         lastMonthButton.setVisible(false);
         todayButton.setVisible(false);
-        Optional<LinkedHashMap<Application, Long>> totalUsage = logDao.getTotalUsageForAllEntities();
+        LinkedHashMap<Application, Long> totalUsage = logDao.getTotalUsageForAllEntities();
         setDescription(
                 "Total usage of all applications",
-                "Application",
+                "Restriction name",
                 "Usage in hours");
 
         XYChart.Series series = new XYChart.Series();
         ObservableList data = series.getData();
-        totalUsage.ifPresent(usage -> usage.keySet().forEach(app -> {
-            data.add(new XYChart.Data<String, Number>(app.getRestriction().getName(), totalUsage.get().get(app) / 3600F));
-        }));
+        totalUsage.keySet().forEach(app -> data.add(new XYChart.Data<String, Number>(app.getRestriction().getName(), totalUsage.get(app) / 3600F)));
 
-        totalUsage.ifPresent(usages ->
-                setAxisData(series, FXCollections.observableList(usages.keySet().stream()
-                        .map(Application::getRestriction)
-                        .map(Restriction::getName)
-                        .collect(Collectors.toList()))));
+        setAxisData(series, FXCollections.observableList(totalUsage.keySet().stream()
+                .map(Application::getRestriction)
+                .map(Restriction::getName)
+                .collect(Collectors.toList())));
     }
 
     private String formatDate(Date date, String pattern) {
@@ -172,7 +173,7 @@ public class StatsChartsController {
     private XYChart.Series getSeries(
             int xAxisRange,
             Function<Integer, Date> step,
-            LinkedHashMap<Date, Long> usage,
+            LinkedHashMap<Date, Double> usage,
             String labelPattern,
             float unitDivisor
     ) {
@@ -182,7 +183,7 @@ public class StatsChartsController {
                 .mapToObj(step::apply)
                 .forEach(dateTime -> {
                     if (!usage.keySet().contains(dateTime)) {
-                        usage.put(dateTime, 0L);
+                        usage.put(dateTime, 0D);
                         data.add(new XYChart.Data<String, Number>(formatDate(dateTime, labelPattern), 0L));
                     } else {
                         data.add(new XYChart.Data<String, Number>(formatDate(dateTime, labelPattern),

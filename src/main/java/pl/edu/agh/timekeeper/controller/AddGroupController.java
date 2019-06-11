@@ -23,6 +23,8 @@ import pl.edu.agh.timekeeper.model.Application;
 import pl.edu.agh.timekeeper.model.Group;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
 public class AddGroupController {
@@ -103,6 +105,7 @@ public class AddGroupController {
     private void browseClicked(ActionEvent actionEvent) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select file to impose a restriction");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("executable files (*.exe)", "*.exe"));
         Stage stage = (Stage) mainPane.getScene().getWindow();
         Optional<List<File>> list = Optional.ofNullable(fileChooser.showOpenMultipleDialog(stage));
         list.ifPresent(files -> files.forEach(

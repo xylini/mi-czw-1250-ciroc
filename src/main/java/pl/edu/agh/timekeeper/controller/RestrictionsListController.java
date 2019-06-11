@@ -79,6 +79,12 @@ public class RestrictionsListController {
         restrictionListView.prefWidthProperty().bind(listVBox.widthProperty().subtract(addButton.widthProperty()));
         restrictionTabPane.prefHeightProperty().bind(restrictionsSplitPane.heightProperty());
         restrictionTabPane.prefWidthProperty().bind(restrictionsSplitPane.widthProperty());
+        restrictionTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null)
+                this.restrictionListView.getSelectionModel().select(newValue.getText());
+            else
+                this.restrictionListView.getSelectionModel().clearSelection();
+        });
         initRestrictionTabController();
     }
 

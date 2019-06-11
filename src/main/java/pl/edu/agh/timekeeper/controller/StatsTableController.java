@@ -11,6 +11,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import pl.edu.agh.timekeeper.db.dao.LogDao;
 import pl.edu.agh.timekeeper.db.dao.RestrictionDao;
 import pl.edu.agh.timekeeper.model.Application;
+import pl.edu.agh.timekeeper.model.MyTime;
 import pl.edu.agh.timekeeper.model.Restriction;
 
 import java.time.*;
@@ -60,7 +61,7 @@ public class StatsTableController {
         this.thisMonth = Date.from(monthZonedDateTime.withDayOfMonth(1).toInstant());
         ZonedDateTime todayAtMidnight = LocalDate.now().atStartOfDay().atZone(ZoneOffset.systemDefault());
         this.today = Date.from(todayAtMidnight.toInstant());
-        logApplicationDao.getTotalUsageForAllEntities().ifPresent(usage -> totalUsageForAllApplications = usage);
+        totalUsageForAllApplications = logApplicationDao.getTotalUsageForAllEntities();
     }
 
     @FXML
@@ -105,17 +106,15 @@ public class StatsTableController {
 
     private void setTableContent(Restriction restriction) {
         Application app = restriction.getApplication();
+        LinkedHashMap<Date, Long> usage = logApplicationDao.getDailyUsageInMillis(app, thisMonth);
         LinkedHashMap<Date, Long> dailyUsage = new LinkedHashMap<>();
-        Optional<LinkedHashMap<Date, Long>> usage = logApplicationDao.getDailyUsageInSecs(app, thisMonth);
-        if (usage.isPresent()) dailyUsage = usage.get();
+        usage.forEach((date, value) -> dailyUsage.put(date, value / 1000));
         Long todayUsage = dailyUsage.getOrDefault(today, 0L);
         Long totalUsage = totalUsageForAllApplications.getOrDefault(app, 0L);
-        try {
-            Duration limit = Duration.ofHours(restriction.getLimit().getHour()).plusMinutes(restriction.getLimit().getMinute());
-            UsageStatistics stat = new UsageStatistics(restriction.getName(), limit, secondsToLocalTime(todayUsage), secondsToLocalTime(totalUsage));
-            statsTable.getItems().add(stat);
-        } catch (NullPointerException e) {
-        }
+        MyTime dailyLimit = Optional.ofNullable(restriction.getLimit()).orElse(new MyTime(24, 0));
+        Duration limit = Duration.ofHours(dailyLimit.getHour()).plusMinutes(dailyLimit.getMinute());
+        UsageStatistics stat = new UsageStatistics(restriction.getName(), limit, secondsToLocalTime(todayUsage), secondsToLocalTime(totalUsage));
+        statsTable.getItems().add(stat);
     }
 
     private Duration secondsToLocalTime(Long secs) {

@@ -67,6 +67,13 @@ public class TimePair implements Serializable {
                     && this.end.equals(((TimePair) obj).end);
     }
 
+    public boolean overlapsWith(TimePair pair) {
+        return (this.start.isAfter(pair.start) && pair.end.isAfter(this.start))
+                || (this.end.isAfter(pair.start) && pair.end.isAfter(this.end))
+                || (this.start.isAfter(pair.start) && pair.end.isAfter(this.end))
+                || (pair.start.isAfter(this.start) && this.end.isAfter(pair.end));
+    }
+
     @Override
     public int hashCode() {
         return 13;
