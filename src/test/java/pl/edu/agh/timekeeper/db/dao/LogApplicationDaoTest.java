@@ -85,12 +85,12 @@ public class LogApplicationDaoTest extends DaoTestBase<LogApplicationDao, LogApp
         System.out.println("key: " + keyDate1);
         Assertions.assertTrue(stats1.containsKey(keyDate1));
         Assertions.assertTrue(stats1.containsKey(keyDate2));
-        Assertions.assertEquals(Long.valueOf(1800), stats1.get(keyDate1));
-        Assertions.assertEquals(Long.valueOf(600), stats1.get(keyDate2));
+        Assertions.assertEquals(Long.valueOf(1800000), stats1.get(keyDate1));
+        Assertions.assertEquals(Long.valueOf(600000), stats1.get(keyDate2));
         // a2
         Assertions.assertFalse(stats2.isEmpty());
         Assertions.assertEquals(1, stats2.keySet().size());
         Assertions.assertTrue(stats2.containsKey(keyDate1));
-        Assertions.assertEquals(Long.valueOf(300), stats2.get(keyDate1));
+        Assertions.assertEquals(Long.valueOf(300000), stats2.get(keyDate1));
     }
 }
