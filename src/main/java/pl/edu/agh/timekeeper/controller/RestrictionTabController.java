@@ -8,6 +8,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import pl.edu.agh.timekeeper.model.*;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,7 +24,8 @@ public class RestrictionTabController {
     private Label restrictionNameLabel;
 
     @FXML
-    private Label restrictionItemLabel;
+    //private Label restrictionItemLabel;
+    private VBox restrictionDetails;
 
     private Restriction restriction;
 
@@ -46,41 +48,78 @@ public class RestrictionTabController {
 
     private void refreshView() {
         restrictionNameLabel.setText(restriction.getName());
+        String headerStyle = "-fx-font-size:18px; -fx-font-weight: bold;";
+        String commonLabelStyle = "-fx-font-size:12px;";
+        Insets headerInsets = new Insets(25, 0, 0, 0);
+
+        refreshAppsDetails(restriction, headerInsets, headerStyle, commonLabelStyle);
+        refreshLimit(restriction, headerInsets, headerStyle, commonLabelStyle);
+        refreshRanges(restriction, headerInsets, headerStyle, commonLabelStyle);
+
+        restrictionDetails.setPadding(new Insets(0, 0, 0, 20));
+        restrictionDetails.setSpacing(5);
+    }
+
+    private void refreshAppsDetails(Restriction restriction, Insets headerInsets, String headerStyle, String commonLabelStyle){
+        Label entityHeader = new Label();
+        entityHeader.setPadding(headerInsets);
+        entityHeader.setStyle(headerStyle);
+
+        List<Label> appPaths = new LinkedList<>();
         if(restriction.getApplication() != null) {
             Application application = restriction.getApplication();
-            restrictionItemLabel.setText("Application path: " + application.getPath());
+            entityHeader.setText("Application path: ");
+            Label l = new Label(application.getPath());
+            l.setStyle(commonLabelStyle);
+            appPaths.add(l);
         } else {
             Group group = restriction.getGroup();
-            StringBuilder builder = new StringBuilder();
-            builder.append("Group name: ").append(group.getName()).append("\n");
-            group.getApplications().forEach(app -> builder.append("- ").append(app.getName()).append("\n"));
-            restrictionItemLabel.setText(builder.toString());
+            entityHeader.setText("Application paths: ");
+            group.getApplications().forEach(app -> {
+                Label l = new Label(app.getPath());
+                l.setStyle(commonLabelStyle);
+                appPaths.add(l);
+            });
         }
+        restrictionDetails.getChildren().add(entityHeader);
+        restrictionDetails.getChildren().addAll(appPaths);
+    }
+
+    private void refreshLimit(Restriction restriction, Insets headerInsets, String headerStyle, String commonLabelStyle) {
+        Label limitHeader = new Label("Daily limit: ");
+        limitHeader.setPadding(headerInsets);
+        limitHeader.setStyle(headerStyle);
+
+        Label limitLabel = new Label();
+        limitLabel.setStyle(commonLabelStyle);
         Optional<MyTime> limit = Optional.ofNullable(restriction.getLimit());
+        if(limit.isEmpty()) limitLabel.setText("-");
+        else limitLabel.setText(limit.get().getHour() + " hours, " + limit.get().getMinute() + " minutes");
+        restrictionDetails.getChildren().addAll(limitHeader, limitLabel);
+    }
+
+    private void refreshRanges(Restriction restriction, Insets headerInsets, String headerStyle, String commonLabelStyle) {
+        Label rangeHeader = new Label("Blocked hours: ");
+        rangeHeader.setPadding(headerInsets);
+        List<Label> ranges = new LinkedList<>();
+        rangeHeader.setStyle(headerStyle);
+
+
         List<TimePair> blockedHours = restriction.getBlockedHours();
-        limit.ifPresent(value -> {
-            HBox box = new HBox();
-            box.setPadding(new Insets(5));
-            box.setSpacing(5);
-            box.getChildren().add(new Label("Daily limit: " + value.getHour() + " hours, " + value.getMinute() + " minutes"));
-            restrictionTabBox.getChildren().add(box);
-        });
-        HBox headerBox = new HBox();
-        if (!blockedHours.isEmpty()) {
-            headerBox.setPadding(new Insets(5));
-            headerBox.setSpacing(5);
-            headerBox.getChildren().add(new Label("Blocked hours: "));
-            restrictionTabBox.getChildren().add(headerBox);
+        if (blockedHours.isEmpty()) {
+            Label l = new Label("-");
+            l.setStyle(commonLabelStyle);
+            ranges.add(l);
         }
         blockedHours.forEach(pair -> {
-            HBox box = new HBox();
-            box.setPadding(new Insets(5));
-            box.setSpacing(5);
-            box.getChildren().add(new Label("From " + pair.getStart().getHour() + ":"
+            Label l = new Label("From " + pair.getStart().getHour() + ":"
                     + String.format("%02d", pair.getStart().getMinute())
                     + " to " + pair.getEnd().getHour()
-                    + ":" + String.format("%02d", pair.getEnd().getMinute())));
-            restrictionTabBox.getChildren().add(box);
+                    + ":" + String.format("%02d", pair.getEnd().getMinute()));
+            l.setStyle(commonLabelStyle);
+            ranges.add(l);
         });
+        restrictionDetails.getChildren().add(rangeHeader);
+        restrictionDetails.getChildren().addAll(ranges);
     }
 }
