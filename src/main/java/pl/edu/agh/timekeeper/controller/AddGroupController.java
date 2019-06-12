@@ -131,7 +131,8 @@ public class AddGroupController {
                         applicationsSet.add(application);
                     } else {
                         applicationsSet.add(app.get());
-                        if(app.get().getGroup() != null){
+                        if(app.get().getGroup() != null
+                                && !app.get().getGroup().getName().equals(groupNameField.getText())){
                             grandchild.setStyle("-fx-background-color: #ff5464; -fx-tooltip-visible: true;");
                             ((TextField) grandchild).setTooltip(new Tooltip("Application belongs to group '"
                                     +app.get().getGroup().getName()+"'"));
