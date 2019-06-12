@@ -43,6 +43,7 @@ public class TimerController {
     private boolean isPrevWindowRestricted;
 
     private boolean alertShown;
+    private boolean isOverwrite;
 
     public TimerController() {
         this.timerView = new TimerView("00:00:00", 100, 25, -50.0, -50.0);
@@ -62,6 +63,7 @@ public class TimerController {
         this.isPrevWindowRestricted = false;
 
         this.alertShown = false;
+        this.isOverwrite = false;
 
         mainLoop(this.timerView);
         updateTimerViewTimeWorker(this.timerView);
@@ -117,12 +119,25 @@ public class TimerController {
         t.start();
     }
 
-    private void checkLimits() {
+    private void checkLimits() throws InterruptedException {
         Application app = applicationDao.getByPath(currentWindowPath).get();
         if (!alertShown && (isLimitExceeded(app) || isNowBlocked(app))) {
+            if (isOverwrite) {
+                alertShown = true;
+                closeApplication(app.getPath());
+                Platform.runLater(() -> {
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Overwrite exceeded");
+                    alert.setHeaderText("Application has been closed, sorry.");
+                    alert.showAndWait();
+                });
+                isOverwrite = false;
+                Thread.sleep(500);
+                alertShown = false;
+                return;
+            }
             alertShown = true;
             Platform.runLater(() -> {
-                System.out.println("B");
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.setTitle("Restriction exceeded");
                 if (isNowBlocked(app)) {
@@ -154,7 +169,9 @@ public class TimerController {
                             if (chosenOverwrite.isEmpty())
                                 closeApplication(prevWindowPath);
                             else {
-                                //TODO handle overwrite
+                                String time = dialog.getSelectedItem().replaceAll(" .*", "");
+                                app.getRestriction().setOverwriteTime(new MyTime(0, Integer.valueOf(time)));
+                                isOverwrite = true;
                             }
                         }
                         alertShown = false;
@@ -166,11 +183,14 @@ public class TimerController {
 
     private boolean isLimitExceeded(Application application) {
         Optional<MyTime> dailyLimit = Optional.ofNullable(application.getRestriction().getLimit());
-        if (dailyLimit.isEmpty())
+        Optional<MyTime> overwriteTime = Optional.ofNullable(application.getRestriction().getOverwriteTime());
+        if (dailyLimit.isEmpty()) {
             return false;
-        else {
-            return getMillis(dailyLimit.get()) <= currentRestrictedAppTillNow + (timeStop.getTime() - timeStart.getTime());
-        }
+        } else
+            return overwriteTime.map(myTime -> getMillis(dailyLimit.get().add(myTime)) <=
+                    currentRestrictedAppTillNow + (timeStop.getTime() - timeStart.getTime())).
+                    orElseGet(() -> getMillis(dailyLimit.get()) <=
+                            currentRestrictedAppTillNow + (timeStop.getTime() - timeStart.getTime()));
     }
 
     private boolean isNowBlocked(Application application) {

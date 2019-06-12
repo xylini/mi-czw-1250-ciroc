@@ -36,6 +36,14 @@ public class MyTime implements Serializable {
         return this.hour > other.hour || (this.hour == other.hour && this.minute > other.minute);
     }
 
+    public MyTime add(MyTime myTime) {
+        int minutes = myTime.getMinute() + this.getMinute();
+        if (minutes >= 60)
+            return new MyTime(this.getHour() + myTime.getHour() + 1, minutes % 60);
+        else
+            return new MyTime(this.getHour() + myTime.getHour(), minutes);
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null) return false;

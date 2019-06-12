@@ -33,6 +33,9 @@ public class Restriction implements Serializable {
     @OneToOne(mappedBy = "restriction")
     private Group group;
 
+    @Transient
+    private MyTime overwriteTime;
+
     public Restriction(String name, MyTime limit, Collection<TimePair> blockedHours, Application application, Group group) {
         this.name = name;
         this.limit = limit;
@@ -48,6 +51,7 @@ public class Restriction implements Serializable {
             group.setRestriction(this);
         }
         this.group = group;
+        this.overwriteTime = null;
     }
 
     public Restriction() {
@@ -97,6 +101,14 @@ public class Restriction implements Serializable {
 
     public void setGroup(Group group) {
         this.group = group;
+    }
+
+    public MyTime getOverwriteTime() {
+        return overwriteTime;
+    }
+
+    public void setOverwriteTime(MyTime overwriteTime) {
+        this.overwriteTime = overwriteTime;
     }
 
     public static RestrictionBuilder getRestrictionBuilder() {
