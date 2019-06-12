@@ -1,8 +1,10 @@
 package pl.edu.agh.timekeeper.timer;
 
+import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ChoiceDialog;
 import javafx.stage.Screen;
 import pl.edu.agh.timekeeper.db.dao.ApplicationDao;
 import pl.edu.agh.timekeeper.db.dao.LogApplicationDao;
@@ -40,6 +42,7 @@ public class TimerController {
     private int timeExceededLoop = 0;
 
     private final int MINUTES_BEFORE_NOTIFY = 2;
+    private Map<String, Date> sleepCloseTimeWindowDialog;
     private Map<String, Boolean> isCloseTimeWindowDialogShowed;
     private Semaphore windowCloseTimeDialogShowed;
 
@@ -52,6 +55,8 @@ public class TimerController {
         this.sleepWindowDialog = new HashMap<>();
         this.isWindowDialogShowed = new HashMap<>();
         this.windowDialogShowed = new Semaphore(1);
+
+        this.sleepCloseTimeWindowDialog = new HashMap<>();
         this.isCloseTimeWindowDialogShowed = new HashMap<>();
         this.windowCloseTimeDialogShowed = new Semaphore(1);
 
@@ -94,35 +99,29 @@ public class TimerController {
                             currentRestrictedAppTillNow = setCurrApplicationUsageTimeIfRestricted(isCurrentWindowRestricted, currentWindowPath);
                             logIfPrevWindowRestricted(prevWindowPath, isPrevWindowRestricted, prevTimeStart, prevTimeStop);
                         }
-                        if((!sleepWindowDialog.containsKey(currentWindowPath) ||
+                        if(timeExceededLoop==0 && hasTimeExceeded() && (!sleepWindowDialog.containsKey(currentWindowPath) ||
                                 (sleepWindowDialog.containsKey(currentWindowPath) && (sleepWindowDialog.get(currentWindowPath)).before(timeStop)))
-                                && timeExceededLoop==0 && hasTimeExceeded() && !isWindowDialogShowed.containsKey(currentWindowPath)){
+                                && !isWindowDialogShowed.containsKey(currentWindowPath)){
                             isWindowDialogShowed.put(currentWindowPath, true);
-                            Thread tDialog = new Thread(()->{
+                            Platform.runLater(() -> {
                                 String tDialogPath = currentWindowPath;
                                 windowDialogShowed.release();
-                                Object[] options = {"1 min", "15 min", "30 min", "1 hour", "Close"};
-                                Object out = JOptionPane.showInputDialog(null, "Your time has exceeded. Turn off the application or suspend for",
-                                        "Time exceeded", JOptionPane.WARNING_MESSAGE, null, options, options[0]);
-                                if(out != null){
-                                    String outString = (String) out;
-                                    switch(outString){
-                                        case "1 min":
-                                            sleepWindowDialog.put(tDialogPath, new Date(System.currentTimeMillis() + 1000*60));
-                                            break;
-                                        case "15 min":
-                                            sleepWindowDialog.put(tDialogPath, new Date(System.currentTimeMillis() + 1000*60*15));
-                                            break;
-                                        case "30 min":
-                                            sleepWindowDialog.put(tDialogPath, new Date(System.currentTimeMillis() + 1000*60*30));
-                                            break;
-                                        case "1 hour":
-                                            sleepWindowDialog.put(tDialogPath, new Date(System.currentTimeMillis() + 1000*60*60));
-                                            break;
-                                        default:
-                                            closeApplication(tDialogPath);
-                                            break;
-                                    }
+                                List<Integer> choices = new ArrayList<>();
+                                choices.add(1);
+                                choices.add(3);
+                                choices.add(5);
+                                choices.add(15);
+                                choices.add(30);
+                                choices.add(60);
+
+                                ChoiceDialog<Integer> dialog = new ChoiceDialog<>(5, choices);
+                                dialog.setTitle("Time Exceeded");
+                                dialog.setHeaderText(null);
+                                dialog.setContentText("Extend the time (in minutes) by:");
+
+                                Optional<Integer> result = dialog.showAndWait();
+                                if (result.isPresent()){
+                                    sleepWindowDialog.put(tDialogPath, new Date(System.currentTimeMillis() + 1000*60*result.get()));
                                 }
                                 else{
                                     closeApplication(tDialogPath);
@@ -130,8 +129,6 @@ public class TimerController {
                                 isWindowDialogShowed.remove(tDialogPath);
                             });
                             windowDialogShowed.acquire();
-                            tDialog.setDaemon(true);
-                            tDialog.start();
                             windowDialogShowed.acquire();
                             windowDialogShowed.release();
                         }
@@ -151,7 +148,7 @@ public class TimerController {
 
     private void closeApplication(String path){
         String command = "wmic process where ExecutablePath='"+path.replace("\\", "\\\\")+"' delete";
-        Process powerShellProcess = null;
+        Process powerShellProcess;
         try {
             powerShellProcess = Runtime.getRuntime().exec(command);
             powerShellProcess.getOutputStream().close();
@@ -238,11 +235,17 @@ public class TimerController {
             Optional<Application> application = applicationDao.getByPath(foregroundWindowPath);
             if (application.isPresent()) {
                 Restriction restriction = application.get().getRestriction();
+                if(restriction == null){
+                    return false;
+                }
                 boolean hasExceeded = hasRestrictionTimeExceeded(restriction);
 
                 Group group = application.get().getGroup();
                 if(group != null){
                     Restriction groupRestriction = group.getRestriction();
+                    if(groupRestriction == null){
+                        return false;
+                    }
                     return hasExceeded || hasRestrictionTimeExceeded(groupRestriction);
                 }
 
@@ -258,14 +261,29 @@ public class TimerController {
             List<TimePair> blockedHours = restriction.getBlockedHours();
             MyTime limits = restriction.getLimit();
 
+            TimeZone tz = TimeZone.getDefault();
+            int minuteLocal = (int) (timeStop.getTime() / (60 * 1000) % 60);
+            int hourLocal = (int) ((timeStop.getTime() + tz.getOffset(timeStop.getTime())) / (60 * 60 * 1000) % 24);
+
+            if(sleepWindowDialog.containsKey(currentWindowPath)){
+                int minuteExtended = (int) (sleepWindowDialog.get(currentWindowPath).getTime() / (60 * 1000) % 60);
+                int hourExtended = (int) ((sleepWindowDialog.get(currentWindowPath).getTime() + tz.getOffset(sleepWindowDialog.get(currentWindowPath).getTime())) / (60 * 60 * 1000) % 24);
+                System.out.println(hourExtended+" "+minuteExtended+"\n");
+
+                if((60 * hourLocal + minuteLocal + MINUTES_BEFORE_NOTIFY) % (60 * 24) == 60*hourExtended + minuteExtended){
+                    notifyCloseTimeExceed();
+                }
+            }
+
             for(TimePair blockedHour : blockedHours){
-                if(blockedTime(blockedHour)){
+                if(blockedTime(blockedHour, minuteLocal, hourLocal)){
                     return true;
                 }
             }
 
             if(limits != null){
-                if(60 * 60 * 1000 * limits.getHour() + 60 * 1000 * limits.getMinute() < currentRestrictedAppTillNow + (timeStop.getTime() - timeStart.getTime() + 60 * 1000 * MINUTES_BEFORE_NOTIFY)){
+                if(currentRestrictedAppTillNow + (timeStop.getTime() - timeStart.getTime()) < 60 * 60 * 1000 * limits.getHour() + 60 * 1000 * limits.getMinute() &&
+                        60 * 60 * 1000 * limits.getHour() + 60 * 1000 * limits.getMinute() < currentRestrictedAppTillNow + (timeStop.getTime() - timeStart.getTime() + 60 * 1000 * MINUTES_BEFORE_NOTIFY)){
                     notifyCloseTimeExceed();
                 }
                 return 60 * 60 * 1000 * limits.getHour() + 60 * 1000 * limits.getMinute() < currentRestrictedAppTillNow + (timeStop.getTime() - timeStart.getTime());
@@ -275,46 +293,41 @@ public class TimerController {
         return false;
     }
 
-    private boolean blockedTime(TimePair blockedHour){
+    private boolean blockedTime(TimePair blockedHour, int minuteLocal, int hourLocal){
         int hourStart = blockedHour.getStart().getHour();
         int minuteStart = blockedHour.getStart().getMinute();
 
         int hourEnd = blockedHour.getEnd().getHour();
         int minuteEnd = blockedHour.getEnd().getMinute();
 
-        TimeZone tz = TimeZone.getDefault();
-        int minuteLocal = (int) (timeStop.getTime() / (60 * 1000) % 60);
-        int hourLocal = (int) ((timeStop.getTime() + tz.getOffset(timeStop.getTime())) / (60 * 60 * 1000) % 24);
-
-        if(((60*hourLocal + minuteLocal + MINUTES_BEFORE_NOTIFY) % (60*24)) == 60*hourStart + minuteStart){
+        if((60 * hourLocal + minuteLocal + MINUTES_BEFORE_NOTIFY) % (60 * 24) == 60*hourStart + minuteStart){
             notifyCloseTimeExceed();
         }
-
         return 60 * hourStart + minuteStart <= 60 * hourLocal + minuteLocal && 60 * hourLocal + minuteLocal < 60 * hourEnd + minuteEnd;
     }
 
     private void notifyCloseTimeExceed(){
-        if(!isCloseTimeWindowDialogShowed.containsKey(currentWindowPath)){
+        if(!isCloseTimeWindowDialogShowed.containsKey(currentWindowPath) &&
+                (!sleepCloseTimeWindowDialog.containsKey(currentWindowPath) ||
+                        (sleepCloseTimeWindowDialog.containsKey(currentWindowPath) && sleepCloseTimeWindowDialog.get(currentWindowPath).before(timeStop)))){
             isCloseTimeWindowDialogShowed.put(currentWindowPath, true);
-            Thread t = new Thread(() -> {
+            Platform.runLater(() -> {
                 String tDialogPath = currentWindowPath;
                 windowCloseTimeDialogShowed.release();
-                JOptionPane.showMessageDialog(null, "You have "+MINUTES_BEFORE_NOTIFY+" minutes left");
-                try {
-                    Thread.sleep(1000*60*MINUTES_BEFORE_NOTIFY);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } finally {
-                    isCloseTimeWindowDialogShowed.remove(tDialogPath);
-                }
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Information Dialog");
+                alert.setHeaderText(null);
+                alert.setContentText("You have about "+MINUTES_BEFORE_NOTIFY+" minutes left");
+                alert.showAndWait();
+
+                sleepCloseTimeWindowDialog.put(tDialogPath, new Date(System.currentTimeMillis() + 1000*60*(MINUTES_BEFORE_NOTIFY)));
+                isCloseTimeWindowDialogShowed.remove(tDialogPath);
             });
             try {
                 windowCloseTimeDialogShowed.acquire();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            t.setDaemon(true);
-            t.start();
             try {
                 windowCloseTimeDialogShowed.acquire();
             } catch (InterruptedException e) {
