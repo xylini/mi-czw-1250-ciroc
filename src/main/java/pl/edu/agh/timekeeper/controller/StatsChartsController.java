@@ -13,6 +13,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import pl.edu.agh.timekeeper.db.dao.LogDao;
 import pl.edu.agh.timekeeper.model.Application;
+import pl.edu.agh.timekeeper.model.Group;
+import pl.edu.agh.timekeeper.model.MyEntity;
 import pl.edu.agh.timekeeper.model.Restriction;
 
 import java.time.*;
@@ -49,7 +51,9 @@ public class StatsChartsController {
 
     private final LogDao logDao = new LogDao();
 
-    private Application application;
+    private MyEntity entity;
+
+    //private Application application;
 
     @FXML
     private void initialize() {
@@ -60,8 +64,8 @@ public class StatsChartsController {
         chart.setLegendVisible(false);
     }
 
-    public void setApplication(Application app) {
-        this.application = app;
+    public void setEntity(MyEntity entity) {
+        this.entity = entity;
     }
 
     public BorderPane getChartsPane() {
@@ -79,12 +83,14 @@ public class StatsChartsController {
         ZonedDateTime todayAtMidnight = LocalDate.now().atStartOfDay().atZone(ZoneOffset.systemDefault());
         String dateStr = todayAtMidnight.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
         setDescription(
-                String.format("Usage of %s on %s", application.getName(), dateStr),
+                String.format("Usage of %s on %s", entity.getName(), dateStr),
                 "Time",
                 "Usage in minutes");
 
         Date todayAtMidnightDate = Date.from(todayAtMidnight.toInstant());
-        LinkedHashMap<Date, Long> hourlyMillis = logDao.getHourlyUsageInMillis(application, todayAtMidnightDate);
+        LinkedHashMap<Date, Long> hourlyMillis;
+        if(entity instanceof Application) hourlyMillis = logDao.getHourlyUsageInMillis((Application) entity, todayAtMidnightDate);
+        else hourlyMillis = logDao.getHourlyUsageInMillis((Group) entity, todayAtMidnightDate);
         if (hourlyMillis.isEmpty()) return;
         LinkedHashMap<Date, Double> hourlySecs = new LinkedHashMap<>();
         hourlyMillis.forEach((date, value) -> hourlySecs.put(date, value / 1000.0));
@@ -107,12 +113,14 @@ public class StatsChartsController {
         ZonedDateTime firstDayOfMonth = LocalDate.now().withDayOfMonth(1).atStartOfDay().atZone(ZoneOffset.systemDefault());
         String dateStr = firstDayOfMonth.getMonth().name().toLowerCase();
         setDescription(
-                String.format("Usage of %s in %s %d", application.getName(), dateStr, firstDayOfMonth.getYear()),
+                String.format("Usage of %s in %s %d", entity.getName(), dateStr, firstDayOfMonth.getYear()),
                 "Time",
                 "Usage in hours");
 
         Date firstDayOfMonthDate = Date.from(firstDayOfMonth.toInstant());
-        LinkedHashMap<Date, Long> dailyMillis = logDao.getDailyUsageInMillis(application, firstDayOfMonthDate);
+        LinkedHashMap<Date, Long> dailyMillis;
+        if(entity instanceof Application) dailyMillis = logDao.getDailyUsageInMillis((Application) entity, firstDayOfMonthDate);
+        else dailyMillis = logDao.getDailyUsageInMillis((Group) entity, firstDayOfMonthDate);
         YearMonth yearMonth = YearMonth.of(firstDayOfMonth.getYear(), firstDayOfMonth.getMonth());
         LinkedHashMap<Date, Double> dailySecs = new LinkedHashMap<>();
         dailyMillis.forEach((date, value) -> dailySecs.put(date, value / 1000.0));

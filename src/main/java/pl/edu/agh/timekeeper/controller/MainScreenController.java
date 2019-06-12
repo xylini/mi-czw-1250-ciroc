@@ -5,6 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import pl.edu.agh.timekeeper.db.dao.ApplicationDao;
+import pl.edu.agh.timekeeper.db.dao.RestrictionDao;
 
 import java.io.*;
 
@@ -33,7 +34,7 @@ public class MainScreenController {
 
     private FXMLLoader loader;
 
-    private final ApplicationDao applicationDao = new ApplicationDao();
+    private final RestrictionDao restrictionDao = new RestrictionDao();
 
     private static final String RESTRICTIONS_LIST_VIEW_PATH = "/views/restrictionsListView.fxml";
     private static final String STATS_VIEW_PATH = "/views/statsView.fxml";
@@ -104,7 +105,7 @@ public class MainScreenController {
 
     private void prepareStatsView() {
         StatsController statsController = loader.getController();
-        statsController.setApplications(applicationDao.getAll());
+        statsController.setRestrictions(restrictionDao.getAll());
         statsController.getStatsBox().prefHeightProperty().bind(mainVBox.heightProperty().subtract(menuButtonHBox.heightProperty()));
         statsController.getStatsBox().prefWidthProperty().bind(mainVBox.widthProperty());
     }

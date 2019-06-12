@@ -9,7 +9,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.HBox;
 import pl.edu.agh.timekeeper.db.dao.ApplicationDao;
 import pl.edu.agh.timekeeper.db.dao.RestrictionDao;
-import pl.edu.agh.timekeeper.model.Application;
+import pl.edu.agh.timekeeper.model.MyEntity;
 import pl.edu.agh.timekeeper.model.Restriction;
 
 import java.io.IOException;
@@ -35,7 +35,7 @@ public class StatsController {
 
     private StatsTableController statsTableController;
 
-    private ObservableList<Application> applications = FXCollections.observableArrayList();
+    private ObservableList<Restriction> restrictions = FXCollections.observableArrayList();
 
     private final ApplicationDao applicationDao = new ApplicationDao();
 
@@ -65,22 +65,19 @@ public class StatsController {
             } else {
                 displayChart();
                 Optional<Restriction> restriction = restrictionDao.getByName((String) newValue);
-                String path = restriction.get().getApplication().getPath();
-                applicationDao.getByPath(path).ifPresent(app -> {
-                    statsChartsController.setApplication(app);
-                    statsChartsController.showChart();
-                });
+                MyEntity restrictedEntity = restriction.get().getApplication() == null
+                        ? restriction.get().getGroup() : restriction.get().getApplication();
+                statsChartsController.setEntity(restrictedEntity);
+                statsChartsController.showChart();
             }
         });
     }
 
-    public void setApplications(List<Application> applications) {
-        this.applications.setAll(applications);
-        this.statsTableController.setApplications(applications);
+    public void setRestrictions(List<Restriction> restrictions) {
+        this.restrictions.setAll(restrictions);
+        this.statsTableController.setRestrictions(restrictions);
         ObservableList list = restrictionsListView.getItems();
-        list.addAll(applications.stream()
-                .filter(app -> app.getRestriction() != null)
-                .map(Application::getRestriction)
+        list.addAll(restrictions.stream()
                 .map(Restriction::getName)
                 .collect(Collectors.toList()));
         restrictionsListView.setItems(list);
@@ -90,7 +87,7 @@ public class StatsController {
         FXMLLoader loader = new FXMLLoader(this.getClass().getResource(TABLE_VIEW_PATH));
         reloadContent(loader);
         statsTableController = loader.getController();
-        statsTableController.setApplications(applications);
+        statsTableController.setRestrictions(restrictions);
         statsTableController.getStatsTable().prefHeightProperty().bind(statsBox.heightProperty());
         statsTableController.getStatsTable().prefWidthProperty().bind(statsBox.widthProperty().subtract(restrictionsListView.widthProperty()));
     }

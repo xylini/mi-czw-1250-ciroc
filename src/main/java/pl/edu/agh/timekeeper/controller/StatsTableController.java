@@ -38,8 +38,6 @@ public class StatsTableController {
     @FXML
     private TableColumn<UsageStatistics, Duration> overallTimeSpentColumn;
 
-    private ObservableList<Application> applications = FXCollections.observableArrayList();
-
     private ObservableList<String> restrictionNames = FXCollections.observableArrayList();
 
     private LinkedHashMap<Application, Long> totalUsageForAllApplications = new LinkedHashMap<>();
@@ -95,11 +93,8 @@ public class StatsTableController {
         return statsTable;
     }
 
-    public void setApplications(Collection<Application> applications) {
-        this.applications.setAll(applications);
-        this.restrictionNames.setAll(applications.stream()
-                .filter(app -> app.getRestriction() != null)
-                .map(Application::getRestriction)
+    public void setRestrictions(Collection<Restriction> restrictions) {
+        this.restrictionNames.setAll(restrictions.stream()
                 .map(Restriction::getName)
                 .collect(Collectors.toList()));
     }
