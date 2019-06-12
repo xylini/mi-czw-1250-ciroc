@@ -8,7 +8,7 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import pl.edu.agh.timekeeper.db.dao.LogApplicationDao;
+import pl.edu.agh.timekeeper.db.dao.LogDao;
 import pl.edu.agh.timekeeper.db.dao.RestrictionDao;
 import pl.edu.agh.timekeeper.model.Application;
 import pl.edu.agh.timekeeper.model.MyTime;
@@ -50,7 +50,7 @@ public class StatsTableController {
 
     private RestrictionDao restrictionDao = new RestrictionDao();
 
-    private LogApplicationDao logApplicationDao = new LogApplicationDao();
+    private LogDao logApplicationDao = new LogDao();
 
     public StatsTableController() {
         ZonedDateTime monthZonedDateTime = LocalDate
@@ -98,6 +98,7 @@ public class StatsTableController {
     public void setApplications(Collection<Application> applications) {
         this.applications.setAll(applications);
         this.restrictionNames.setAll(applications.stream()
+                .filter(app -> app.getRestriction() != null)
                 .map(Application::getRestriction)
                 .map(Restriction::getName)
                 .collect(Collectors.toList()));

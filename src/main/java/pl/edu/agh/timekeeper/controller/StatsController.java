@@ -79,6 +79,7 @@ public class StatsController {
         this.statsTableController.setApplications(applications);
         ObservableList list = restrictionsListView.getItems();
         list.addAll(applications.stream()
+                .filter(app -> app.getRestriction() != null)
                 .map(Application::getRestriction)
                 .map(Restriction::getName)
                 .collect(Collectors.toList()));

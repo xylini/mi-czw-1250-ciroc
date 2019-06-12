@@ -3,22 +3,25 @@ package pl.edu.agh.timekeeper.db.dao;
 import pl.edu.agh.timekeeper.db.SessionService;
 import pl.edu.agh.timekeeper.log.LogApplication;
 import pl.edu.agh.timekeeper.model.Application;
+import pl.edu.agh.timekeeper.model.Group;
 
 import javax.persistence.PersistenceException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class LogApplicationDao extends LogDaoBase<LogApplication, Application> {
+public class LogDao extends DaoBase<LogApplication> {
 
     private static final String TABLE_NAME = LogApplication.class.getName();
 
-    public LogApplicationDao() {
+    public LogDao() {
         super(LogApplication.class, TABLE_NAME);
     }
 
@@ -37,7 +40,7 @@ public class LogApplicationDao extends LogDaoBase<LogApplication, Application> {
         return Optional.empty();
     }
 
-    public long getUsageInMillisOn(LocalDate day, Application app) {
+    public long getUsageInMillisOn(Application app, LocalDate day) {
         LocalDateTime start = day.atStartOfDay();
         LocalDateTime end = day.plusDays(1).atStartOfDay();
         Long res = SessionService.getCurrentSession()
@@ -57,7 +60,104 @@ public class LogApplicationDao extends LogDaoBase<LogApplication, Application> {
         return res;
     }
 
-    @Override
+    public long getUsageInMillisOn(Group group, LocalDate day){
+        LocalDateTime start = day.atStartOfDay();
+        LocalDateTime end = day.plusDays(1).atStartOfDay();
+        Long res = SessionService.getCurrentSession()
+                .createQuery(
+                        "SELECT SUM(DATEDIFF(MILLISECOND, GREATEST(l.timeStart, :start_t), LEAST(l.timeEnd, :end_t))) " +
+                                "FROM LogApplication l " +
+                                "WHERE l.application.group = :grp " +
+                                "AND (l.timeStart BETWEEN :start_t AND :end_t " +
+                                "OR l.timeEnd BETWEEN :start_t AND :end_t " +
+                                "OR (l.timeStart < :start_t AND l.timeEnd > :end_t))",
+                        Long.class)
+                .setParameter("grp", group)
+                .setParameter("start_t", Date.from(start.atZone(ZoneId.systemDefault()).toInstant()))
+                .setParameter("end_t", Date.from(end.atZone(ZoneId.systemDefault()).toInstant()))
+                .getSingleResult();
+        if(res == null) return 0L;
+        return res;
+    }
+
+    public LinkedHashMap<Date, Long> getHourlyUsageInMillis(Group group, LocalDate day){
+        LocalDateTime start = day.atStartOfDay();
+        LocalDateTime end = day.plusDays(1).atStartOfDay();
+        Date startDate = Date.from(start.atZone(ZoneId.systemDefault()).toInstant());
+        List<UsageStat> res = SessionService.getCurrentSession()
+                .createQuery(
+                        "SELECT new pl.edu.agh.timekeeper.db.dao.UsageStat(" +
+                                "    YEAR(l.timeStart), " +
+                                "    MONTH(l.timeStart), " +
+                                "    DAY(l.timeStart), " +
+                                "    HOUR(l.timeStart), " +
+                                "    SUM(DATEDIFF(MILLISECOND, GREATEST(l.timeStart, :start_t), LEAST(l.timeEnd, :end_t)))) " +
+                                "FROM LogApplication l " +
+                                "WHERE l.application.group = :grp " +
+                                "AND (l.timeStart BETWEEN :start_t AND :end_t " +
+                                "OR l.timeEnd BETWEEN :start_t AND :end_t " +
+                                "OR (l.timeStart < :start_t AND l.timeEnd > :end_t)) " +
+                                "GROUP BY YEAR(l.timeStart), " +
+                                "    MONTH(l.timeStart), " +
+                                "    DAY(l.timeStart), " +
+                                "    HOUR(l.timeStart) ",
+                        UsageStat.class)
+                .setParameter("grp", group)
+                .setParameter("start_t", startDate)
+                .setParameter("end_t", Date.from(end.atZone(ZoneId.systemDefault()).toInstant()))
+                .getResultList();
+        LinkedHashMap<Date, Long> result = createResultMap(startDate, res);
+        getDateStream(start, end, ChronoUnit.HOURS).forEach(date -> {
+            if(!result.containsKey(date)) result.put(date, 0L);
+        });
+        return result;
+    }
+
+    public LinkedHashMap<Date, Long> getDailyUsageInMillis(Group group, LocalDate day){
+        LocalDateTime start = day.atStartOfDay();
+        LocalDateTime end = day.plusDays(1).atStartOfDay();
+        Date startDate = Date.from(start.atZone(ZoneId.systemDefault()).toInstant());
+        List<UsageStat> res = SessionService.getCurrentSession()
+                .createQuery(
+                        "SELECT new pl.edu.agh.timekeeper.db.dao.UsageStat(" +
+                                "    YEAR(l.timeStart), " +
+                                "    MONTH(l.timeStart), " +
+                                "    DAY(l.timeStart), " +
+                                "    SUM(DATEDIFF(MILLISECOND, GREATEST(l.timeStart, :start_t), LEAST(l.timeEnd, :end_t)))) " +
+                                "FROM LogApplication l " +
+                                "WHERE l.application.group = :grp " +
+                                "AND (l.timeStart BETWEEN :start_t AND :end_t " +
+                                "OR l.timeEnd BETWEEN :start_t AND :end_t " +
+                                "OR (l.timeStart < :start_t AND l.timeEnd > :end_t)) " +
+                                "GROUP BY YEAR(l.timeStart), " +
+                                "    MONTH(l.timeStart), " +
+                                "    DAY(l.timeStart) ",
+                        UsageStat.class)
+                .setParameter("grp", group)
+                .setParameter("start_t", startDate)
+                .setParameter("end_t", Date.from(end.atZone(ZoneId.systemDefault()).toInstant()))
+                .getResultList();
+        createResultMap(startDate, res);
+        LinkedHashMap<Date, Long> result = createResultMap(startDate, res);
+        getDateStream(start, end, ChronoUnit.DAYS).forEach(date -> {
+            if(!result.containsKey(date)) result.put(date, 0L);
+        });
+        return result;
+    }
+
+    private LinkedHashMap<Date, Long> createResultMap(Date startDate, List<UsageStat> res) {
+        res.forEach(us -> System.out.println("us:"+us.getUsage()));
+        LinkedHashMap<Date, Long> result = new LinkedHashMap<>();
+        res.forEach(s -> {
+            if(s.getDate().before(startDate)){
+                result.put(startDate, s.getUsage());
+            } else {
+                result.put(s.getDate(), s.getUsage());
+            }
+        });
+        return result;
+    }
+
     public LinkedHashMap<Date, Long> getHourlyUsageInMillis(Application app, Date day) {
         return getUsageInMillis(
                 app,
@@ -67,7 +167,6 @@ public class LogApplicationDao extends LogDaoBase<LogApplication, Application> {
                 this::nextHour);
     }
 
-    @Override
     public LinkedHashMap<Date, Long> getDailyUsageInMillis(Application app, Date month) {
         Date nextMonth = Date.from(ZonedDateTime
                 .ofInstant(month.toInstant(), ZoneId.systemDefault())
@@ -198,5 +297,11 @@ public class LogApplicationDao extends LogDaoBase<LogApplication, Application> {
 
     private Date nextDay(Date d) {
         return Date.from(d.toInstant().plusSeconds(3600 * 24));
+    }
+
+    private Stream<Date> getDateStream(LocalDateTime start, LocalDateTime end, ChronoUnit timeUnit){
+        return Stream.iterate(start, date -> date.plus(1, timeUnit))
+                .limit(start.until(end, timeUnit))
+                .map(dt -> Date.from(dt.atZone(ZoneId.systemDefault()).toInstant()));
     }
 }

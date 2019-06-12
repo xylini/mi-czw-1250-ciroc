@@ -11,7 +11,7 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import pl.edu.agh.timekeeper.db.dao.LogApplicationDao;
+import pl.edu.agh.timekeeper.db.dao.LogDao;
 import pl.edu.agh.timekeeper.model.Application;
 import pl.edu.agh.timekeeper.model.Restriction;
 
@@ -47,7 +47,7 @@ public class StatsChartsController {
     @FXML
     private NumberAxis yAxis;
 
-    private final LogApplicationDao logDao = new LogApplicationDao();
+    private final LogDao logDao = new LogDao();
 
     private Application application;
 

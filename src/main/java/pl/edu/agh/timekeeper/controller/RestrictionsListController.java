@@ -9,6 +9,7 @@ import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.VBox;
 import pl.edu.agh.timekeeper.db.dao.ApplicationDao;
+import pl.edu.agh.timekeeper.db.dao.GroupDao;
 import pl.edu.agh.timekeeper.db.dao.RestrictionDao;
 import pl.edu.agh.timekeeper.model.Application;
 import pl.edu.agh.timekeeper.model.Group;
@@ -56,6 +57,8 @@ public class RestrictionsListController {
     private final RestrictionDao restrictionDao = new RestrictionDao();
 
     private final ApplicationDao applicationDao = new ApplicationDao();
+
+    private final GroupDao groupDao = new GroupDao();
 
     @FXML
     private void initialize() {
@@ -176,10 +179,14 @@ public class RestrictionsListController {
             String restrictionName = restrictionListView.getSelectionModel().getSelectedItem();
             restrictionTabPane.getTabs().removeAll(tabsToRemove);
             restrictionListView.getItems().remove(restrictionName);
-            Application application = restrictionDao.getByName(restrictionName).get().getApplication();
+            Restriction restriction = restrictionDao.getByName(restrictionName).get();
             restrictionDao.deleteByName(restrictionName);
-            if (!application.isRestricted())
+            Application application = restriction.getApplication();
+            if (application != null && !application.isRestricted())
                 applicationDao.delete(application);
+            /*Group group = restriction.getGroup();
+            if (group != null)
+                groupDao.delete(group);*/
         }
     }
 }

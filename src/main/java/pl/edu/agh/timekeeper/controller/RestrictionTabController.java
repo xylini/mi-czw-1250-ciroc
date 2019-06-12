@@ -46,8 +46,16 @@ public class RestrictionTabController {
 
     private void refreshView() {
         restrictionNameLabel.setText(restriction.getName());
-        Application application = restriction.getApplication();
-        restrictionItemLabel.setText("Application path: " + application.getPath());
+        if(restriction.getApplication() != null) {
+            Application application = restriction.getApplication();
+            restrictionItemLabel.setText("Application path: " + application.getPath());
+        } else {
+            Group group = restriction.getGroup();
+            StringBuilder builder = new StringBuilder();
+            builder.append("Group name: ").append(group.getName()).append("\n");
+            group.getApplications().forEach(app -> builder.append("- ").append(app.getName()).append("\n"));
+            restrictionItemLabel.setText(builder.toString());
+        }
         Optional<MyTime> limit = Optional.ofNullable(restriction.getLimit());
         List<TimePair> blockedHours = restriction.getBlockedHours();
         limit.ifPresent(value -> {

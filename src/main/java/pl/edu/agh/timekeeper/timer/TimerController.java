@@ -2,7 +2,7 @@ package pl.edu.agh.timekeeper.timer;
 
 import javafx.stage.Screen;
 import pl.edu.agh.timekeeper.db.dao.ApplicationDao;
-import pl.edu.agh.timekeeper.db.dao.LogApplicationDao;
+import pl.edu.agh.timekeeper.db.dao.LogDao;
 import pl.edu.agh.timekeeper.log.LogApplication;
 import pl.edu.agh.timekeeper.model.Application;
 import pl.edu.agh.timekeeper.model.Restriction;
@@ -14,7 +14,7 @@ import java.util.Optional;
 
 public class TimerController {
     private TimerView timerView;
-    private LogApplicationDao logApplicationDaoBase;
+    private LogDao logApplicationDaoBase;
     private ApplicationDao applicationDao;
     private final FocusedWindowManager fwm;
 
@@ -32,7 +32,7 @@ public class TimerController {
 
     public TimerController() {
         this.timerView = new TimerView("00:00:00", 100, 25, -50.0, -50.0);
-        this.logApplicationDaoBase = new LogApplicationDao();
+        this.logApplicationDaoBase = new LogDao();
         this.applicationDao = new ApplicationDao();
         this.fwm = new FocusedWindowManager();
 
@@ -183,7 +183,7 @@ public class TimerController {
         long timeUsage = 0;
         if (isCurrentWindowRestricted) {
             Application app = applicationDao.getByPath(currentWindowPath).get();
-            timeUsage = logApplicationDaoBase.getUsageInMillisOn(LocalDate.now(), app);
+            timeUsage = logApplicationDaoBase.getUsageInMillisOn(app, LocalDate.now());
         }
         return timeUsage;
     }
