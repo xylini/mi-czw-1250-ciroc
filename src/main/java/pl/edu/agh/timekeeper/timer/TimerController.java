@@ -10,10 +10,7 @@ import javafx.stage.StageStyle;
 import pl.edu.agh.timekeeper.db.dao.ApplicationDao;
 import pl.edu.agh.timekeeper.db.dao.LogDao;
 import pl.edu.agh.timekeeper.log.LogApplication;
-import pl.edu.agh.timekeeper.model.Application;
-import pl.edu.agh.timekeeper.model.MyTime;
-import pl.edu.agh.timekeeper.model.Restriction;
-import pl.edu.agh.timekeeper.model.TimePair;
+import pl.edu.agh.timekeeper.model.*;
 import pl.edu.agh.timekeeper.windows.FocusedWindowManager;
 
 import java.io.IOException;
@@ -170,7 +167,11 @@ public class TimerController {
                                 closeApplication(prevWindowPath);
                             else {
                                 String time = dialog.getSelectedItem().replaceAll(" .*", "");
-                                app.getRestriction().setOverwriteTime(new MyTime(0, Integer.valueOf(time)));
+                                Restriction restriction;
+                                if(app.getRestriction() != null) restriction = app.getRestriction();
+                                else if(app.getGroup() != null) restriction = app.getGroup().getRestriction();
+                                else restriction = null;
+                                restriction.setOverwriteTime(new MyTime(0, Integer.valueOf(time)));
                                 isOverwrite = true;
                             }
                         }
@@ -182,8 +183,12 @@ public class TimerController {
     }
 
     private boolean isLimitExceeded(Application application) {
-        Optional<MyTime> dailyLimit = Optional.ofNullable(application.getRestriction().getLimit());
-        Optional<MyTime> overwriteTime = Optional.ofNullable(application.getRestriction().getOverwriteTime());
+        Restriction restriction;
+        if(application.getRestriction() != null) restriction = application.getRestriction();
+        else if(application.getGroup() != null) restriction = application.getGroup().getRestriction();
+        else restriction = null;
+        Optional<MyTime> dailyLimit = Optional.ofNullable(restriction.getLimit());
+        Optional<MyTime> overwriteTime = Optional.ofNullable(restriction.getOverwriteTime());
         if (dailyLimit.isEmpty()) {
             return false;
         } else
@@ -194,7 +199,12 @@ public class TimerController {
     }
 
     private boolean isNowBlocked(Application application) {
-        List<TimePair> blockedHours = application.getRestriction().getBlockedHours();
+        Restriction restriction;
+        if(application.getRestriction() != null) restriction = application.getRestriction();
+        else if(application.getGroup() != null) restriction = application.getGroup().getRestriction();
+        else restriction = null;
+        if(restriction == null) return false;
+        List<TimePair> blockedHours = restriction.getBlockedHours();
         MyTime currentTime = new MyTime(LocalTime.now().getHour(), LocalTime.now().getMinute());
         return blockedHours.stream()
                 .anyMatch(blocked -> currentTime.isAfter(blocked.getStart()) && blocked.getEnd().isAfter(currentTime));
@@ -258,6 +268,9 @@ public class TimerController {
             if (application.isPresent()) {
                 Restriction restriction = application.get().getRestriction();
                 if (restriction != null)
+                    isRestricted = true;
+                Group group = application.get().getGroup();
+                if(group != null && group.getRestriction() != null)
                     isRestricted = true;
             }
         } catch (IllegalStateException ex) {

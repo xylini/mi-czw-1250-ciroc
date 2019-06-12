@@ -37,8 +37,6 @@ public class StatsController {
 
     private ObservableList<Restriction> restrictions = FXCollections.observableArrayList();
 
-    private final ApplicationDao applicationDao = new ApplicationDao();
-
     private final RestrictionDao restrictionDao = new RestrictionDao();
 
     private static final String TABLE_VIEW_PATH = "/views/statsTableView.fxml";

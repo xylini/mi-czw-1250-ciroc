@@ -11,6 +11,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import pl.edu.agh.timekeeper.db.dao.LogDao;
 import pl.edu.agh.timekeeper.db.dao.RestrictionDao;
 import pl.edu.agh.timekeeper.model.Application;
+import pl.edu.agh.timekeeper.model.Group;
 import pl.edu.agh.timekeeper.model.MyTime;
 import pl.edu.agh.timekeeper.model.Restriction;
 
@@ -48,7 +49,7 @@ public class StatsTableController {
 
     private RestrictionDao restrictionDao = new RestrictionDao();
 
-    private LogDao logApplicationDao = new LogDao();
+    private LogDao logDao = new LogDao();
 
     public StatsTableController() {
         ZonedDateTime monthZonedDateTime = LocalDate
@@ -59,7 +60,7 @@ public class StatsTableController {
         this.thisMonth = Date.from(monthZonedDateTime.withDayOfMonth(1).toInstant());
         ZonedDateTime todayAtMidnight = LocalDate.now().atStartOfDay().atZone(ZoneOffset.systemDefault());
         this.today = Date.from(todayAtMidnight.toInstant());
-        totalUsageForAllApplications = logApplicationDao.getTotalUsageForAllEntities();
+        totalUsageForAllApplications = logDao.getTotalUsageForAllEntities();
     }
 
     @FXML
@@ -100,12 +101,23 @@ public class StatsTableController {
     }
 
     private void setTableContent(Restriction restriction) {
-        Application app = restriction.getApplication();
-        LinkedHashMap<Date, Long> usage = logApplicationDao.getDailyUsageInMillis(app, thisMonth);
-        LinkedHashMap<Date, Long> dailyUsage = new LinkedHashMap<>();
-        usage.forEach((date, value) -> dailyUsage.put(date, value / 1000));
-        Long todayUsage = dailyUsage.getOrDefault(today, 0L);
-        Long totalUsage = totalUsageForAllApplications.getOrDefault(app, 0L);
+        Long todayUsage;
+        Long totalUsage;
+        if(restriction.getApplication() != null) {
+            Application app = restriction.getApplication();
+            LinkedHashMap<Date, Long> usage = logDao.getDailyUsageInMillis(app, thisMonth);
+            LinkedHashMap<Date, Long> dailyUsage = new LinkedHashMap<>();
+            usage.forEach((date, value) -> dailyUsage.put(date, value / 1000));
+            todayUsage = dailyUsage.getOrDefault(today, 0L);
+            totalUsage = totalUsageForAllApplications.getOrDefault(app, 0L);
+        } else {
+            Group group = restriction.getGroup();
+            LinkedHashMap<Date, Long> usage = logDao.getDailyUsageInMillis(group, thisMonth);
+            LinkedHashMap<Date, Long> dailyUsage = new LinkedHashMap<>();
+            usage.forEach((date, value) -> dailyUsage.put(date, value / 1000));
+            todayUsage = dailyUsage.getOrDefault(today, 0L);
+            totalUsage = group.getApplications().stream().mapToLong(app -> totalUsageForAllApplications.getOrDefault(app, 0L)).sum();
+        }
         MyTime dailyLimit = Optional.ofNullable(restriction.getLimit()).orElse(new MyTime(24, 0));
         Duration limit = Duration.ofHours(dailyLimit.getHour()).plusMinutes(dailyLimit.getMinute());
         UsageStatistics stat = new UsageStatistics(restriction.getName(), limit, secondsToLocalTime(todayUsage), secondsToLocalTime(totalUsage));

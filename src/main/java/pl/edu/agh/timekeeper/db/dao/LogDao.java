@@ -117,7 +117,7 @@ public class LogDao extends DaoBase<LogApplication> {
     public LinkedHashMap<Date, Long> getDailyUsageInMillis(Group group, Date day){
         LocalDate date = LocalDate.ofInstant(day.toInstant(), ZoneId.systemDefault());
         LocalDateTime start = date.atStartOfDay();
-        LocalDateTime end = date.plusDays(1).atStartOfDay();
+        LocalDateTime end = date.plusMonths(1).atStartOfDay();
         Date startDate = Date.from(start.atZone(ZoneId.systemDefault()).toInstant());
         List<UsageStat> res = SessionService.getCurrentSession()
                 .createQuery(
