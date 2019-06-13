@@ -125,9 +125,10 @@ public class TimerController {
                 Platform.runLater(() -> {
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
                     alert.setTitle("Overwrite exceeded");
-                    alert.setHeaderText("Application has been closed, sorry.");
+                    alert.setHeaderText("Application has been closed, additional time is exceeded.");
                     alert.showAndWait();
                 });
+                app.getRestriction().setOverwriteTime(null);
                 isOverwrite = false;
                 Thread.sleep(500);
                 alertShown = false;
