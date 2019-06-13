@@ -23,6 +23,7 @@ public class TimerView extends Application {
 
         this.text = new Text(startText);
         this.borderPane = new BorderPane(this.text);
+        this.borderPane.setStyle("-fx-background-color: #eaa7ef");
         this.borderPane.setCenter(text);
         this.timerStage = new Stage();
         this.timerStage.initOwner(this.utilityStage);
