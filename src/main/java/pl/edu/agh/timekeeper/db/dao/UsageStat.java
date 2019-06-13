@@ -20,7 +20,7 @@ public class UsageStat {
     }
 
     public UsageStat(int year, int month, int day, long usage) {
-        new UsageStat(year, month, day, 0, usage);
+        this(year, month, day, 0, usage);
     }
 
     public UsageStat(int year, int month, int day, int hour, long usage) {

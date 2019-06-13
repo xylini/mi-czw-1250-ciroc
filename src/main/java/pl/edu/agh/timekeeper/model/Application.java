@@ -10,7 +10,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "APPLICATIONS")
-public class Application implements Serializable {
+public class Application extends MyEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @NotNull

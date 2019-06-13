@@ -80,9 +80,10 @@ public class LogDao extends DaoBase<LogApplication> {
         return res;
     }
 
-    public LinkedHashMap<Date, Long> getHourlyUsageInMillis(Group group, LocalDate day){
-        LocalDateTime start = day.atStartOfDay();
-        LocalDateTime end = day.plusDays(1).atStartOfDay();
+    public LinkedHashMap<Date, Long> getHourlyUsageInMillis(Group group, Date day){
+        LocalDate date = LocalDate.ofInstant(day.toInstant(), ZoneId.systemDefault());
+        LocalDateTime start = date.atStartOfDay();
+        LocalDateTime end = date.plusDays(1).atStartOfDay();
         Date startDate = Date.from(start.atZone(ZoneId.systemDefault()).toInstant());
         List<UsageStat> res = SessionService.getCurrentSession()
                 .createQuery(
@@ -107,15 +108,16 @@ public class LogDao extends DaoBase<LogApplication> {
                 .setParameter("end_t", Date.from(end.atZone(ZoneId.systemDefault()).toInstant()))
                 .getResultList();
         LinkedHashMap<Date, Long> result = createResultMap(startDate, res);
-        getDateStream(start, end, ChronoUnit.HOURS).forEach(date -> {
-            if(!result.containsKey(date)) result.put(date, 0L);
+        getDateStream(start, end, ChronoUnit.HOURS).forEach(d -> {
+            if(!result.containsKey(d)) result.put(d, 0L);
         });
         return result;
     }
 
-    public LinkedHashMap<Date, Long> getDailyUsageInMillis(Group group, LocalDate day){
-        LocalDateTime start = day.atStartOfDay();
-        LocalDateTime end = day.plusDays(1).atStartOfDay();
+    public LinkedHashMap<Date, Long> getDailyUsageInMillis(Group group, Date day){
+        LocalDate date = LocalDate.ofInstant(day.toInstant(), ZoneId.systemDefault());
+        LocalDateTime start = date.atStartOfDay();
+        LocalDateTime end = date.plusMonths(1).atStartOfDay();
         Date startDate = Date.from(start.atZone(ZoneId.systemDefault()).toInstant());
         List<UsageStat> res = SessionService.getCurrentSession()
                 .createQuery(
@@ -139,14 +141,13 @@ public class LogDao extends DaoBase<LogApplication> {
                 .getResultList();
         createResultMap(startDate, res);
         LinkedHashMap<Date, Long> result = createResultMap(startDate, res);
-        getDateStream(start, end, ChronoUnit.DAYS).forEach(date -> {
-            if(!result.containsKey(date)) result.put(date, 0L);
+        getDateStream(start, end, ChronoUnit.DAYS).forEach(d -> {
+            if(!result.containsKey(d)) result.put(d, 0L);
         });
         return result;
     }
 
     private LinkedHashMap<Date, Long> createResultMap(Date startDate, List<UsageStat> res) {
-        res.forEach(us -> System.out.println("us:"+us.getUsage()));
         LinkedHashMap<Date, Long> result = new LinkedHashMap<>();
         res.forEach(s -> {
             if(s.getDate().before(startDate)){
